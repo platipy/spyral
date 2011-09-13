@@ -124,6 +124,8 @@ class GUIGroup(spyral.sprite.Group):
                                         'button': event.button})
             used = False
             for sprite in self._sprites:
+                if not isinstance(sprite, MouseSprite):
+                    continue
                 if sprite._handle_click(event):
                     used = True
                     break
