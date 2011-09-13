@@ -12,7 +12,7 @@ class MouseSprite(spyral.sprite.Sprite):
         self.click_rect = None
         self.hover_rect = None
         self.consume_clicks = True
-        self.consume_hover = True
+        self.consume_hover = False
         self.enable_right = False
         self.enable_middle = False
         
