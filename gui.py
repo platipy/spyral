@@ -95,6 +95,7 @@ class GUIGroup(spyral.sprite.Group):
         self._mouse_previously_over = []
 
     def update(self, *args):
+        spyral.sprite.Group.update(self, *args)
         layers = self.camera.layers()
         def sort_sprites_cmp(x, y):
             # Sorts sprites by layer from top down
@@ -159,4 +160,3 @@ class GUIGroup(spyral.sprite.Group):
                 continue
             sprite.on_mouse_off()
         self._mouse_previously_over = mouse_now_over
-        spyral.sprite.Group.update(self, *args)
