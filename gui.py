@@ -70,11 +70,11 @@ class DragSprite(MouseSprite):
             self.dragging = True
             self.drag_offset = (self.position[0] - event.pos[0],
                                 self.position[1] - event.pos[1])
-            self.real_layer = self.layer
+            self._real_layer = self.layer
             self.layer = '_DragTop'
         else:
             self.dragging = False
-            self.layer = self.real_layer
+            self.layer = self._real_layer
 
     def update(self, camera):
         if self.dragging:
