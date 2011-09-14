@@ -96,9 +96,10 @@ class Camera(object):
             self._rs._static_blit(repr(self),
                                   _scale(surface, self._scale),
                                   self._offset,
-                                  -100 + i)
+                                  -100 + i,
+                                  0)
 
-    def _blit(self, surface, position, layer):
+    def _blit(self, surface, position, layer, flags):
         position = spyral.point.scale(position, self._scale)
         position = (position[0] + self._offset[0],
                     position[1] + self._offset[1])
@@ -122,9 +123,10 @@ class Camera(object):
 
         self._rs._blits.append((new_surface,
                                 r.topleft,
-                                layer))
+                                layer,
+                                flags))
 
-    def _static_blit(self, name, surface, position, layer):
+    def _static_blit(self, name, surface, position, layer, flags):
         position = spyral.point.scale(position, self._scale)
         position = (position[0] + self._offset[0],
                     position[1] + self._offset[1])
@@ -154,7 +156,8 @@ class Camera(object):
 
         rs._static_blits[name] = (new_surface,
                                   r,
-                                  layer)
+                                  layer,
+                                  flags)
         if redraw:
             rs._clear_this_frame.append(r2.union(r))
         else:
@@ -205,11 +208,11 @@ class Camera(object):
         for layer in xrange(-100, 20):
             if len(s) > 0:
                 while i < len(s) and s[i][2] == layer:
-                    surf, pos, layer = s[i]
+                    surf, pos, layer, flags = s[i]
                     # Now, does this need to be redrawn
                     for rect in clear_this:
                         if pos.colliderect(rect):
-                            screen.blit(surf, pos)
+                            screen.blit(surf, pos, special_flags=flags)
                             clear_this.append(pos)
                             drawn_static += 1
                             break
@@ -218,16 +221,16 @@ class Camera(object):
                 while j < len(blits) and blits[j][2] == layer:
                     # These are moving blits, so we need to make sure that
                     # they will be cleared on the next frame
-                    surf, pos = blits[j][0], blits[j][1]
+                    surf, pos, layer, flags = blits[j]
                     blit_rect = pygame.Rect(pos, surf.get_size())
                     if screen_rect.contains(blit_rect):
-                        r = screen.blit(surf, pos)
+                        r = screen.blit(surf, pos, special_flags=flags)
                         clear_next.append(r)
                     elif screen_rect.colliderect(blit_rect):
                         x = blit_rect.clip(screen_rect)
                         y = x.move(-blit_rect.left, -blit_rect.top)
                         b = surf.subsurface(y)
-                        r = screen.blit(b, x)
+                        r = screen.blit(b, x, special_flags=flags)
                         clear_next.append(r)
                     j = j + 1
 

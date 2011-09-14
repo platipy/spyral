@@ -31,6 +31,7 @@ class Sprite(object):
         self._make_static = False
         self._pos = (0,0)
         self._double_check = False
+        self._blend_flags = 0
     
     def _set_static(self):
         self._make_static = True
@@ -75,6 +76,14 @@ class Sprite(object):
         
     def _set_image(self, image):
         self._image = image
+        if self._static:
+            self._expire_static()
+            
+    def _get_blend(self):
+        return self._blend_flags
+    
+    def _set_blend_flags(self, flags):
+        self._blend_flags = flags
         if self._static:
             self._expire_static()
             
@@ -131,13 +140,15 @@ class Sprite(object):
             camera._static_blit(repr(self),
                                 self._image,
                                 self._pos,
-                                self._layer)
+                                self._layer,
+                                self._blend_flags)
             self._make_static = False
             self._static = True
             return
         camera._blit(self._image,
                      self._pos,
-                     self._layer)
+                     self._layer,
+                     self._blend_flags)
         self._age += 1
                                     
     def update(self, camera, *args):
