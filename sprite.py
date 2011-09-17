@@ -79,7 +79,7 @@ class Sprite(object):
         if self._static:
             self._expire_static()
             
-    def _get_blend(self):
+    def _get_blend_flags(self):
         return self._blend_flags
     
     def _set_blend_flags(self, flags):
@@ -111,6 +111,7 @@ class Sprite(object):
     layer = property(_get_layer, _set_layer)
     image = property(_get_image, _set_image)
     rect = property(_get_rect, _set_rect)
+    blend_flags = property(_get_blend_flags, _set_blend_flags)
         
     def add(self, *groups):
         self._expire_static()
