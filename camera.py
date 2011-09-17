@@ -167,6 +167,7 @@ class Camera(object):
 
     def _remove_static_blit(self, name):
         if not self._root:
+            self._rs._remove_static_blit(name)
             return
         try:
             x = self._static_blits.pop(name)
