@@ -8,7 +8,7 @@ class Director(object):
 
     def init(self, size = (0, 0),
                    fullscreen       = False,
-                   caption          = "APH",
+                   caption          = "spyral",
                    resizable        = False,
                    noframe          = False,
                    depth            = 0,
