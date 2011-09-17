@@ -104,11 +104,13 @@ class GUIGroup(spyral.sprite.Group):
             try:
                 y = layers.index(y.layer)
             except ValueError:
-                y = 100
+                if y.layer[0] == '_':
+                    return 100
+                return -1
             try:
                 x = layers.index(x.layer)
             except ValueError:
-                x = 100
+                return 1
             return y - x
 
         self._sprites.sort(sort_sprites_cmp)
