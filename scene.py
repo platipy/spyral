@@ -62,7 +62,7 @@ class Director(object):
         Returns a new Camera instance which has the full window, scaling to
         the speified size. Defaults to the same size as the logical display.
         """
-        return Camera(self._surface, self._size, root = True)
+        return spyral.camera.Camera(virtual_size=size, root=True)
 
     def get_screen(self):
         """
