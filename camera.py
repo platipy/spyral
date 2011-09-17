@@ -98,6 +98,8 @@ class Camera(object):
                                   self._offset,
                                   -100 + i,
                                   0)
+        else:
+            self._clear_this_frame.append(surface.get_rect())
 
     def _blit(self, surface, position, layer, flags):
         position = spyral.point.scale(position, self._scale)
