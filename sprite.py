@@ -135,6 +135,8 @@ class Sprite(object):
         return self._groups[:]
         
     def draw(self, camera):
+        if self._double_check:
+            self.pos
         if self._static:
             return
         if self._make_static or self._age > 4:
