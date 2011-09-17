@@ -140,14 +140,14 @@ class Sprite(object):
         if self._make_static or self._age > 4:
             camera._static_blit(repr(self),
                                 self._image,
-                                self._pos,
+                                self.pos, # This forces the double check
                                 self._layer,
                                 self._blend_flags)
             self._make_static = False
             self._static = True
             return
         camera._blit(self._image,
-                     self._pos,
+                     self.pos, # This forces the double check
                      self._layer,
                      self._blend_flags)
         self._age += 1
