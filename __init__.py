@@ -5,6 +5,7 @@ import spyral.util
 import spyral.sprite
 import spyral.gui
 import spyral.scene
+import spyral._lib
 import pygame
 
 director = scene.Director()
