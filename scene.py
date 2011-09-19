@@ -5,7 +5,10 @@ class Director(object):
     """
     The director, accessible at *spyral.director*, handles running the game.
     It will switch between scenes and call their render and update methods
-    as necessary
+    as necessary.
+    
+    *director.clock* will contain an instance of GameClock, for use by advanced
+    users.
     """
     def __init__(self):
         self._initialized = False
@@ -90,6 +93,7 @@ class Director(object):
     def replace(self, scene):
         """
         Replace the currently running scene on the stack with *scene*.
+        This does return control, so remember to return after calling it.
         """
         _switch_scene()
         if len(self._stack) > 0:
@@ -105,6 +109,8 @@ class Director(object):
         """
         Pop the top scene off the stack, returning control to the next scene
         on the stack. If the stack is empty, the program will quit.
+
+        This does return control, so remember to return after calling it.
         """
         from Sprite import _switch_scene
         if len(self._stack) < 1:
@@ -125,6 +131,8 @@ class Director(object):
     def push(self, scene):
         """
         Place *scene* on the top of the stack, and move control to it.
+
+        This does return control, so remember to return after calling it.
         """
         if len(self._stack) > 0:
             old = self._stack[-1]
@@ -152,14 +160,29 @@ class Director(object):
 
 
 class Scene(object):
+    """
+    Represents a state of the game as it runs.
+    """
     def on_exit(self):
+        """
+        Called by the director when this scene is about to run.
+        """
         pass
 
     def on_enter(self):
+        """
+        Called by the director when this scene is exiting.
+        """
         pass
 
     def render(self):
+        """
+        Called by the director when a new frame needs to be rendered.
+        """
         pass
 
     def update(self, tick):
+        """
+        Called by the director when a new game logic step should be taken.
+        """
         pass
