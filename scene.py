@@ -2,6 +2,11 @@ import pygame
 import spyral
 
 class Director(object):
+    """
+    The director, accessible at *spyral.director*, handles running the game.
+    It will switch between scenes and call their render and update methods
+    as necessary
+    """
     def __init__(self):
         self._initialized = False
         pass
@@ -9,14 +14,17 @@ class Director(object):
     def init(self, size = (0, 0),
                    fullscreen       = False,
                    caption          = "spyral",
-                   resizable        = False,
-                   noframe          = False,
-                   depth            = 0,
                    max_fps          = 60,
                    ticks_per_second = 30):
         """
-        Initializes the director which controls the main window.
-        The size will be the logical size of the window.
+        Initializes the director.
+        
+        | *size* is the resolution of the display. (0,0) uses the screen resolution
+        | *fullscreen* determines whether the display starts fullscreen
+        | *caption* is the window caption
+        | *max_fps* sets the fps cap on the game.
+        | *ticks_per_second* sets the number of times scene.update() should be
+           called per frame. This will remain the same, even if fps drops.
         """
         if self._initialized:
             print 'Warning: Tried to initialize the director twice. Ignoring.'
@@ -24,6 +32,10 @@ class Director(object):
         pygame.font.init()
 
         flags = 0
+        # These flags are going to be managed better or elsewhere later
+        resizable        = False
+        noframe          = False
+        
         if resizable:
             flags |= pygame.RESIZABLE
         if noframe:
@@ -69,9 +81,16 @@ class Director(object):
         return None
 
     def get_tick(self):
+        """
+        Returns the current tick number, where ticks happen on each update,
+        not on each frame.
+        """
         return self._tick
 
     def replace(self, scene):
+        """
+        Replace the currently running scene on the stack with *scene*.
+        """
         _switch_scene()
         if len(self._stack) > 0:
             old = self._stack.pop()
@@ -83,6 +102,10 @@ class Director(object):
         pygame.event.get()
 
     def pop(self):
+        """
+        Pop the top scene off the stack, returning control to the next scene
+        on the stack. If the stack is empty, the program will quit.
+        """
         from Sprite import _switch_scene
         if len(self._stack) < 1:
             return
@@ -95,9 +118,14 @@ class Director(object):
         if len(self._stack) > 0:
             scene = self._stack[-1]
             scene.on_enter()
+        else:
+            exit(0)
         pygame.event.get()
 
     def push(self, scene):
+        """
+        Place *scene* on the top of the stack, and move control to it.
+        """
         if len(self._stack) > 0:
             old = self._stack[-1]
             old.on_exit()
@@ -108,6 +136,9 @@ class Director(object):
         pygame.event.get()
 
     def run(self):
+        """
+        Runs the scene as dictated by the stack. Does not return.
+        """
         clock = self.clock
 
         if self._stack > 0:
