@@ -94,7 +94,7 @@ class Camera(object):
             x = x._parent
         if not self._root:
             self._rs._static_blit(repr(self),
-                                  _scale(surface, self._scale),
+                                  _scale(surface, self._scale).convert(),
                                   self._offset,
                                   -100 + i,
                                   0)
