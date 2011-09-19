@@ -1,0 +1,22 @@
+The director
+############
+spyral.director manages the running scenes.
+
+.. autoclass:: spyral.scene.Director
+   :members:
+
+
+..	Features
+	--------
+	* Optimized Sprite and Group classes that minimize the amount of drawing.
+	* A named layering system, to simplify code by allowing out of order rendering.
+	* Automatic scaling to arbitrary resolutions.
+
+..	FAQ
+	---
+
+	How are Sprites and Groups in spyral different?
+	###############################################
+	There are a few differences:
+	* sprite.position and sprite.pos can be used for positioning, like sprite.rect is. They automatically reflect changes in one another
+	* sprite.special_flags

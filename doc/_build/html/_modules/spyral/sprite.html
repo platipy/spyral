@@ -1,0 +1,270 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spyral.sprite &mdash; spyral v0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/pelican.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="spyral v0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+  
+  
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for spyral.sprite</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">spyral</span>
+<span class="kn">import</span> <span class="nn">pygame</span> <span class="kn">as</span> <span class="nn">pygame</span>
+<span class="kn">from</span> <span class="nn">weakref</span> <span class="kn">import</span> <span class="n">ref</span> <span class="k">as</span> <span class="n">_wref</span>
+
+<span class="n">_all_sprites</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">def</span> <span class="nf">_switch_scene</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_all_sprites</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">s</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">s</span><span class="p">()</span><span class="o">.</span><span class="n">_expire_static</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Sprite"><a class="viewcode-back" href="../../index.html#spyral.sprite.Sprite">[docs]</a><span class="k">class</span> <span class="nc">Sprite</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Analagous to Sprite in pygame, but automatically handles dirty updates,</span>
+<span class="sd">    and supports adding self.layer to allow layered rendering. This means that</span>
+<span class="sd">    if the Sprite is repositioned or killed, the game background will</span>
+<span class="sd">    automatically redraw over the sprite. These sprites support one additional</span>
+<span class="sd">    feature, setting Sprite.position will automatically set Sprite.rect to a</span>
+<span class="sd">    rect starting from position with the size of the image, and accessing</span>
+<span class="sd">    Sprite.position will return the top left coordinate of Sprite.rect &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">groups</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Adds this sprite to any number of groups by default. &quot;&quot;&quot;</span>
+        <span class="n">_all_sprites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_wref</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_age</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_static</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rect</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_layer</span> <span class="o">=</span> <span class="s">&#39;__default__&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_groups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="n">groups</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_static</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_double_check</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_blend_flags</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">def</span> <span class="nf">_set_static</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_static</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_static</span> <span class="o">=</span> <span class="bp">True</span>
+    
+    <span class="k">def</span> <span class="nf">_expire_static</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_static</span><span class="p">:</span>
+            <span class="n">spyral</span><span class="o">.</span><span class="n">director</span><span class="o">.</span><span class="n">camera</span><span class="p">()</span><span class="o">.</span><span class="n">_remove_static_blit</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_static</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_age</span> <span class="o">=</span> <span class="mi">0</span>
+        
+    <span class="k">def</span> <span class="nf">_set_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span> <span class="o">=</span> <span class="n">pos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_age</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_static</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_expire_static</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rect</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pos</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="o">.</span><span class="n">get_size</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rect</span><span class="o">.</span><span class="n">topleft</span> <span class="o">=</span> <span class="n">pos</span>
+        
+    <span class="k">def</span> <span class="nf">_get_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_double_check</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rect</span><span class="o">.</span><span class="n">topleft</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_expire_static</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rect</span><span class="o">.</span><span class="n">topleft</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span>
+        
+    <span class="k">def</span> <span class="nf">_get_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer</span>
+        
+    <span class="k">def</span> <span class="nf">_set_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_layer</span> <span class="o">=</span> <span class="n">layer</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_static</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_expire_static</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">_get_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span>
+        
+    <span class="k">def</span> <span class="nf">_set_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="n">image</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_static</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_expire_static</span><span class="p">()</span>
+            
+    <span class="k">def</span> <span class="nf">_get_blend_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_blend_flags</span>
+    
+    <span class="k">def</span> <span class="nf">_set_blend_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flags</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_blend_flags</span> <span class="o">=</span> <span class="n">flags</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_static</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_expire_static</span><span class="p">()</span>
+            
+    <span class="k">def</span> <span class="nf">_get_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_double_check</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rect</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&quot;Set pos or rect before accessing rect&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pos</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="o">.</span><span class="n">get_size</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rect</span> <span class="o">=</span> <span class="n">r</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rect</span>
+        
+    <span class="k">def</span> <span class="nf">_set_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rect</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_static</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_expire_static</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_age</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span> <span class="o">=</span> <span class="n">rect</span><span class="o">.</span><span class="n">topleft</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rect</span> <span class="o">=</span> <span class="n">rect</span>
+        
+    <span class="n">position</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_pos</span><span class="p">,</span> <span class="n">_set_pos</span><span class="p">)</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_pos</span><span class="p">,</span> <span class="n">_set_pos</span><span class="p">)</span>
+    <span class="n">layer</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_layer</span><span class="p">,</span> <span class="n">_set_layer</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_image</span><span class="p">,</span> <span class="n">_set_image</span><span class="p">)</span>
+    <span class="n">rect</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_rect</span><span class="p">,</span> <span class="n">_set_rect</span><span class="p">)</span>
+    <span class="n">blend_flags</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_blend_flags</span><span class="p">,</span> <span class="n">_set_blend_flags</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">groups</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expire_static</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">g</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_groups</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                
+<div class="viewcode-block" id="Sprite.kill"><a class="viewcode-back" href="../../index.html#spyral.sprite.Sprite.kill">[docs]</a>    <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove this sprite from all groups. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expire_static</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_groups</span><span class="p">:</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            </div>
+<div class="viewcode-block" id="Sprite.alive"><a class="viewcode-back" href="../../index.html#spyral.sprite.Sprite.alive">[docs]</a>    <span class="k">def</span> <span class="nf">alive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return True if this sprite belongs to any groups, false otherwise&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_groups</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        </div>
+<div class="viewcode-block" id="Sprite.groups"><a class="viewcode-back" href="../../index.html#spyral.sprite.Sprite.groups">[docs]</a>    <span class="k">def</span> <span class="nf">groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return a list of groups that this sprite belongs to. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_groups</span><span class="p">[:]</span>
+        </div>
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_double_check</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_static</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_static</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_age</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">_static_blit</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="c"># This forces the double check</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_layer</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_blend_flags</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_make_static</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_static</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">return</span>
+        <span class="n">camera</span><span class="o">.</span><span class="n">_blit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="p">,</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="c"># This forces the double check</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">_layer</span><span class="p">,</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">_blend_flags</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_age</span> <span class="o">+=</span> <span class="mi">1</span>
+                                    
+<div class="viewcode-block" id="Sprite.update"><a class="viewcode-back" href="../../index.html#spyral.sprite.Sprite.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Called once per frame. &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+        </div>
+    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">groups</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expire_static</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_groups</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_groups</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+                
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+        <span class="c"># GetScreen().remove_static_blit(repr(self))</span>
+
+<span class="c">### Group classes ###</span>
+        </div>
+<div class="viewcode-block" id="Group"><a class="viewcode-back" href="../../index.html#spyral.sprite.Group">[docs]</a><span class="k">class</span> <span class="nc">Group</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Behaves like sprite.Group in pygame. &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="o">*</span><span class="n">sprites</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camera</span> <span class="o">=</span> <span class="n">camera</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sprites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sprites</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="Group.draw"><a class="viewcode-back" href="../../index.html#spyral.sprite.Group.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Calls draw on all of its Sprites. &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sprites</span><span class="p">:</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Group.update"><a class="viewcode-back" href="../../index.html#spyral.sprite.Group.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Calls update on all of its Sprites. &quot;&quot;&quot;</span> 
+        <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sprites</span><span class="p">]</span>
+        </div>
+<div class="viewcode-block" id="Group.remove"><a class="viewcode-back" href="../../index.html#spyral.sprite.Group.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">sprites</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Removes Sprites from this Group. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="n">sprites</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sprites</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sprites</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span>
+                <span class="n">sprite</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Group.add"><a class="viewcode-back" href="../../index.html#spyral.sprite.Group.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">sprites</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Adds an object to its drawable list. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="n">sprites</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sprite</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sprites</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sprites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span>
+                <span class="n">sprite</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Group.has"><a class="viewcode-back" href="../../index.html#spyral.sprite.Group.has">[docs]</a>    <span class="k">def</span> <span class="nf">has</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">sprites</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return true if all sprites are contained in the group. Unlike</span>
+<span class="sd">        pygame, this does not take an iterator for each argument, only sprites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="n">sprites</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sprite</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sprites</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+    </div>
+<div class="viewcode-block" id="Group.empty"><a class="viewcode-back" href="../../index.html#spyral.sprite.Group.empty">[docs]</a>    <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Clears all sprites from the group. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sprites</span><span class="p">:</span>
+            <span class="n">sprite</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sprites</span> <span class="o">=</span> <span class="p">[]</span>
+        </div>
+    <span class="k">def</span> <span class="nf">sprites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sprites</span><span class="p">[:]</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+
+  
+
+  </body>
+</html>
