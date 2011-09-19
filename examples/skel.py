@@ -18,7 +18,9 @@ class Game(spyral.scene.Scene):
         scene.
         """
         spyral.scene.Scene.__init__(self)
-        self.camera = spyral.director.camera()
+        self.camera = spyral.director.get_camera()
+        # For simple games with no layers, using the root camera is fine
+        # Anything more advanced will want to make new cameras on top of this
         self.group = spyral.sprite.Group(self.camera)
         bg = spyral.util.new_surface(SIZE)
         bg.fill(BG_COLOR)

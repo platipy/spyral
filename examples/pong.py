@@ -84,7 +84,7 @@ class Ball(spyral.sprite.Sprite):
 class Pong(spyral.scene.Scene):
     def __init__(self):
         spyral.scene.Scene.__init__(self)
-        self.camera = spyral.director.camera()
+        self.camera = spyral.director.get_camera()
         self.group = spyral.sprite.Group(self.camera)
         bg = spyral.util.new_surface(geom['size'])
         bg.fill(colors['bg'])

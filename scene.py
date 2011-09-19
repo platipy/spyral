@@ -54,21 +54,11 @@ class Director(object):
         self._max_fps = max_fps
         self._tps = ticks_per_second
 
-    def camera(self):
+    def get_camera(self):
+        """
+        Returns the root camera for the display.
+        """
         return self._camera
-
-    def new_camera(self, size = None):
-        """
-        Returns a new Camera instance which has the full window, scaling to
-        the speified size. Defaults to the same size as the logical display.
-        """
-        return spyral.camera.Camera(virtual_size=size, root=True)
-
-    def get_screen(self):
-        """
-        Returns the pygame surface corresponding to the main window.
-        This should be used for advanced functionality only."""
-        return pygame.display.get_surface()
 
     def get_scene(self):
         """
