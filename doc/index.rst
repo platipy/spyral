@@ -8,11 +8,18 @@ Spyral
 
 What is spyral?
 ---------------
-spyral is a 2D game engine/framework built on top of pygame. Its purpose is to rapid prototyping and development of efficient games. It started as a project to allow easy optimization of games for the `OLPC XO`_, and has evolved into a semi-complete but still evolving framework for developing games.
+spyral is a 2D game engine/framework built on top of pygame. Its purpose is to
+support rapid prototyping and development of efficient games. It started as a
+project to allow easy optimization of games for the `OLPC XO`_, and has evolved
+into a semi-complete but still evolving framework for developing games.
 
 Getting started
 ---------------
-To get spyral, you can clone the git repository, or download packages, from the `github site`_. For now, you can simply include the spyral directory in your project. A setup.py will be included at a later date. For a barebones example, see spyral/examples/skel.py, which provides a skeleton example of a program, complete with comments.	
+To get spyral, you can clone the git repository, or download packages, from the
+`github site`_. For now, you can simply include the spyral directory in your
+project. A setup.py will be included at a later date. For a barebones example,
+see spyral/examples/skel.py, which provides a skeleton example of a program,
+complete with comments.	
 
 The Core API
 ------------
