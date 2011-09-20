@@ -11,6 +11,7 @@ colors = {}
 images = {}
 geom = {}
 fonts = {}
+strings = {}
 
 class Score(spyral.sprite.Sprite):
     def __init__(self):
@@ -81,6 +82,41 @@ class Ball(spyral.sprite.Sprite):
             self.vel = (-self.vel[0], self.vel[1])
         return self.rect.right > geom['width']
         
+class Menu(spyral.scene.Scene):
+    def __init__(self):
+        spyral.scene.Scene.__init__(self)
+        self.camera = spyral.director.get_camera()
+        self.group = spyral.sprite.Group(self.camera)
+        bg = spyral.util.new_surface(geom['size'])
+        bg.fill(colors['bg'])
+        self.camera.set_background(bg)
+        
+        title = spyral.sprite.Sprite()
+        title.image = images['menu_title']
+        title.rect.center = self.camera.get_rect().center
+        
+        instructions = spyral.sprite.Sprite()
+        instructions.image = images['menu_instructions']
+        instructions.rect.top = title.rect.bottom + 10
+        instructions.rect.centerx = self.camera.get_rect().centerx
+        
+        
+        self.group.add(title, instructions)
+        
+    def render(self):
+        self.group.draw()
+        self.camera.draw()
+        
+    def update(self, tick):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    exit(0)
+                spyral.director.push(Pong())
+            if event.type == pygame.QUIT:
+                exit(0)
+        
+        
 class Pong(spyral.scene.Scene):
     def __init__(self):
         spyral.scene.Scene.__init__(self)
@@ -106,7 +142,9 @@ class Pong(spyral.scene.Scene):
     def update(self, tick):
         for event in pygame.event.get([pygame.KEYUP, pygame.KEYDOWN]):
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_w:
+                if event.key == pygame.K_SPACE:
+                    spyral.director.pop()
+                elif event.key == pygame.K_w:
                     self.left_paddle.moving_up = True
                 elif event.key == pygame.K_s:
                     self.left_paddle.moving_down = True
@@ -142,12 +180,14 @@ class Pong(spyral.scene.Scene):
             self.right_paddle.rect.midright = (geom['width'] - geom['paddle_in_width'],
                                               geom['height']/2)
             self.group.add(self.ball)
+
 if __name__ == "__main__":
     spyral.init()
     colors['bg'] = (0, 0, 0)
     colors['paddle'] = (255, 255, 255)
     colors['ball'] = (255, 255, 255)
     colors['score'] = (255, 255, 255)
+    colors['menu'] = (255, 255, 255)
     
     geom['size'] = (640, 480)
     geom['width'] = 640
@@ -159,7 +199,16 @@ if __name__ == "__main__":
     geom['ball_speed'] = geom['paddle_speed'] / 1.5
     geom['score_in_height'] = .03*geom['height']
     geom['score_font_size'] = .08*geom['height']
+    geom['menu_title_font_size'] = .20*geom['height']
+    geom['menu_font_size'] = .06*geom['height']
+
+    strings['menu_title'] = "Pong Clone"
+    strings['menu_instructions'] = "Press any key to start. Press space to quit."
         
+    fonts['score'] = pygame.font.SysFont(None, geom['score_font_size'])
+    fonts['menu'] = pygame.font.SysFont(None, geom['menu_font_size'])
+    fonts['menu_title'] = pygame.font.SysFont(None, geom['menu_title_font_size'])
+
     images['paddle'] = spyral.util.new_surface(geom['paddle'])
     images['paddle'].fill(colors['paddle'])
     images['ball'] = spyral.util.new_surface(geom['ball'], geom['ball'])
@@ -168,11 +217,17 @@ if __name__ == "__main__":
                        (geom['ball']/2, geom['ball']/2),
                        int(geom['ball']/2),
                        0)
-                       
-    fonts['score'] = pygame.font.SysFont(None, geom['score_font_size'])
+    images['menu_title'] = fonts['menu_title'].render(
+                            strings['menu_title'],
+                            True,
+                            colors['menu'])
+    images['menu_instructions'] = fonts['menu'].render(
+                            strings['menu_instructions'],
+                            True,
+                            colors['menu'])
     
     
     spyral.director.init(geom['size'], ticks_per_second=TICKS_PER_SECOND)
-    spyral.director.push(Pong())
+    spyral.director.push(Menu())
     spyral.director.clock.use_wait = False
     spyral.director.run()

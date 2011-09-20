@@ -99,7 +99,6 @@ class Director(object):
             old = self._stack.pop()
             old.on_exit()
             spyral.sprite._switch_scene()
-            self._camera.clear()
         self._stack.append(scene)
         spyral.director.clock.max_fps = self._max_fps
         spyral.director.clock.ticks_per_second = self._tps
@@ -137,7 +136,6 @@ class Director(object):
             old = self._stack[-1]
             old.on_exit()
             spyral.sprite._switch_scene()
-            self._camera.clear()
         self._stack.append(scene)
         spyral.director.clock.max_fps = self._max_fps
         spyral.director.clock.ticks_per_second = self._tps
