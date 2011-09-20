@@ -196,7 +196,7 @@ if __name__ == "__main__":
     geom['paddle_in_width'] = .03*geom['width']
     geom['paddle_speed'] = geom['height'] / (TICKS_PER_SECOND * 1.5)
     geom['ball'] = .02*geom['width']
-    geom['ball_speed'] = geom['paddle_speed'] / 1.5
+    geom['ball_speed'] = geom['paddle_speed'] / 1.1
     geom['score_in_height'] = .03*geom['height']
     geom['score_font_size'] = .08*geom['height']
     geom['menu_title_font_size'] = .20*geom['height']
