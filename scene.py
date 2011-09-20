@@ -17,7 +17,7 @@ class Director(object):
     def init(self, size = (0, 0),
                    fullscreen       = False,
                    caption          = "spyral",
-                   max_fps          = 60,
+                   max_fps          = 30,
                    ticks_per_second = 30):
         """
         Initializes the director.
