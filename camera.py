@@ -269,15 +269,6 @@ class Camera(object):
         self._clear_next_frame = []
         self._blits = []
 
-    # Undocumented so far. Not sure if should be part of public api
-    def clear(self):
-        if not self._root:
-            return
-        self._clear_this_frame = []
-        self._clear_next_frame = []
-        self._blits = []
-        self._static_blits = []
-
     def layers(self):
         """ Returns a list of this camera's layers. """
         return self._layers[:]
