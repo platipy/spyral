@@ -14,15 +14,26 @@ Getting started
 ---------------
 To get spyral, you can clone the git repository, or download packages, from the `github site`_. For now, you can simply include the spyral directory in your project. A setup.py will be included at a later date. For a barebones example, see spyral/examples/skel.py, which provides a skeleton example of a program, complete with comments.	
 
-The API
--------
+The Core API
+------------
 
 .. toctree::
    :maxdepth: 2
+   
+   scene
+   sprite
+   camera
 
-   director
-   scenes
+Convenience API
+---------------
 
+.. toctree::
+   :maxdepth: 2
+   
+   util
+   point
+   gui
+   memoize
 
 ..	Features
 	--------
@@ -49,7 +60,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-.. automodule:: spyral.sprite
-	:members:
-	
