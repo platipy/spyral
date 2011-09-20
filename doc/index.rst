@@ -48,15 +48,41 @@ Convenience API
 	* A named layering system, to simplify code by allowing out of order rendering.
 	* Automatic scaling to arbitrary resolutions.
 
-..	FAQ
-	---
+FAQ
+---
 
-	How are Sprites and Groups in spyral different?
-	###############################################
-	There are a few differences:
-	* sprite.position and sprite.pos can be used for positioning, like sprite.rect is. They automatically reflect changes in one another
-	* sprite.special_flags
-	
+Why are the render and update loops separate?
+#############################################
+Often example pygame code you will see uses one main loop for the whole program.
+In spyral, the two loops are separate because it provides for a more consistent
+experience across platforms. Often, a game with one main loop is written to run
+at whatever the framerate is capped at. If the machine it is running on can no
+longer handle this, the game mechanics slow down, making a less than pleasurable
+experience and an unfair advantage in some situations.
+
+If we instead separate the render loop, which is known to be slow, and the
+update loop, we can make sure that all game mechanics and input handling happens
+at the same rate even if the framerate drops.
+
+How are Sprites and Groups in spyral different?
+###############################################
+In spyral, the built in sprites have functionality which is akin to that you
+would find in the LayeredDirty group in pygame, without the programmer logic
+being necessary. This means that sprites automatically detect when they are
+dirty, and rerender themselves accordingly, so you can use the base Spyral
+Sprite and Group classes and see a speed boost automatically. Sprites mark
+themselves as dirty if you change any of the following attributes: *pos*,
+*position*, *image*, *rect*, *blend_flags*, 
+
+spyral sprites also support subpixel positioning using the *pos* or *position*
+attributes (which are the same) and specifying surface blend flags for pygame
+via the *blend_flags* attribute.
+
+spyral groups are given a camera to draw to, whereas LayeredDirty is
+traditionally given a surface. spyral's cameras all automatically scale and
+translate all drawing to the display so that drawing is done only once, whereas
+LayeredDirty may in some situations require you to draw to auxiliary surfaces
+first.
 
 .. _`OLPC XO`: http://laptop.org
 .. _`github site`: https://github.com/rdeaton/spyral
