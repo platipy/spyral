@@ -72,7 +72,11 @@ being necessary. This means that sprites automatically detect when they are
 dirty, and rerender themselves accordingly, so you can use the base Spyral
 Sprite and Group classes and see a speed boost automatically. Sprites mark
 themselves as dirty if you change any of the following attributes: *pos*,
-*position*, *image*, *rect*, *blend_flags*, 
+*position*, *image*, *rect*, *blend_flags*, *layer*.
+
+spyrals sprites and groups support layers similar to the LayeredDirty group,
+but they use named layers, specified in the camera. This makes it easier to
+manage and remember the layers sprites are on.
 
 spyral sprites also support subpixel positioning using the *pos* or *position*
 attributes (which are the same) and specifying surface blend flags for pygame
