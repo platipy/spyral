@@ -3,7 +3,21 @@ import spyral
 
 class MouseSprite(spyral.sprite.Sprite):
     """
-    A Sprite class to handle all mouse actions.
+    A Sprite class to handle mouse hovering and clicks. It conforms to layers
+    for event prioritizing. The following attributes may be useful:
+    
+    | *click_rect = None* represents a rectangle for clickable area. If None,
+      the sprite's *rect* is used.
+    | *hover_rect = None* represents a rectangle for hoverable area. If None,
+      the sprite's *rect* is used.
+    | *consume_clicks = True* is whether a click on this sprite should be
+      consumed, or allowed to pass on to other Sprites on this update.
+    | *consume_hover = False* is whether this sprite blocks lower sprites from
+      being hovered over. Only consumes per group, not globally.
+    | *enable_right = False* is whether right clicks should trigger a click
+      event
+    | *enable_middle = False* is whether middle clicks should trigger a click
+      event
     """
     
     def __init__(self, *args):
@@ -17,18 +31,23 @@ class MouseSprite(spyral.sprite.Sprite):
         self.enable_middle = False
         
     def on_click(self, event):
+        """ Called when this sprite is clicked. """
         pass
         
     def on_right_click(self, event):
+        """ Called when this sprite is right clicked, if enabled. """
         pass
         
     def on_middle_click(self, event):
+        """ Called when this sprite is middle clicked, if enabled. """
         pass
         
     def on_mouse_over(self):
+        """ Called when the mouse begins hovering over this sprite. """
         pass
         
     def on_mouse_off(self):
+        """ Called when the mouse stops hovering over this sprite. """
         pass
     
     def _handle_click(self, event):
@@ -60,6 +79,10 @@ class MouseSprite(spyral.sprite.Sprite):
         return (False, False)
 
 class DragSprite(MouseSprite):
+    """
+    A Sprite which derives from MouseSprite, and supports all of its features,
+    but allows for dragging and dropping the sprite.
+    """
     def __init__(self):
         MouseSprite.__init__(self)
         self.dragging = False
@@ -85,11 +108,10 @@ class DragSprite(MouseSprite):
                                                    self.drag_offset))
 
 class GUIGroup(spyral.sprite.Group):
-    """ A subclass of group which is the same in every way, except on update(),
-    it also handles dispatching mouse events before calling update on all of
-    its Sprites. Non-MouseClickSprite and Non-MouseOverSprites may be mixed in.
-    Only one MouseGroup should exist per GameState, as it will empty all mouse
-    events from the queue. """
+    """
+    A group class which automatically handles the behavior of GUI sprites.
+    The behavior is otherwise the same in every way.s
+    """
     def __init__(self, *args):
         spyral.sprite.Group.__init__(self, *args)
         self._mouse_previously_over = []
