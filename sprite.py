@@ -10,13 +10,26 @@ def _switch_scene():
             s()._expire_static()
 
 class Sprite(object):
-    """ Analagous to Sprite in pygame, but automatically handles dirty updates,
-    and supports adding self.layer to allow layered rendering. This means that
-    if the Sprite is repositioned or killed, the game background will
-    automatically redraw over the sprite. These sprites support one additional
-    feature, setting Sprite.position will automatically set Sprite.rect to a
-    rect starting from position with the size of the image, and accessing
-    Sprite.position will return the top left coordinate of Sprite.rect """
+    """
+    Analagous to Sprite in pygame, but with many more features. For more
+    detail, read the FAQ. Important member variables are:
+    
+    | *position*, *pos* - (x,y) coordinates for where to draw. Supports
+      subpixel positioning. Automatically updates *rect* as well
+    | *rect* - a pygame.rect.Rect used for positioning. Does not support
+      subpixel positioning. Automatically updates *position*, *pos* as well.
+    | *layer* - a string representing the layer to draw on. It should be a
+      layer which exists on the camera that is used for the group(s) the
+      sprite belongs to; if it is not, it will be drawn on top
+    | *image* - a pygame.surface.Surface to be drawn to the screen. The surface
+      must, for now, have certain flags set. Use spyral.util.new_surface and 
+      spyral.util.load_image to get surfaces. One caveat is that once it is
+      drawn to the camera, if the camera uses scaling, and the surface is
+      changed, the display will not reflect this due to caching. If you must
+      change a surface, copy it first. 
+    | *blend_flags* - blend flags for pygame.surface.Surface.blit(). See the
+      pygame documentation for more information.
+    """
 
     def __init__(self, *groups):
         """ Adds this sprite to any number of groups by default. """
@@ -114,6 +127,7 @@ class Sprite(object):
     blend_flags = property(_get_blend_flags, _set_blend_flags)
         
     def add(self, *groups):
+        """ Add this sprite to any groups passed in. """
         self._expire_static()
         for g in groups:
             if g not in self._groups:
@@ -155,18 +169,18 @@ class Sprite(object):
         self._age += 1
                                     
     def update(self, camera, *args):
-        """ Called once per frame. """
+        """ Called once per update tick. """
         pass
         
     def remove(self, *groups):
+        """ Remove this sprite from any groups passed in. """
         self._expire_static()
         for g in groups:
             if g in self._groups:
                 self._groups.remove(g)
                 
     def __del__(self):
-        pass
-        # GetScreen().remove_static_blit(repr(self))
+        spyral.director.camera()._remove_static_blit(repr(self))
 
 ### Group classes ###
         
@@ -174,11 +188,15 @@ class Group(object):
     """ Behaves like sprite.Group in pygame. """
     
     def __init__(self, camera, *sprites):
+        """
+        Create a group and associate a camera with it. This is where all drawing
+        will be sent.
+        """
         self.camera = camera
         self._sprites = list(sprites)
         
     def draw(self):
-        """ Calls draw on all of its Sprites. """
+        """ Draws all of its sprites to the group's camera. """
         c = self.camera
         for x in self._sprites:
             x.draw(c)
@@ -202,7 +220,8 @@ class Group(object):
                 sprite.add(self)
     
     def has(self, *sprites):
-        """ Return true if all sprites are contained in the group. Unlike
+        """
+        Return true if all sprites are contained in the group. Unlike
         pygame, this does not take an iterator for each argument, only sprites.
         """
         for sprite in sprites:
@@ -217,4 +236,5 @@ class Group(object):
         self._sprites = []
         
     def sprites(self):
+        """ Return a list of the sprites in this group. """
         return self._sprites[:]
