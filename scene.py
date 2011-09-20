@@ -95,13 +95,14 @@ class Director(object):
         Replace the currently running scene on the stack with *scene*.
         This does return control, so remember to return after calling it.
         """
-        _switch_scene()
         if len(self._stack) > 0:
             old = self._stack.pop()
             old.on_exit()
-            _switch_scene()
+            spyral.sprite._switch_scene()
             self._camera.clear()
         self._stack.append(scene)
+        spyral.director.clock.max_fps = self._max_fps
+        spyral.director.clock.ticks_per_second = self._tps
         scene.on_enter()
         pygame.event.get()
 
@@ -112,15 +113,13 @@ class Director(object):
 
         This does return control, so remember to return after calling it.
         """
-        from Sprite import _switch_scene
         if len(self._stack) < 1:
             return
         scene = self._stack.pop()
         scene.on_exit()
-        _switch_scene()
-        self._camera.clear()
-        director.clock.max_fps = self._max_fps
-        director.clock.ticks_per_second = self._tps
+        spyral.sprite._switch_scene()
+        spyral.director.clock.max_fps = self._max_fps
+        spyral.director.clock.ticks_per_second = self._tps
         if len(self._stack) > 0:
             scene = self._stack[-1]
             scene.on_enter()
@@ -137,9 +136,11 @@ class Director(object):
         if len(self._stack) > 0:
             old = self._stack[-1]
             old.on_exit()
-            spyral._switch_scene()
+            spyral.sprite._switch_scene()
             self._camera.clear()
         self._stack.append(scene)
+        spyral.director.clock.max_fps = self._max_fps
+        spyral.director.clock.ticks_per_second = self._tps
         scene.on_enter()
         pygame.event.get()
 
