@@ -52,7 +52,7 @@ class Sprite(object):
     
     def _expire_static(self):
         if self._static:
-            spyral.director.camera()._remove_static_blit(repr(self))
+            spyral.director.get_camera()._remove_static_blit(repr(self))
         self._static = False
         self._age = 0
         
@@ -180,7 +180,7 @@ class Sprite(object):
                 self._groups.remove(g)
                 
     def __del__(self):
-        spyral.director.camera()._remove_static_blit(repr(self))
+        spyral.director.get_camera()._remove_static_blit(repr(self))
 
 ### Group classes ###
         
