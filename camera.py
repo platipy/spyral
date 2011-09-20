@@ -17,6 +17,10 @@ def _scale(s, factor):
 
 
 class Camera(object):
+    """
+    Represents an area to draw to. It can handle automatic scaling with optional
+    offsets, layering, and more soon.
+    """
     def __init__(self, virtual_size = None,
                        real_size    = None,
                        offset       = (0, 0),
@@ -60,8 +64,18 @@ class Camera(object):
     def make_child(self, virtual_size = None,
                          real_size    = None,
                          offset       = (0, 0),
-                         layers       = ['all'],
-                         root         = False):
+                         layers       = ['all']):
+        """
+        Method for creating a new Camera.
+        
+        | *virtual_size* is a size of the virtual resolution to be used.
+        | *real_size* is a size of the resolution with respect to the parent
+          camera (not to the physical display, unless the parent camera is the
+          root one). This allows multi-level nesting of cameras, if needed.
+        | *offset* is a position offset of where this camera should be in the
+          parent camera's coordinates.
+        | *layers* is a list of layers which should be drawn bottom to top.
+        """
         y = spyral.camera.Camera(virtual_size, real_size, offset, layers, 0)
         y._parent = self
         offset = spyral.point.scale(offset, self._scale)
@@ -178,7 +192,7 @@ class Camera(object):
     def draw(self):
         """
         Draws the current frame. Should be called only once per frame by
-        the current GameState.
+        the current Scene.
         """
 
         # This function sits in a potential hot loop
@@ -239,6 +253,9 @@ class Camera(object):
 
         # print "%d / %d static drawn, %d dynamic" %
         #       (drawn_static, len(s), len(blits))
+        pygame.display.set_caption("%d / %d static, %d dynamic. %d ups, %d fps" %
+            (drawn_static, len(s), len(blits), spyral.director.clock.get_ups(),
+            spyral.director.clock.get_fps()))
         # Do the display update
         pygame.display.update(self._clear_next_frame + self._clear_this_frame)
         # Get ready for the next call
@@ -246,6 +263,7 @@ class Camera(object):
         self._clear_next_frame = []
         self._blits = []
 
+    # Undocumented so far. Not sure if should be part of public api
     def clear(self):
         if not self._root:
             return
@@ -255,9 +273,14 @@ class Camera(object):
         self._static_blits = []
 
     def layers(self):
+        """ Returns a list of this camera's layers. """
         return self._layers[:]
 
     def world_to_local(self, pos):
+        """
+        Converts coordinates from the display to coordinates in this camera's
+        space. If the coordinate is outside, then it returns None.
+        """
         if self._rect.collidepoint(pos):
             pos = spyral.point.sub(pos, self._offset)
             pos = spyral.point.unscale(pos, self._scale)
