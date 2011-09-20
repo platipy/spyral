@@ -218,3 +218,11 @@ man_pages = [
     ('index', 'spyral', u'spyral Documentation',
      [u'Robert Deaton'], 1)
 ]
+
+def dont_skip_init(app, what, name, obj, skip, options):
+    if name == "__init__" and obj.__doc__ is not None:
+        return False
+    return skip
+
+def setup(app):
+    app.connect('autodoc-skip-member', dont_skip_init)
