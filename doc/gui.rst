@@ -6,3 +6,4 @@ or more generally event interaction with sprites. This module is incomplete.
 
 .. automodule:: spyral.gui
    :members:
+   :show-inheritance:

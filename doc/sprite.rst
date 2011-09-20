@@ -1,8 +1,6 @@
 Sprites and Groups
 ##################
 
-.. autoclass:: spyral.sprite.Sprite
+.. automodule:: spyral.sprite
    :members:
-
-.. autoclass:: spyral.sprite.Group
-   :members:
+   :member-order: bysource
