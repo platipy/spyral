@@ -1,25 +1,45 @@
-import math as _math
+import math as math
 
 def sub(p1, p2):
+    """ Computes p2-p1. """
     return (p1[0] - p2[0], p1[1] - p2[1])
     
 def add(p1, p2):
+    """ Computes p1 + p2. """
     return (p2[0] + p1[0], p2[1] + p1[1])
     
 def angle(p):
-    return _math.atan2(p[1], p[0])
+    """ Calculates the angle that p makes with the x axis. """
+    return math.atan2(p[1], p[0])
     
 def dist(p1, p2):
-    return _math.hypot(*sub(p1,p2))
+    """ Calculates the distance between two points. """
+    return math.hypot(*sub(p1,p2))
     
 def rectangular(r, theta):
-    return (r*_math.cos(theta), r*_math.sin(theta))
+    """ Converts polar coordinates to rectangular. """
+    return (r*math.cos(theta), r*math.sin(theta))
 
 def scale(p, scale):
+    """ Scales p by (scale_x, scale_y). """
     return (p[0] * scale[0], p[1] * scale[1])
 
 def unscale(p, scale):
+    """ Scales p by (1/scale_x, 1/scale_y). """
     return (p[0] / scale[0], p[1] / scale[1])
 
-def round_pos(t):
-    return (_math.floor(t[0]), _math.ceil(t[1]))
+def dist2(p1, p2):
+    """ Returns the square of a distance between two points"""
+    x = sub(p1, p2)
+    return x[0]**2 + x[1]**2
+    
+def bounding_rect(l):
+    """
+    Computes a bounding rectangle from an iterable of tuples (x,y).
+    """
+    # This can be done faster.
+    x = [x[0] for x in l]
+    y = [y[1] for y in l]
+    minx = max(0, min(x))
+    miny = max(0, min(y))
+    return pygame.Rect(minx, miny, max(x)-minx, max(y)-miny)
