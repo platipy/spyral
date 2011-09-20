@@ -93,6 +93,12 @@ class Camera(object):
         Returns the virtual size of this camera's display.
         """
         return self._vsize
+        
+    def get_rect(self):
+        """
+        Returns a rect the virtual size of this camera's display
+        """
+        return pygame.rect.Rect((0,0), self._vsize)
 
     def set_background(self, surface):
         """
