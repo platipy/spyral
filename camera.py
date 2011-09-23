@@ -148,7 +148,7 @@ class Camera(object):
                                 layer,
                                 flags))
 
-    def _static_blit(self, name, surface, position, layer, flags):
+    def _static_blit(self, sprite, surface, position, layer, flags):
         position = spyral.point.scale(position, self._scale)
         position = (position[0] + self._offset[0],
                     position[1] + self._offset[1])
@@ -161,9 +161,9 @@ class Camera(object):
                 layer = len(self._layers)
 
         rs = self._rs
-        redraw = name in rs._static_blits
+        redraw = sprite in rs._static_blits
         if redraw:
-            r2 = rs._static_blits[name][1]
+            r2 = rs._static_blits[sprite][1]
         new_surface = _scale(surface, self._scale)
         r = pygame.Rect(position, new_surface.get_size())
         if self._rect.contains(r):
@@ -176,7 +176,7 @@ class Camera(object):
         else:
             return
 
-        rs._static_blits[name] = (new_surface,
+        rs._static_blits[sprite] = (new_surface,
                                   r,
                                   layer,
                                   flags)
@@ -185,12 +185,12 @@ class Camera(object):
         else:
             rs._clear_this_frame.append(r)
 
-    def _remove_static_blit(self, name):
+    def _remove_static_blit(self, sprite):
         if not self._root:
-            self._rs._remove_static_blit(name)
+            self._rs._remove_static_blit(sprite)
             return
         try:
-            x = self._static_blits.pop(name)
+            x = self._static_blits.pop(sprite)
             self._clear_this_frame.append(x[1])
         except:
             pass

@@ -53,8 +53,10 @@ class Sprite(object):
         self._static = True
     
     def _expire_static(self):
+        # Expire static is part of the private API which must
+        # be implemented by Sprites that wish to be static.
         if self._static:
-            spyral.director.get_camera()._remove_static_blit(repr(self))
+            spyral.director.get_camera()._remove_static_blit(self)
         self._static = False
         self._age = 0
         
@@ -158,16 +160,16 @@ class Sprite(object):
         if self._static:
             return
         if self._make_static or self._age > 4:
-            camera._static_blit(repr(self),
+            camera._static_blit(self,
                                 self._image,
-                                self.pos, # This forces the double check
+                                self._pos,
                                 self._layer,
                                 self._blend_flags)
             self._make_static = False
             self._static = True
             return
         camera._blit(self._image,
-                     self.pos, # This forces the double check
+                     self._pos,
                      self._layer,
                      self._blend_flags)
         self._age += 1
@@ -184,7 +186,7 @@ class Sprite(object):
                 self._groups.remove(g)
                 
     def __del__(self):
-        spyral.director.get_camera()._remove_static_blit(repr(self))
+        spyral.director.get_camera()._remove_static_blit(self)
 
 ### Group classes ###
         
