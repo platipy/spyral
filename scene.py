@@ -68,6 +68,7 @@ class Director(object):
 
         self._max_fps = max_fps
         self._tps = ticks_per_second
+        self.clock.use_wait = False
 
     def get_camera(self):
         """
