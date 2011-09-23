@@ -29,6 +29,7 @@ class Sprite(object):
       change a surface, copy it first. 
     | *blend_flags* - blend flags for pygame.surface.Surface.blit(). See the
       pygame documentation for more information.
+    | *visible* - whether or not to draw this sprite
     """
 
     def __init__(self, *groups):
@@ -45,6 +46,7 @@ class Sprite(object):
         self._pos = (0,0)
         self._double_check = False
         self._blend_flags = 0
+        self.visible = True
     
     def _set_static(self):
         self._make_static = True
@@ -149,6 +151,8 @@ class Sprite(object):
         return self._groups[:]
         
     def draw(self, camera):
+        if not self.visible:
+            return
         if self._double_check:
             self.pos
         if self._static:
