@@ -192,15 +192,15 @@ if __name__ == "__main__":
     geom['size'] = (640, 480)
     geom['width'] = 640
     geom['height'] = 480
-    geom['paddle'] = (.02*geom['width'], .3*geom['height'])
-    geom['paddle_in_width'] = .03*geom['width']
+    geom['paddle'] = (int(.02*geom['width']), int(.3*geom['height']))
+    geom['paddle_in_width'] = int(.03*geom['width'])
     geom['paddle_speed'] = geom['height'] / (TICKS_PER_SECOND * 1.5)
-    geom['ball'] = .02*geom['width']
+    geom['ball'] = int(.02*geom['width'])
     geom['ball_speed'] = geom['paddle_speed'] / 1.1
-    geom['score_in_height'] = .03*geom['height']
-    geom['score_font_size'] = .08*geom['height']
-    geom['menu_title_font_size'] = .20*geom['height']
-    geom['menu_font_size'] = .06*geom['height']
+    geom['score_in_height'] = int(.03*geom['height'])
+    geom['score_font_size'] = int(.08*geom['height'])
+    geom['menu_title_font_size'] = int(.20*geom['height'])
+    geom['menu_font_size'] = int(.06*geom['height'])
 
     strings['menu_title'] = "Pong Clone"
     strings['menu_instructions'] = "Press any key to start. Press space to quit."
