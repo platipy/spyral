@@ -37,6 +37,13 @@ def dist2(p1, p2):
     x = sub(p1, p2)
     return x[0]**2 + x[1]**2
     
+def rotate(p, angle, center = (0,0)):
+    """ Rotates p around center by angle. """
+    (r, theta) = sub(p, center)
+    print theta
+    theta += angle    
+    return add(rectangular(r, theta), center)
+    
 def snap_to_grid(p, size):
     """
     Finds the nearest grid point to p. Allows a uniform size, or a tuple of
