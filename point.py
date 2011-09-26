@@ -19,6 +19,10 @@ def dist(p1, p2):
 def rectangular(r, theta):
     """ Converts polar coordinates to rectangular. """
     return (r*math.cos(theta), r*math.sin(theta))
+    
+def polar(p):
+    """ Converts rectangular coordinates to polar. Returns (r, theta). """
+    return (dist(p, (0,0)), angle(p))
 
 def scale(p, scale):
     """ Scales p by (scale_x, scale_y). """
