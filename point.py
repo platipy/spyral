@@ -9,7 +9,7 @@ def add(p1, p2):
     return (p2[0] + p1[0], p2[1] + p1[1])
     
 def angle(p):
-    """ Calculates the angle that p makes with the x axis. """
+    """ Calculates the angle that p makes with the x axis, in radians. """
     return math.atan2(p[1], p[0])
     
 def dist(p1, p2):
