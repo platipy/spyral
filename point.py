@@ -33,6 +33,21 @@ def dist2(p1, p2):
     x = sub(p1, p2)
     return x[0]**2 + x[1]**2
     
+def snap_to_grid(p, size):
+    """
+    Finds the nearest grid point to p. Allows a uniform size, or a tuple of
+    sizes for each axis.
+
+    snap_to_grid((x,y), 16)
+    snap_to_grid((x,y), (16, 8))
+    """
+    try:
+        return (int(round(p[0]/size[0])*size[0]),
+                int(round(p[1]/size[1])*size[1]))
+    except TypeError:
+        return (int(round(p[0]/size)*size),
+                int(round(p[1]/size)*size))    
+    
 def bounding_rect(l):
     """
     Computes a bounding rectangle from an iterable of tuples (x,y).
