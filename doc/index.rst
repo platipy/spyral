@@ -51,6 +51,10 @@ Convenience API
 FAQ
 ---
 
+I'm stuck! I need help!
+#######################
+E-mail me at rdeaton@udel.edu. For generic pygame help, or even asking me questions about spyral, you can also use IRC and visit #pygame at irc.freenode.net. You can find me there under the handle masquerade.
+
 Why are the render and update loops separate?
 #############################################
 Often example pygame code you will see uses one main loop for the whole program.
