@@ -92,6 +92,13 @@ translate all drawing to the display so that drawing is done only once, whereas
 LayeredDirty may in some situations require you to draw to auxiliary surfaces
 first.
 
+How do I use sprite layering?
+#############################
+Layering in spyral is really easy. When your camera is initialized, you provide
+it with a list of layers that you wish to draw on, from bottommost to topmost.
+Then, you set the *layer* attribute on all of your sprites to put them into the
+proper layers, and spyral will handle the rest.
+
 .. _`OLPC XO`: http://laptop.org
 .. _`github site`: https://github.com/rdeaton/spyral
 
