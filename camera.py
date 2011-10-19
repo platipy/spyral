@@ -7,6 +7,8 @@ import operator
 
 @spyral.memoize.SmartMemoize
 def _scale(s, factor):
+    if factor == (1.0, 1.0):
+        return s
     size = s.get_size()
     new_size = (int(math.ceil(size[0] * factor[0])),
                 int(math.ceil(size[1] * factor[1])))
@@ -28,7 +30,7 @@ class Camera(object):
                        root         = False):
         if root:
             self._surface = pygame.display.get_surface()
-            if real_size is None:
+            if real_size is None or real_size == (0,0):
                 self._rsize = self._surface.get_size()
             else:
                 self._rsize = real_size
@@ -76,6 +78,8 @@ class Camera(object):
           parent camera's coordinates.
         | *layers* is a list of layers which should be drawn bottom to top.
         """
+        if real_size == (0,0):
+            real_size = self.get_size()
         y = spyral.camera.Camera(virtual_size, real_size, offset, layers, 0)
         y._parent = self
         offset = spyral.point.scale(offset, self._scale)
