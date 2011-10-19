@@ -6,10 +6,7 @@ class Director(object):
     The director, accessible at *spyral.director*, handles running the game.
     It will switch between scenes and call their render and update methods
     as necessary.
-    
-    *director.clock* will contain an instance of GameClock, for use by advanced
-    users.
-    """
+        """
     def __init__(self):
         self._initialized = False
         pass
@@ -55,20 +52,8 @@ class Director(object):
         self._stack = []
         self._tick = 0
 
-        from sys import platform
-
-        if platform in('win32', 'cygwin'):
-            time_source = None
-        else:
-            time_source = lambda: pygame.time.get_ticks() / 1000.
-        self.clock = spyral._lib.gameclock.GameClock(time_source=time_source,
-                                                     max_fps=max_fps,
-                                                     ticks_per_second=
-                                                     ticks_per_second)
-
         self._max_fps = max_fps
         self._tps = ticks_per_second
-        self.clock.use_wait = False
 
     def get_camera(self):
         """
@@ -101,8 +86,6 @@ class Director(object):
             old.on_exit()
             spyral.sprite._switch_scene()
         self._stack.append(scene)
-        spyral.director.clock.max_fps = self._max_fps
-        spyral.director.clock.ticks_per_second = self._tps
         scene.on_enter()
         pygame.event.get()
 
@@ -118,8 +101,6 @@ class Director(object):
         scene = self._stack.pop()
         scene.on_exit()
         spyral.sprite._switch_scene()
-        spyral.director.clock.max_fps = self._max_fps
-        spyral.director.clock.ticks_per_second = self._tps
         if len(self._stack) > 0:
             scene = self._stack[-1]
             scene.on_enter()
@@ -138,8 +119,6 @@ class Director(object):
             old.on_exit()
             spyral.sprite._switch_scene()
         self._stack.append(scene)
-        spyral.director.clock.max_fps = self._max_fps
-        spyral.director.clock.ticks_per_second = self._tps
         scene.on_enter()
         pygame.event.get()
 
@@ -147,22 +126,41 @@ class Director(object):
         """
         Runs the scene as dictated by the stack. Does not return.
         """
-        clock = self.clock
-
         if self._stack > 0:
             while True:
+                scene = self.get_scene()
+                clock = scene.clock
                 clock.tick()
-                if clock.update_ready:
-                    self._stack[-1].update(self._tick)
-                    self._tick += 1
                 if clock.frame_ready:
-                    self._stack[-1].render()
-
+                    scene.render()
+                if clock.update_ready:
+                    scene.update(self._tick)
+                    self._tick += 1
 
 class Scene(object):
     """
     Represents a state of the game as it runs.
+    
+    *self.clock* will contain an instance of GameClock which can be replaced
+    or changed as is needed.
     """
+    def __init__(self, ticks_per_second = None, max_fps = None):
+        """
+        By default, ticks_per_second and max_fps are pulled from the director.
+        """
+        from sys import platform
+
+        if platform in('win32', 'cygwin'):
+            time_source = None
+        else:
+            time_source = lambda: pygame.time.get_ticks() / 1000.
+
+        self.clock = spyral._lib.gameclock.GameClock(
+                            time_source=time_source,
+                            max_fps=max_fps or spyral.director._max_fps,
+                            ticks_per_second=ticks_per_second or spyral.director._tps)
+        self.clock.use_wait = False
+
     def on_exit(self):
         """
         Called by the director when this scene is about to run.
