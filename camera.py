@@ -231,6 +231,7 @@ class Camera(object):
         blits.sort(key=operator.itemgetter(2))
         i = j = 0
         drawn_static = 0
+        v = pygame.version.vernum
         # Reminder: blits are (surf, pos, layer)
         for layer in xrange(-100, 20):
             if len(s) > 0:
@@ -239,7 +240,10 @@ class Camera(object):
                     # Now, does this need to be redrawn
                     for rect in clear_this:
                         if pos.colliderect(rect):
-                            screen.blit(surf, pos, special_flags=flags)
+                            if v < (1, 8):
+                                screen.blit(surf, pos)
+                            else:
+                                screen.blit(surf, pos, None, flags)
                             clear_this.append(pos)
                             drawn_static += 1
                             break
