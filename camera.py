@@ -78,7 +78,7 @@ class Camera(object):
           parent camera's coordinates.
         | *layers* is a list of layers which should be drawn bottom to top.
         """
-        if real_size == (0,0):
+        if real_size == (0,0) or real_size == None:
             real_size = self.get_size()
         y = spyral.camera.Camera(virtual_size, real_size, offset, layers, 0)
         y._parent = self
