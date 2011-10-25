@@ -39,7 +39,7 @@ class Camera(object):
         else:
             self._rsize = real_size
 
-        if virtual_size is None:
+        if virtual_size is None or virtual_size == (0,0):
             self._vsize = self._rsize
             self._scale = (1.0, 1.0)
         else:
