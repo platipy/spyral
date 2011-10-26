@@ -62,6 +62,7 @@ class Camera(object):
             self._static_blits = {}
             self._rs = self
             self._rect = self._surface.get_rect()
+            self._saved_blits = {}
 
     def make_child(self, virtual_size = None,
                          real_size    = None,
@@ -276,6 +277,15 @@ class Camera(object):
         self._clear_this_frame = self._clear_next_frame
         self._clear_next_frame = []
         self._blits = []
+        
+    def _exit_scene(self, scene):
+        print self._static_blits
+        self._saved_blits[scene] = self._static_blits
+        self._static_blits = {}
+        
+    def _enter_scene(self, scene):
+        print self._static_blits
+        self._static_blits = self._saved_blits.pop(scene, self._static_blits)
 
     def layers(self):
         """ Returns a list of this camera's layers. """

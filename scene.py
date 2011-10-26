@@ -85,7 +85,9 @@ class Director(object):
             old = self._stack.pop()
             old.on_exit()
             spyral.sprite._switch_scene()
+            self._camera._exit_scene(old)
         self._stack.append(scene)
+        self._camera._enter_scene(scene)
         scene.on_enter()
         pygame.event.get()
 
@@ -101,8 +103,10 @@ class Director(object):
         scene = self._stack.pop()
         scene.on_exit()
         spyral.sprite._switch_scene()
+        self._camera._exit_scene(scene)
         if len(self._stack) > 0:
             scene = self._stack[-1]
+            self._camera._enter_scene(scene)
             scene.on_enter()
         else:
             exit(0)
@@ -118,7 +122,9 @@ class Director(object):
             old = self._stack[-1]
             old.on_exit()
             spyral.sprite._switch_scene()
+            self._camera._exit_scene(old)
         self._stack.append(scene)
+        self._camera._enter_scene(scene)
         scene.on_enter()
         pygame.event.get()
 
