@@ -63,6 +63,7 @@ class Camera(object):
             self._rs = self
             self._rect = self._surface.get_rect()
             self._saved_blits = {}
+            self._backgrounds = {}
 
     def make_child(self, virtual_size = None,
                          real_size    = None,
@@ -111,19 +112,12 @@ class Camera(object):
         """
         if surface.get_size() != self._vsize:
             raise ValueError("Background size must match the display size.")
-        self._background = surface
-        i = 0
-        x = self
-        while not x._root:
-            i += 1
-            x = x._parent
         if not self._root:
-            self._rs._static_blit(repr(self),
-                                  _scale(surface, self._scale).convert(),
-                                  self._offset,
-                                  -100 + i,
-                                  0)
+            self._rs._background.blit(_scale(surface, self._scale),
+                                      self._offset)
+            self._rs._clear_this_frame.append(self._rs._background.get_rect())
         else:
+            self._background = surface
             self._clear_this_frame.append(surface.get_rect())
 
     def _blit(self, surface, position, layer, flags):
@@ -285,13 +279,18 @@ class Camera(object):
         self._blits = []
         
     def _exit_scene(self, scene):
-        print self._static_blits
         self._saved_blits[scene] = self._static_blits
         self._static_blits = {}
+        self._backgrounds[scene] = self._background
+        self._background = pygame.surface.Surface(self._rsize)
+        self._background.fill((255, 255, 255))
+        self._surface.blit(self._background, (0, 0))
         
     def _enter_scene(self, scene):
-        print self._static_blits
         self._static_blits = self._saved_blits.pop(scene, self._static_blits)
+        if scene in self._backgrounds:
+            self._background = self._backgrounds.pop(scene)
+            self._clear_this_frame.append(self._background.get_rect())
 
     def layers(self):
         """ Returns a list of this camera's layers. """
