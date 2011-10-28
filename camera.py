@@ -256,13 +256,19 @@ class Camera(object):
                     surf, pos, layer, flags = blits[j]
                     blit_rect = pygame.Rect(pos, surf.get_size())
                     if screen_rect.contains(blit_rect):
-                        r = screen.blit(surf, pos, special_flags=flags)
+                        if v < (1, 8):
+                            r = screen.blit(surf, pos)
+                        else:
+                            r = screen.blit(surf, pos, None, flags)
                         clear_next.append(r)
                     elif screen_rect.colliderect(blit_rect):
                         x = blit_rect.clip(screen_rect)
                         y = x.move(-blit_rect.left, -blit_rect.top)
                         b = surf.subsurface(y)
-                        r = screen.blit(b, x, special_flags=flags)
+                        if v < (1, 8):
+                            r = screen.blit(b, x)
+                        else:
+                            r = screen.blit(b, x, None, flags)
                         clear_next.append(r)
                     j = j + 1
 
