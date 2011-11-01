@@ -92,6 +92,8 @@ class Sprite(object):
         return self._image
         
     def _set_image(self, image):
+        if self._image is image:
+            return
         self._image = image
         if self._static:
             self._expire_static()
@@ -117,6 +119,8 @@ class Sprite(object):
         return self._rect
         
     def _set_rect(self, rect):
+        if self._rect == rect:
+            return
         if self._static:
             self._expire_static()
         self._age = 0
