@@ -85,8 +85,10 @@ class Ball(spyral.sprite.Sprite):
 class Menu(spyral.scene.Scene):
     def __init__(self):
         spyral.scene.Scene.__init__(self)
-        self.camera = spyral.director.get_camera()
+        self.camera = spyral.director.get_camera().make_child(virtual_size=geom['size'])
         self.group = spyral.sprite.Group(self.camera)
+        
+    def on_enter(self):
         bg = spyral.util.new_surface(geom['size'])
         bg.fill(colors['bg'])
         self.camera.set_background(bg)
@@ -100,12 +102,12 @@ class Menu(spyral.scene.Scene):
         instructions.rect.top = title.rect.bottom + 10
         instructions.rect.centerx = self.camera.get_rect().centerx
         
-        
         self.group.add(title, instructions)
+
         
     def render(self):
         self.group.draw()
-        self.camera.draw()
+        spyral.director.get_camera().draw()
         
     def update(self, tick):
         for event in pygame.event.get():
@@ -120,8 +122,11 @@ class Menu(spyral.scene.Scene):
 class Pong(spyral.scene.Scene):
     def __init__(self):
         spyral.scene.Scene.__init__(self)
-        self.camera = spyral.director.get_camera()
+        self.clock.ticks_per_second = TICKS_PER_SECOND
+        self.camera = spyral.director.get_camera().make_child()
         self.group = spyral.sprite.Group(self.camera)
+
+    def on_enter(self):
         bg = spyral.util.new_surface(geom['size'])
         bg.fill(colors['bg'])
         self.camera.set_background(bg)
@@ -137,7 +142,7 @@ class Pong(spyral.scene.Scene):
         
     def render(self):
         self.group.draw()
-        self.camera.draw()
+        spyral.director.get_camera().draw()
         
     def update(self, tick):
         for event in pygame.event.get([pygame.KEYUP, pygame.KEYDOWN]):
@@ -227,7 +232,6 @@ if __name__ == "__main__":
                             colors['menu'])
     
     
-    spyral.director.init(geom['size'], ticks_per_second=TICKS_PER_SECOND)
+    spyral.director.init(geom['size'])
     spyral.director.push(Menu())
-    spyral.director.clock.use_wait = False
     spyral.director.run()
