@@ -1,3 +1,24 @@
+# We use a patcher here to add some functionality from Python 2.6+ to 2.5
+version_info = __import__('sys').version_info
+if version_info[0] == 2 and version_info[1] == 5:    
+    _property = property
+
+    class property(property):
+        def __init__(self, fget, *args, **kwargs):
+            self.__doc__ = fget.__doc__
+            super(property, self).__init__(fget, *args, **kwargs)
+
+        def setter(self, fset):
+            cls_ns = sys._getframe(1).f_locals
+            for k, v in cls_ns.iteritems():
+                if v == self:
+                    propname = k
+                    break
+            cls_ns[propname] = property(self.fget, fset,
+                                        self.fdel, self.__doc__)
+            return cls_ns[propname]
+
+
 # spyral uses this file as-is, without modification, from Gummworld2
 # and Trolls Outta Luckland, and thanks the authors for their great,
 # reusable piece of code.
