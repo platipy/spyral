@@ -163,21 +163,20 @@ class GUIGroup(spyral.sprite.Group):
             return
         mouse_pos = self.camera.world_to_local(mouse_pos)
         mouse_now_over = []
-        if mouse_pos is not None:
-            for sprite in self._sprites:
-                if not isinstance(sprite, MouseSprite):
-                    continue
-                hover = sprite._hover(mouse_pos)
-                if hover[0] is True:
-                    mouse_now_over.append(sprite)
-                    # first, is this one that the mouse was previously over
-                    if sprite in self._mouse_previously_over:
-                        if hover[1] is True:  # It wants to consume the hover
-                            break
-                        continue
-                    sprite.on_mouse_over()
-                    if hover[1] is True:
+        for sprite in self._sprites:
+            if not isinstance(sprite, MouseSprite):
+                continue
+            hover = sprite._hover(mouse_pos)
+            if hover[0] is True:
+                mouse_now_over.append(sprite)
+                # first, is this one that the mouse was previously over
+                if sprite in self._mouse_previously_over:
+                    if hover[1] is True:  # It wants to consume the hover
                         break
+                    continue
+                sprite.on_mouse_over()
+                if hover[1] is True:
+                    break
         
         for sprite in self._mouse_previously_over:
             if sprite in mouse_now_over:
