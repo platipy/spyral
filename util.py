@@ -1,4 +1,4 @@
-import pygame as pygame
+import pygame
 
 def new_surface(size, size2 = None):
     """
