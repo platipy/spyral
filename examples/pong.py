@@ -87,8 +87,12 @@ class Menu(spyral.scene.Scene):
         spyral.scene.Scene.__init__(self)
         self.camera = spyral.director.get_camera().make_child(virtual_size=geom['size'])
         self.group = spyral.sprite.Group(self.camera)
+        self.inited = False
         
     def on_enter(self):
+        if self.inited:
+            return
+        self.inited = True
         bg = spyral.util.new_surface(geom['size'])
         bg.fill(colors['bg'])
         self.camera.set_background(bg)
