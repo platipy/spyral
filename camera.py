@@ -3,6 +3,7 @@ import spyral
 import pygame
 import math
 import operator
+import sys
 
 
 @spyral.memoize.SmartMemoize
@@ -110,6 +111,9 @@ class Camera(object):
         """
         Sets a background for this camera's display.
         """
+        # This is CPython specific, but right now so is Pygame.
+        if sys._getframe(1).f_code.co_name == "__init__":
+            raise RuntimeError("Background initialization must be done in a scene's on_enter, not __init__")
         if surface.get_size() != self._vsize:
             raise ValueError("Background size must match the display size.")
         if not self._root:
