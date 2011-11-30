@@ -121,6 +121,7 @@ class Camera(object):
                                       self._offset)
             self._rs._clear_this_frame.append(self._rs._background.get_rect())
         else:
+            raise ValueError("You cannot set the background on the root camera directly.")
             self._background = surface
             self._clear_this_frame.append(surface.get_rect())
 
