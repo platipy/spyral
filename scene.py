@@ -157,7 +157,6 @@ class Director(object):
                     while gtk.events_pending():
                         gtk.main_iteration()
                     if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
-                        log.warn('Redrawing camera')
                         camera.redraw()
                     scene.update(self._tick)
                     self._tick += 1
