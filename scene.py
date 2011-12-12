@@ -142,6 +142,25 @@ class Director(object):
                 if clock.update_ready:
                     scene.update(self._tick)
                     self._tick += 1
+                    
+    def run_sugar(self):
+        import gtk
+        camera = spyral.director.get_camera()
+        if self._stack > 0:
+            while True:
+                scene = self.get_scene()
+                clock = scene.clock
+                clock.tick()
+                if clock.frame_ready:
+                    scene.render()
+                if clock.update_ready:
+                    while gtk.events_pending():
+                        gtk.main_iteration()
+                    if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
+                        log.warn('Redrawing camera')
+                        camera.redraw()
+                    scene.update(self._tick)
+                    self._tick += 1
 
 class Scene(object):
     """

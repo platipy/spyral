@@ -311,3 +311,6 @@ class Camera(object):
             pos = spyral.point.unscale(pos, self._scale)
             return pos
         return None
+        
+    def redraw(self):
+        self._clear_this_frame.append(self.get_rect())
