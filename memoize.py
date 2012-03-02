@@ -9,15 +9,13 @@ class Memoize(object):
 
     def __call__(self, *args):
         try:
-            data, oldframe = self.cache[args]
-            self.cache[args] = (data, frame)
-            return data
+            return self.cache[args]
         except KeyError:
             res = self.func(*args)
-            self.cache[args] = (res, frame)
+            self.cache[args] = res
             return res
         except TypeError:
-            print "WARNING: Unhashable type passed to memoize2. Reconsider using this decorator"
+            print "WARNING: Unhashable type passed to memoize. Reconsider using this decorator."
             return self.func(*args)
 
 
