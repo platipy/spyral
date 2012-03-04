@@ -194,6 +194,7 @@ class GameClock(object):
         self._next_second = TIME
         self._update_ready = False
         self._frame_ready = False
+#        self._frame_skip = 0
         self._paused = 0
         
         # Schedules
@@ -273,14 +274,46 @@ class GameClock(object):
             self.num_updates += 1
             if self.update_callback:
                 self._update_ready = True
-        if real_time + self.cost_of_frame < self._next_update and real_time >= self._next_frame:
+#ORIG
+#        if real_time + self.cost_of_frame < self._next_update and real_time >= self._next_frame:
+#            self.dt_frame = real_time - self._last_frame
+#            self._last_frame = real_time
+#            self._next_frame = real_time + self._frame_interval
+#            self.num_frames += 1
+#            if self.frame_callback:
+#                self._frame_ready = True
+#END ORIG
+#
+#SACRIFICE FRAMES TO MAINTAIN UPDATES
+#        if real_time >= self._next_frame:
+#            do_frame = False
+#            if real_time + self.cost_of_frame <= self._next_update:
+#                do_frame = True
+#            elif self._frame_skip > 0:
+#                do_frame = True
+#            else:
+#                self._next_frame = self._next_update
+#                self._frame_skip += 1
+#            if do_frame:
+#                self._frame_skip = 0
+#                self.dt_frame = real_time - self._last_frame
+#                self._last_frame = real_time
+#                self._next_frame = real_time + self._frame_interval
+#                self.num_frames += 1
+#                if self.frame_callback:
+#                    self._frame_ready = True
+#END SACRIFICE FRAMES TO MAINTAIN UPDATES
+#
+        if real_time - self._last_frame >= self._update_interval or (
+                real_time + self.cost_of_frame < self._next_update and
+                real_time >= self._next_frame):
             self.dt_frame = real_time - self._last_frame
             self._last_frame = real_time
             self._next_frame = real_time + self._frame_interval
             self.num_frames += 1
             if self.frame_callback:
                 self._frame_ready = True
-        
+
         # Check if a schedule is due, and when.
         sched_ready = False
         sched_due = 0
