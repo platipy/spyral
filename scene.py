@@ -11,20 +11,21 @@ class Director(object):
         self._initialized = False
         pass
 
-    def init(self, size = (0, 0),
-                   fullscreen       = False,
-                   caption          = "spyral",
-                   max_fps          = 30,
-                   ticks_per_second = 30):
+    def init(self,
+             size = (0, 0),
+             max_ups          = 30,
+             max_fps          = 30,
+             fullscreen       = False,
+             caption          = "spyral"):
         """
         Initializes the director.
         
         | *size* is the resolution of the display. (0,0) uses the screen resolution
+        | *max_ups* sets the number of times scene.update() should be
+           called per frame. This will remain the same, even if fps drops.
+        | *max_fps* sets the fps cap on the game.
         | *fullscreen* determines whether the display starts fullscreen
         | *caption* is the window caption
-        | *max_fps* sets the fps cap on the game.
-        | *ticks_per_second* sets the number of times scene.update() should be
-           called per frame. This will remain the same, even if fps drops.
         """
         if self._initialized:
             print 'Warning: Tried to initialize the director twice. Ignoring.'
@@ -52,8 +53,8 @@ class Director(object):
         self._stack = []
         self._tick = 0
 
+        self._max_ups = max_ups
         self._max_fps = max_fps
-        self._tps = ticks_per_second
 
     def get_camera(self):
         """
@@ -132,16 +133,25 @@ class Director(object):
         """
         Runs the scene as dictated by the stack. Does not return.
         """
+        old_scene = None
         if self._stack > 0:
             while True:
                 scene = self.get_scene()
                 clock = scene.clock
+                if scene is not old_scene:
+                    print 'CHANGE PLACES!'
+                    old_scene = scene
+                    def frame_callback(interpolation):
+                        scene.render()
+                        print 'render!'
+                    def update_callback(dt):
+                        print 'update!'
+                        scene.update(self._tick)
+                        self._tick += 1
+                    clock.frame_callback = frame_callback
+                    clock.update_callback = update_callback
+                    clock.use_wait = False
                 clock.tick()
-                if clock.frame_ready:
-                    scene.render()
-                if clock.update_ready:
-                    scene.update(self._tick)
-                    self._tick += 1
                     
     def run_sugar(self):
         import gtk
@@ -168,9 +178,9 @@ class Scene(object):
     *self.clock* will contain an instance of GameClock which can be replaced
     or changed as is needed.
     """
-    def __init__(self, ticks_per_second = None, max_fps = None):
+    def __init__(self, max_ups = None, max_fps = None):
         """
-        By default, ticks_per_second and max_fps are pulled from the director.
+        By default, max_ups and max_fps are pulled from the director.
         """
         from sys import platform
 
@@ -182,8 +192,8 @@ class Scene(object):
         self.clock = spyral._lib.gameclock.GameClock(
                             time_source=time_source,
                             max_fps=max_fps or spyral.director._max_fps,
-                            ticks_per_second=ticks_per_second or spyral.director._tps)
-        self.clock.use_wait = False
+                            max_ups=max_ups or spyral.director._max_ups)
+        self.clock.use_wait = True
 
     def on_exit(self):
         """

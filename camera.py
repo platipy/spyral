@@ -274,8 +274,8 @@ class Camera(object):
         # print "%d / %d static drawn, %d dynamic" %
         #       (drawn_static, len(s), len(blits))
         pygame.display.set_caption("%d / %d static, %d dynamic. %d ups, %d fps" %
-            (drawn_static, len(s), len(blits), spyral.director.get_scene().clock.get_ups(),
-            spyral.director.get_scene().clock.get_fps()))
+            (drawn_static, len(s), len(blits), spyral.director.get_scene().clock.ups,
+            spyral.director.get_scene().clock.fps))
         # Do the display update
         pygame.display.update(self._clear_next_frame + self._clear_this_frame)
         # Get ready for the next call
