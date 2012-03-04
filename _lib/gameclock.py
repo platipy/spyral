@@ -1,6 +1,6 @@
 # We use a patcher here to add some functionality from Python 2.6+ to 2.5
-version_info = __import__('sys').version_info
-if version_info[0] == 2 and version_info[1] == 5:    
+import sys
+if sys.version_info[0] == 2 and sys.version_info[1] == 5:    
     _property = property
 
     class property(property):
