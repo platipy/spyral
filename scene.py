@@ -143,9 +143,7 @@ class Director(object):
                     old_scene = scene
                     def frame_callback(interpolation):
                         scene.render()
-                        print 'render!'
                     def update_callback(dt):
-                        print 'update!'
                         scene.update(self._tick)
                         self._tick += 1
                     clock.frame_callback = frame_callback
