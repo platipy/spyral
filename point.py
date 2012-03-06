@@ -40,7 +40,6 @@ def dist2(p1, p2):
 def rotate(p, angle, center = (0,0)):
     """ Rotates p around center by angle. """
     (r, theta) = sub(p, center)
-    print theta
     theta += angle    
     return add(rectangular(r, theta), center)
     

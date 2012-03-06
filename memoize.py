@@ -15,7 +15,7 @@ class Memoize(object):
             self.cache[args] = res
             return res
         except TypeError:
-            print "WARNING: Unhashable type passed to memoize. Reconsider using this decorator."
+            print("WARNING: Unhashable type passed to memoize. Reconsider using this decorator.")
             return self.func(*args)
 
 
@@ -52,5 +52,5 @@ class SmartMemoize(object):
             self.cache[args] = (res, frame)
             return res
         except TypeError:
-            print "WARNING: Unhashable type passed to memoize2. Reconsider using this decorator"
+            print("WARNING: Unhashable type passed to SmartMemoize. Reconsider using this decorator")
             return self.func(*args)

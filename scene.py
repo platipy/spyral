@@ -28,7 +28,7 @@ class Director(object):
         | *caption* is the window caption
         """
         if self._initialized:
-            print 'Warning: Tried to initialize the director twice. Ignoring.'
+            print('Warning: Tried to initialize the director twice. Ignoring.')
         pygame.init()
         pygame.font.init()
 

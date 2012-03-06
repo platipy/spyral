@@ -17,9 +17,9 @@ def load_image(path, colorkey=None):
     """
     try:
         image = pygame.image.load(path)
-    except pygame.error, message:
-        print "Cannot load image:", path
-        raise SystemExit, message
+    except pygame.error as message:
+        print("Cannot load image:", path)
+        raise SystemExit(message)
     if colorkey is not None:
         if colorkey == -1:
             colorkey = image.get_at((0,0))
@@ -33,9 +33,9 @@ class Spritesheet(object):
     def __init__(self, filename, colorkey=None):
         try:
             self.sheet = pygame.image.load(filename)
-        except pygame.error, message:
-            print 'Unable to load spritesheet image:', filename
-            raise SystemExit, message
+        except pygame.error as message:
+            print('Unable to load spritesheet image:', filename)
+            raise SystemExit(message)
     def image_at(self, rectangle, colorkey = None):
         "Loads image from x,y,x+offset,y+offset"
         rect = pygame.Rect(rectangle)
