@@ -135,11 +135,12 @@ class Director(object):
         """
         old_scene = None
         if self._stack > 0:
+            scene = self.get_scene()
+            clock = scene.clock
             while True:
                 scene = self.get_scene()
-                clock = scene.clock
                 if scene is not old_scene:
-                    print 'CHANGE PLACES!'
+                    clock = scene.clock
                     old_scene = scene
                     def frame_callback(interpolation):
                         scene.render()
@@ -154,20 +155,27 @@ class Director(object):
     def run_sugar(self):
         import gtk
         camera = spyral.director.get_camera()
+        old_scene = None
         if self._stack > 0:
+            scene = self.get_scene()
+            clock = scene.clock
             while True:
                 scene = self.get_scene()
-                clock = scene.clock
+                if scene is not old_scene:
+                    clock = scene.clock
+                    def frame_callback(interpolation):
+                        scene.render()
+                    def update_callback(dt):
+                        while gtk.events_pending():
+                            gtk.main_iteration()
+                            if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
+                                camera.redraw()
+                        scene.update(self._tick)
+                        self._tick += 1
+                    clock.frame_callback = frame_callback
+                    clock.update_callback = update_callback
+                    clock.use_wait = False
                 clock.tick()
-                if clock.frame_ready:
-                    scene.render()
-                if clock.update_ready:
-                    while gtk.events_pending():
-                        gtk.main_iteration()
-                    if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
-                        camera.redraw()
-                    scene.update(self._tick)
-                    self._tick += 1
 
 class Scene(object):
     """
