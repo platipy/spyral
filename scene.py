@@ -1,5 +1,6 @@
 import pygame
 import spyral
+import time
 
 class Director(object):
     """
