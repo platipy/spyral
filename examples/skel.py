@@ -18,10 +18,20 @@ class Game(spyral.scene.Scene):
         scene.
         """
         spyral.scene.Scene.__init__(self)
-        self.camera = spyral.director.get_camera()
-        # For simple games with no layers, using the root camera is fine
-        # Anything more advanced will want to make new cameras on top of this
+        # We cannot draw directly to the root camera, so we always make a child
+        # camera for our scene with our requested virtual resolution. In this
+        # case we'll use the same as the window size, but this doesn't have to be
+        # the case
+        self.camera = spyral.director.get_camera().make_child(SIZE)
         self.group = spyral.sprite.Group(self.camera)
+        self.initialized = False
+        
+    def on_enter(self):
+        # Some things you may wish to do every time you enter the scene
+        if self.initialized:
+            return
+        self.initialized = True
+        # Other things you may want to do only once
         bg = spyral.util.new_surface(SIZE)
         bg.fill(BG_COLOR)
         self.camera.set_background(bg)
@@ -29,12 +39,11 @@ class Game(spyral.scene.Scene):
                 
     def render(self):
         """
-        The render function should call .draw() on the scene's group(s) and
-        camera(s). Unless your game logic should be bound by framerate,
+        The render function should call .draw() on the scene's group(s).
+        Unless your game logic should be bound by framerate,
         logic should go elsewhere.
         """
         self.group.draw()
-        self.camera.draw()
         
     def update(self, tick):
         """
