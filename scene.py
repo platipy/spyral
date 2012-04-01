@@ -67,9 +67,10 @@ class Director(object):
         """
         Returns the currently running scene.
         """
-        if len(self._stack) > 0:
+        try:
             return self._stack[-1]
-        return None
+        except IndexError:
+            return None
 
     def get_tick(self):
         """
@@ -83,7 +84,7 @@ class Director(object):
         Replace the currently running scene on the stack with *scene*.
         This does return control, so remember to return after calling it.
         """
-        if len(self._stack) > 0:
+        if self._stack:
             old = self._stack.pop()
             old.on_exit()
             spyral.sprite._switch_scene()
@@ -106,7 +107,7 @@ class Director(object):
         scene.on_exit()
         spyral.sprite._switch_scene()
         self._camera._exit_scene(scene)
-        if len(self._stack) > 0:
+        if self._stack:
             scene = self._stack[-1]
             self._camera._enter_scene(scene)
             scene.on_enter()
@@ -120,7 +121,7 @@ class Director(object):
 
         This does return control, so remember to return after calling it.
         """
-        if len(self._stack) > 0:
+        if self._stack:
             old = self._stack[-1]
             old.on_exit()
             spyral.sprite._switch_scene()
@@ -134,49 +135,53 @@ class Director(object):
         """
         Runs the scene as dictated by the stack. Does not return.
         """
+        if not self._stack:
+            return
         old_scene = None
-        if self._stack > 0:
+        scene = self.get_scene()
+        camera = self._camera
+        clock = scene.clock
+        while True:
             scene = self.get_scene()
-            clock = scene.clock
-            while True:
-                scene = self.get_scene()
-                if scene is not old_scene:
-                    clock = scene.clock
-                    old_scene = scene
-                    def frame_callback(interpolation):
-                        scene.render()
-                    def update_callback(dt):
-                        scene.update(self._tick)
-                        self._tick += 1
-                    clock.frame_callback = frame_callback
-                    clock.update_callback = update_callback
-                    clock.use_wait = False
-                clock.tick()
+            if scene is not old_scene:
+                clock = scene.clock
+                old_scene = scene
+                def frame_callback(interpolation):
+                    scene.render()
+                    camera._draw()
+                def update_callback(dt):
+                    scene.update(self._tick)
+                    self._tick += 1
+                clock.frame_callback = frame_callback
+                clock.update_callback = update_callback
+            clock.tick()
                     
     def run_sugar(self):
         import gtk
         camera = spyral.director.get_camera()
         old_scene = None
-        if self._stack > 0:
+        camera = self._camera
+        if not self._stack:
+            return
+        scene = self.get_scene()
+        clock = scene.clock
+        while True:
             scene = self.get_scene()
-            clock = scene.clock
-            while True:
-                scene = self.get_scene()
-                if scene is not old_scene:
-                    clock = scene.clock
-                    def frame_callback(interpolation):
-                        scene.render()
-                    def update_callback(dt):
-                        while gtk.events_pending():
-                            gtk.main_iteration()
-                            if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
-                                camera.redraw()
-                        scene.update(self._tick)
-                        self._tick += 1
-                    clock.frame_callback = frame_callback
-                    clock.update_callback = update_callback
-                    clock.use_wait = False
-                clock.tick()
+            if scene is not old_scene:
+                clock = scene.clock
+                def frame_callback(interpolation):
+                    scene.render()
+                    camera._draw()
+                def update_callback(dt):
+                    while gtk.events_pending():
+                        gtk.main_iteration()
+                        if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
+                            camera.redraw()
+                    scene.update(self._tick)
+                    self._tick += 1
+                clock.frame_callback = frame_callback
+                clock.update_callback = update_callback
+            clock.tick()
 
 class Scene(object):
     """

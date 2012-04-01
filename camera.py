@@ -199,10 +199,10 @@ class Camera(object):
         except:
             pass
 
-    def draw(self):
+    def _draw(self):
         """
-        Draws the current frame. Should be called only once per frame by
-        the current Scene.
+        Called by the director at the end of every .render() call to do
+        the actual drawing.
         """
 
         # This function sits in a potential hot loop
