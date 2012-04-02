@@ -5,9 +5,8 @@ from weakref import ref as _wref
 _all_sprites = []
 
 def _switch_scene():
-    for s in _all_sprites:
-        if s() is not None:
-            s()._expire_static()
+    global _all_sprites
+    _all_sprites = [s for s in _all_sprites if s() is not None and s()._expire_static()]
 
 class Sprite(object):
     """
@@ -59,6 +58,7 @@ class Sprite(object):
             spyral.director.get_camera()._remove_static_blit(self)
         self._static = False
         self._age = 0
+        return True
         
     def _set_pos(self, pos):
         self._pos = pos
