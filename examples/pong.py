@@ -1,5 +1,10 @@
 # This is an example of a simple pong implementation.
 # Written in under an hour (57 minutes)
+
+# It does some things as an example of how to make a resolution independent
+# game where all game assets are procedurally generated. In general for a sprite
+# based game it would be better to let spyral handle resolution scaling
+# for you.
 import pygame
 import spyral
 import random
@@ -111,7 +116,6 @@ class Menu(spyral.scene.Scene):
         
     def render(self):
         self.group.draw()
-        spyral.director.get_camera().draw()
         
     def update(self, tick):
         for event in pygame.event.get():
@@ -126,7 +130,7 @@ class Menu(spyral.scene.Scene):
 class Pong(spyral.scene.Scene):
     def __init__(self):
         spyral.scene.Scene.__init__(self)
-        self.clock.ticks_per_second = TICKS_PER_SECOND
+        self.clock.max_ups = TICKS_PER_SECOND
         self.camera = spyral.director.get_camera().make_child()
         self.group = spyral.sprite.Group(self.camera)
 
@@ -146,7 +150,6 @@ class Pong(spyral.scene.Scene):
         
     def render(self):
         self.group.draw()
-        spyral.director.get_camera().draw()
         
     def update(self, tick):
         for event in pygame.event.get([pygame.KEYUP, pygame.KEYDOWN]):
