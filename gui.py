@@ -119,23 +119,15 @@ class GUIGroup(spyral.sprite.Group):
     def update(self, *args):
         spyral.sprite.Group.update(self, *args)
         layers = self.camera.layers()
-        def sort_sprites_cmp(x, y):
-            # Sorts sprites by layer from top down
-            # Consider ways to optimize this at some point
-            # Especially if it becomes a slowdown
+        mapping = dict((layer,index) for layer, sprite in enumerate(layers))
+        def sort_key(sprite):
             try:
-                y = layers.index(y.layer)
+                return mapping[x.layer]
             except ValueError:
                 if y.layer[0] == '_':
                     return 100
                 return -1
-            try:
-                x = layers.index(x.layer)
-            except ValueError:
-                return 1
-            return y - x
-
-        self._sprites.sort(sort_sprites_cmp)
+        self._sprites.sort(key=sort_key)
 
         # Let's handle mouse clicks first
         for event in pygame.event.get([pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP]):
