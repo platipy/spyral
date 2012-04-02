@@ -27,7 +27,7 @@ class Camera(object):
     def __init__(self, virtual_size = None,
                        real_size    = None,
                        offset       = (0, 0),
-                       layers       = ['all'],
+                       layers       = None,
                        root         = False):
         if root:
             self._surface = pygame.display.get_surface()
@@ -50,6 +50,8 @@ class Camera(object):
         self._background = None
         self._root = root
         self._offset = offset
+        if layers is None:
+            layers = ['all']
         self._layers = layers
 
         if self._root:
