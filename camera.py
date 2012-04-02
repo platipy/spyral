@@ -229,15 +229,15 @@ class Camera(object):
         clear_next = self._clear_next_frame
         update_this = []
         screen_rect = screen.get_rect()
-        sorted(list(s), key = operator.itemgetter(2))
-        sorted(list(blits), key=operator.itemgetter(2))
+        s.sort(key=operator.itemgetter(2))
+        blits.sort(key=operator.itemgetter(2))
         i = j = 0
         drawn_static = 0
         v = pygame.version.vernum
         # Reminder: blits are (surf, pos, layer)
         for layer in range(-100, 20):
             if len(s) > 0:
-                while i < len(list(s)) and list(s)[i][2] == layer:
+                while i < len(s) and s[i][2] == layer:
                     surf, pos, layer, flags = list(s)[i]
                     # Now, does this need to be redrawn
                     for rect in clear_this:
