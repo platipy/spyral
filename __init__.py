@@ -8,7 +8,6 @@ import spyral.scene
 import spyral._lib
 import spyral.event
 import pygame
-import sys
 
 director = scene.Director()
 
@@ -18,4 +17,4 @@ def init():
     
 def quit():
     pygame.quit()
-    sys.exit()
+    spyral.director._stack = []
