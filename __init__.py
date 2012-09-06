@@ -8,9 +8,14 @@ import spyral.scene
 import spyral._lib
 import spyral.event
 import pygame
+import sys
 
 director = scene.Director()
 
 def init():
     pygame.init()
     pygame.font.init()
+    
+def quit():
+    pygame.quit()
+    sys.exit()
