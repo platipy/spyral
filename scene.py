@@ -131,52 +131,39 @@ class Director(object):
         scene.on_enter()
         pygame.event.get()
 
-    def run(self):
+    def run(self, sugar = False, profiling = False):
         """
-        Runs the scene as dictated by the stack. Does not return.
+        Runs the scene as dictated by the stack.
+        
+        If profiling is enabled, this function will return on every
+        scene change so that scenes can be profiled independently.
         """
+        if sugar:
+            import gtk
         if not self._stack:
             return
         old_scene = None
         scene = self.get_scene()
         camera = self._camera
         clock = scene.clock
+        stack = self._stack
         while True:
-            scene = self.get_scene()
+            scene = stack[-1]
             if scene is not old_scene:
+                if profiling:
+                    return
                 clock = scene.clock
                 old_scene = scene
                 def frame_callback(interpolation):
                     scene.render()
                     camera._draw()
                 def update_callback(dt):
-                    scene.update(self._tick)
-                    self._tick += 1
-                clock.frame_callback = frame_callback
-                clock.update_callback = update_callback
-            clock.tick()
-                    
-    def run_sugar(self):
-        import gtk
-        camera = spyral.director.get_camera()
-        old_scene = None
-        camera = self._camera
-        if not self._stack:
-            return
-        scene = self.get_scene()
-        clock = scene.clock
-        while True:
-            scene = self.get_scene()
-            if scene is not old_scene:
-                clock = scene.clock
-                def frame_callback(interpolation):
-                    scene.render()
-                    camera._draw()
-                def update_callback(dt):
-                    while gtk.events_pending():
-                        gtk.main_iteration()
-                        if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
-                            camera.redraw()
+                    if sugar:
+                        while gtk.events_pending():
+                            gtk.main_iteration()
+                    if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
+                        camera.redraw()
+                        scene.redraw()
                     scene.update(self._tick)
                     self._tick += 1
                 clock.frame_callback = frame_callback
@@ -223,5 +210,11 @@ class Scene(object):
     def update(self, tick):
         """
         Called by the director when a new game logic step should be taken.
+        """
+        pass
+        
+    def redraw(self):
+        """
+        Advanced: Called by the director if the scene should force redraw of non-spyral based assets, like PGU
         """
         pass
