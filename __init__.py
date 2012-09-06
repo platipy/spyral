@@ -1,3 +1,11 @@
+"""
+Spyral, an awesome library for making games.
+"""
+
+__version__ = '0.1'
+__license__ = 'LGPLv2'
+__author__ = 'Robert Deaton'
+
 import spyral.memoize
 import spyral.point
 import spyral.camera
