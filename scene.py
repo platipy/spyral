@@ -150,7 +150,7 @@ class Director(object):
         while True:
             scene = stack[-1]
             if scene is not old_scene:
-                if profiling:
+                if profiling and old_scene is not None:
                     return
                 clock = scene.clock
                 old_scene = scene
