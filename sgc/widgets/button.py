@@ -11,8 +11,8 @@ import pygame
 from pygame.locals import *
 from pygame import draw
 
-from _locals import *
-from base_widget import Simple
+from spyral.sgc.widgets._locals import *
+from spyral.sgc.widgets.base_widget import Simple
 
 class Button(Simple):
 

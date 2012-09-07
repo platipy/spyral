@@ -12,7 +12,7 @@ Constants:
 
 import types
 
-from widgets._locals import GUI
+from spyral.sgc.widgets._locals import GUI
 
 class EventSlot(object):
     """

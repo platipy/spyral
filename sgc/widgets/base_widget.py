@@ -11,8 +11,8 @@ import pygame
 from pygame.locals import Rect, SRCALPHA
 from pygame import draw
 
-from _locals import *
-from _locals import (has_focus, is_active, add_widget, remove_widget_order,
+from spyral.sgc.locals import *
+from spyral.sgc.widgets._locals import (has_focus, is_active, add_widget, remove_widget_order,
                      set_cursor, remove_cursor)
 class Simple(pygame.sprite.Sprite):
 

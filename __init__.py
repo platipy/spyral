@@ -14,6 +14,7 @@ import spyral.sprite
 import spyral.gui
 import spyral.scene
 import spyral._lib
+import spyral.sgc
 import spyral.event
 import pygame
 
