@@ -10,7 +10,7 @@ Screen class to store rect information with the screen and setup the toolkit.
 import pygame.display
 from pygame.locals import *
 
-import spyral.sgc.widgets._locals
+import widgets._locals
 
 class Screen(object):
     """

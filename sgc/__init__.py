@@ -12,24 +12,24 @@ Modules:
 """
 __version__ = "0.1.9"
 
-import spyral.sgc.surface
-import spyral.sgc.locals
-import spyral.sgc.widgets
-from spyral.sgc.widgets._locals import Font, update, event
+import surface
+import locals
+import widgets
+from widgets._locals import Font, update, event
 # Import widgets
-from spyral.sgc.widgets.base_widget import Simple
-#from spyral.sgc.widgets.boxes import VBox, HBox
-from spyral.sgc.widgets.button import Button
-#from spyral.sgc.widgets.container import Container
-#from spyral.sgc.widgets.composite.dialogs import DialogSaveQuit
-#from spyral.sgc.widgets.dialog import Dialog
-#from spyral.sgc.widgets.fps_counter import FPSCounter
-#from spyral.sgc.widgets.input_box import InputBox
-#from spyral.sgc.widgets.label import Label
-#from spyral.sgc.widgets.radio_button import Radio
-#from spyral.sgc.widgets.scroll_box import ScrollBox
-#from spyral.sgc.widgets.settings import Keys
-#from spyral.sgc.widgets.switch import Switch
+from widgets.base_widget import Simple
+from widgets.boxes import VBox, HBox
+from widgets.button import Button
+from widgets.container import Container
+from widgets.composite.dialogs import DialogSaveQuit
+from widgets.dialog import Dialog
+from widgets.fps_counter import FPSCounter
+from widgets.input_box import InputBox
+from widgets.label import Label
+from widgets.radio_button import Radio
+from widgets.scroll_box import ScrollBox
+from widgets.settings import Keys
+from widgets.switch import Switch
 
 # Import Menu last, so it can import the other widgets from here.
-#from spyral.sgc.widgets.menu import Menu
+from widgets.menu import Menu
