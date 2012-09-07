@@ -1,5 +1,8 @@
 import pygame
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 import spyral
 import os
 import random
