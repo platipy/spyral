@@ -74,6 +74,8 @@ class Simple(spyral.sprite.Sprite):
 
         # Use default size if none specified
         if surf is None:
+            if self._default_size is None:
+                raise ValueError("surf and default_size are both none, so there's nothing to draw.")
             surf = self._default_size
         elif isinstance(surf, (tuple, list)) and (isinstance(surf[0], str) or
                                                   isinstance(surf[1], str)):
