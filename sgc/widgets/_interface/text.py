@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 
-from .._locals import *
+from spyral.sgc.widgets._locals import *
 
 class SelectableText:
     _text = ""
@@ -15,13 +15,15 @@ class SelectableText:
     _select = None  # Starting point of selection
     __cursor_pos = 0
 
-    @property
-    def _blink(self):
+    #@property
+    def _blink_getter(self):
         """Always return False when a selection is made."""
         return self.__blink and not bool(self._select)
-    @_blink.setter
-    def _blink(self, value):
+    #@_blink.setter
+    def _blink_setter(self, value):
         self.__blink = value
+    
+    _blink = property(_blink_getter, _blink_setter)
 
     def _select_fix(self):
         """
@@ -227,16 +229,16 @@ class SelectableText:
         # Border around selection rectangle
         pygame.draw.rect(image, self._settings["col_selection"], r, 1)
 
-    @property
-    def _cursor_pos(self):
+    #@property
+    def _cursor_pos_getter(self):
         """
         The cursor position in characters. Will ensure cursor is always in
         valid location when set.
 
         """
         return self.__cursor_pos
-    @_cursor_pos.setter
-    def _cursor_pos(self, value):
+    #@_cursor_pos.setter
+    def _cursor_pos_setter(self, value):
         # Keep cursor position within text
         self.__cursor_pos = min(max(value, 0), len(self._text))
         # Scroll text in input box when it's too long
@@ -245,3 +247,5 @@ class SelectableText:
             self._text_pos = -(pos - self.rect.w + self._text_offset)
         elif pos < (self._text_offset - self._text_pos):
             self._text_pos = self._text_offset - pos
+
+    _cursor_pos = property(_cursor_pos_getter, _cursor_pos_setter)

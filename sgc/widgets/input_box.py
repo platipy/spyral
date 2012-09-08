@@ -76,15 +76,17 @@ class InputBox(Simple, SelectableText):
         draw.rect(self._images["inactive"], (0,0,1), ((0,0), self.rect.size), 4)
 
     # Store the input text as a list
-    @property
-    def text(self):
+    #@property
+    def text_getter(self):
         return "".join(self._text)
-    @text.setter
-    def text(self, txt):
+    #@text.setter
+    def text_setter(self, txt):
         self._text = [unicode(char) for char in txt]
         # Re-evaluate cursor position.
         self._cursor_pos = self._cursor_pos
         self._calc_chars()
+    
+    text = property(text_getter, text_setter)
 
     def on_enter(self):
         """

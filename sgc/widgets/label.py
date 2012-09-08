@@ -121,16 +121,17 @@ class Label(Simple, SelectableText):
             else:
                 self._draw_selection(self.image, 1, self.rect.h - 2)
 
-    @property
-    def text(self):
+    #@property
+    def text_getter(self):
         return self._settings["text"]
-    @text.setter
-    def text(self, value):
+    #@text.setter
+    def text_setter(self, value):
         self._settings["text"] = value
         self._draw()
         if self._can_focus:
             self._calc_chars()
 
+    text = property(text_getter, text_setter)
     _text = text  # For SelectableText
 
     def _focus_exit(self):

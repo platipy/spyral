@@ -20,7 +20,7 @@ Settings for games, these include:
 import pygame
 from pygame.locals import *
 
-from ..locals import *
+from spyral.sgc.locals import *
 from _locals import *
 from base_widget import Simple
 
@@ -49,9 +49,10 @@ class Keys(Simple):
         size = self._default_screen.size
         Simple.__init__(self, size, parent, **kwargs)
         # Load key order
-        with open(keymap_file) as f:
-            f.readline()
-            self._key_order = eval(f.readline())
+        f = open(keymap_file)
+        f.readline()
+        self._key_order = eval(f.readline())
+        f.close()
         assert isinstance(self._key_order, list)
 
     def add(self):

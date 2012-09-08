@@ -9,7 +9,7 @@ Common dialog widgets.
 
 import pygame
 
-from .._locals import *
+from spyral.sgc.widgets._locals import *
 
 from .. import boxes
 from ..container import Container

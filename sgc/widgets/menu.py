@@ -9,7 +9,10 @@ The menu data format is documented at :doc:`dev.menu`
 
 """
 
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 from pygame import Surface
 from pygame.locals import SRCALPHA, BLEND_RGBA_MULT
@@ -18,7 +21,7 @@ from _locals import *
 from base_widget import Simple
 from boxes import VBox
 from scroll_box import ScrollBox
-from .. import *
+from spyral.sgc import *
 
 class Menu(Simple):
 
@@ -76,6 +79,12 @@ class Menu(Simple):
                 def check(m):
                     a = m.iteritems() if isinstance(m, dict) else enumerate(m)
                     for i,item in a:
+                        # Convert unicode to str
+                        if isinstance(i, (str, unicode)):
+                            val = m[i]
+                            del m[i]
+                            i = i.encode('utf-8')
+                            m[i] = val
                         if isinstance(item, (str, unicode)) and item[0] == "$":
                             parts = item[1:].split("(")
                             f = self._funcs[parts[0]]
