@@ -37,7 +37,9 @@ class Game(spyral.scene.Scene):
         bg.fill(BG_COLOR)
         self.camera.set_background(bg)
         # More setup here
-        btn = spyral.sgc.Simple(pos=(100, 100))
+        s = spyral.util.new_surface((10,10))
+        s.fill((0,255,0))
+        btn = spyral.sgc.Simple(s, pos=(100, 100))
         #btn.add(0)
         self.group.add(btn)
                 
