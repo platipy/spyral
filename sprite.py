@@ -40,7 +40,8 @@ class Sprite(object):
         self._rect = None
         self._layer = '__default__'
         self._groups = []
-        self.add(*groups)
+        if groups:
+            self.add(*groups)
         self._make_static = False
         self._pos = (0,0)
         self._double_check = False
