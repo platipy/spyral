@@ -16,6 +16,7 @@ get_screen(): Returns the screen object.
 from pygame.locals import *
 import spyral.sprite
 import spyral
+import pygame
 
 try:
     from OpenGL.GL import *

@@ -10,6 +10,7 @@ Base widget, all widgets inherit from this.
 import pygame
 from pygame.locals import Rect, SRCALPHA
 from pygame import draw
+import spyral
 
 from spyral.sgc.widgets._locals import *
 from spyral.sgc.widgets._locals import (has_focus, is_active, add_widget, remove_widget_order,
@@ -167,9 +168,9 @@ class Simple(spyral.sprite.Sprite):
 
         """
         if isinstance(groups, (list, tuple)):
-            spyral.sprite.add(*groups)
+            spyral.sprite.Sprite.add(self, *groups)
         else:
-            spyral.sprite.add(groups)
+            spyral.sprite.Sprite.add(self, groups)
         added = add_widget(self, order)
 
         # Fade widget in
