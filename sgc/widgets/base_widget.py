@@ -14,7 +14,7 @@ from pygame import draw
 from spyral.sgc.locals import *
 from spyral.sgc.widgets._locals import (has_focus, is_active, add_widget, remove_widget_order,
                      set_cursor, remove_cursor)
-class Simple(pygame.sprite.Sprite):
+class Simple(spyral.sprite.Sprite):
 
     """
     Widget foundations all widgets should inherit from.
@@ -63,7 +63,7 @@ class Simple(pygame.sprite.Sprite):
           kwargs: Any number of keyword arguments matching those for config().
 
         """
-        pygame.sprite.Sprite.__init__(self)
+        spyral.sprite.Sprite.__init__(self)
 
         # Initialise attributes
         self._images = {}
@@ -76,7 +76,7 @@ class Simple(pygame.sprite.Sprite):
             surf = self._default_size
         elif isinstance(surf, (tuple, list)) and (isinstance(surf[0], str) or
                                                   isinstance(surf[1], str)):
-            size = get_screen().rect.size
+            size = spyral.scene.director.size
             s = list(surf)
             for i in (0,1):
                 if isinstance(surf[i], str):
@@ -279,10 +279,12 @@ class Simple(pygame.sprite.Sprite):
                 if isinstance(surf[0], (tuple,list)):
                     surf = (self.rect.w * surf[0][0] + surf[0][1],
                             self.rect.h * surf[1][0] + surf[1][1])
-                surf = Image(surf, self._surf_flags)
+                #surf = Image(surf, self._surf_flags)
+				surf = spyral.util.new_surface(surf)
                 return surf
             elif isinstance(surf, str):
-                return pygame.image.load(surf).convert_alpha()
+                #return pygame.image.load(surf).convert_alpha()
+				return spyral.util.load_image(surf)
             else:
                 raise ValueError("Invalid surface object: %s" % type(surf))
 
@@ -419,7 +421,7 @@ class Simple(pygame.sprite.Sprite):
             if self._parent is not None:
                 size = self._parent.rect.size
             else:
-                size = get_screen().rect.size
+                size = spyral.scene.director.size
             pos = list(value)
             for i in (0,1):
                 if isinstance(value[i], str):

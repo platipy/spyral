@@ -37,8 +37,9 @@ class Game(spyral.scene.Scene):
         bg.fill(BG_COLOR)
         self.camera.set_background(bg)
         # More setup here
-        #btn = spyral.sgc.Button(label="Hello World", pos=(100, 100))
+        btn = spyral.sgc.Simple(pos=(100, 100))
         #btn.add(0)
+        self.group.add(btn)
                 
     def render(self):
         """
@@ -55,10 +56,8 @@ class Game(spyral.scene.Scene):
         event handling should be taken care of, etc.
         """
         self.group.update()
-        #spyral.sgc.event(
-        for event in pygame.event.get([pygame.KEYUP, pygame.KEYDOWN]):
-            #sgc.event(event)
-            if event.type == QUIT:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 exit()
 
 if __name__ == "__main__":

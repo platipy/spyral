@@ -12,7 +12,7 @@ Modules:
 """
 __version__ = "0.1.9"
 
-import spyral.sgc.surface
+#import spyral.sgc.surface
 import spyral.sgc.locals
 import spyral.sgc.widgets
 from spyral.sgc.widgets._locals import Font, update, event

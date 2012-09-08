@@ -13,8 +13,9 @@ get_screen(): Returns the screen object.
 
 """
 
-import pygame.sprite
 from pygame.locals import *
+import spyral.sprite
+import spyral
 
 try:
     from OpenGL.GL import *
@@ -28,7 +29,7 @@ __all__ = ["GUI", "get_screen", "Font"]
 GUI = USEREVENT
 
 SCREEN = None
-get_screen = lambda: SCREEN
+get_screen = lambda: spyral.scene.director
 
 # Cursor queue for set_cursor() and remove_cursor()
 cursors = []
