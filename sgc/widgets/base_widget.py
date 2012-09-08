@@ -77,15 +77,6 @@ class Simple(spyral.sprite.Sprite):
             if self._default_size is None:
                 raise ValueError("surf and default_size are both none, so there's nothing to draw.")
             surf = self._default_size
-        elif isinstance(surf, (tuple, list)) and (isinstance(surf[0], str) or
-                                                  isinstance(surf[1], str)):
-            size = spyral.scene.director.size
-            s = list(surf)
-            for i in (0,1):
-                if isinstance(surf[i], str):
-                    ratio = float(surf[i].rstrip("%")) / 100.
-                    s[i] = size[i] * ratio
-            surf = tuple(s)
 
         if flags is not None:
             self._surf_flags = flags
