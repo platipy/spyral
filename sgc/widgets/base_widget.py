@@ -154,17 +154,22 @@ class Simple(spyral.sprite.Sprite):
         """Widgets should overload for custom widget configuration."""
         pass
 
-    def add(self, order=None, fade=True):
+    def add(self, groups, order=None, fade=True):
         """
-        Add widget to screen.
+        Add widget to group.
 
         Args:
+          groups: Iterable or singular Group to add this widget to
           order: Integer representing the order widget should receive focus
               when user presses TAB. The widget with the lowest order will
               receive focus first, then moving up with increasing values.
           fade: True if widget should fade in, False if not.
 
         """
+        if isinstance(groups, (list, tuple)):
+            spyral.sprite.add(*groups)
+        else:
+            spyral.sprite.add(groups)
         added = add_widget(self, order)
 
         # Fade widget in
@@ -180,9 +185,9 @@ class Simple(spyral.sprite.Sprite):
         if self._label is not None:
             self._label.add(fade=fade)
 
-    def remove(self, fade=True):
+    def remove(self, groups, fade=True):
         """
-        Remove widget from screen.
+        Remove widget from group.
 
         Args:
           fade: True if widget should fade out.
@@ -192,13 +197,16 @@ class Simple(spyral.sprite.Sprite):
             self._fade_up = False
             if self._fade is None: self._fade = 250
         else:  # Remove widget immediately
-            self.kill()
+            if isinstance(groups, (list, tuple)):
+                spyral.sprite.remove(*groups)
+            else:
+                spyral.sprite.remove(groups)
         remove_widget_order(self)
         if self.has_focus(): self._focus_exit()
 
         # Remove any associated label
         if self._label is not None:
-            self._label.remove(fade)
+            self._label.remove(fade)        
 
     def active(self):
         """Return True if widget is active (onscreen)."""
@@ -280,11 +288,11 @@ class Simple(spyral.sprite.Sprite):
                     surf = (self.rect.w * surf[0][0] + surf[0][1],
                             self.rect.h * surf[1][0] + surf[1][1])
                 #surf = Image(surf, self._surf_flags)
-				surf = spyral.util.new_surface(surf)
+                surf = spyral.util.new_surface(surf)
                 return surf
             elif isinstance(surf, str):
                 #return pygame.image.load(surf).convert_alpha()
-				return spyral.util.load_image(surf)
+                return spyral.util.load_image(surf)
             else:
                 raise ValueError("Invalid surface object: %s" % type(surf))
 
@@ -412,7 +420,7 @@ class Simple(spyral.sprite.Sprite):
     #@property
     def _pos_getter(self):
         return self.rect.topleft
-	
+    
     #@pos.setter
     def _pos_setter(self, value):
         if not isinstance(value[0], str) and not isinstance(value[1], str):
@@ -463,7 +471,7 @@ class _Label(Simple):
           parent: Widget label should be attached to.
 
         """
-        pygame.sprite.Sprite.__init__(self)
+        spyral.sprite.Sprite.__init__(self)
 
         self.text = text
         self.parent = parent
@@ -485,8 +493,9 @@ class _Label(Simple):
         w = max(text, key=lambda x: x.get_width())
         self._rect.size = (w.get_width(), h)
 
-        Image = pygame.Surface
-        self.image = Image((w.get_width(), h), SRCALPHA)
+        #Image = pygame.Surface
+        #self.image = Image((w.get_width(), h), SRCALPHA)
+        self.image = spyral.util.new_surface(w.get_width(), h)
 
         # Blit each line
         y = 0

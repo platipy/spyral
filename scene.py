@@ -44,7 +44,7 @@ class Director(object):
             flags |= pygame.NOFRAME
         if fullscreen:
             flags |= pygame.FULLSCREEN
-		self._opengl = False
+        self._opengl = False
         self._screen = pygame.display.set_mode(size, flags)
 
         self._initialized = True
