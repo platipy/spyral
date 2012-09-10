@@ -53,6 +53,8 @@ class Sprite(object):
         self.visible = True
         self._anchor = 'topleft'
         self._offset = (0, 0)
+        self._scale = 1.0
+        self._scaled_image = None
     
     def _set_static(self):
         self._make_static = True
@@ -93,7 +95,13 @@ class Sprite(object):
         else:
             offset = a
         self._offset = offset
-
+        
+    def _recalculate_scaled(self):
+        if self._scale == 1.0:
+            self._scaled_image = self._image
+        else:
+            new_size = (int(self._image.get_width() * self._scale), int(self._image.get_height() * self._scale))
+            self._scaled_image = pygame.transform.smoothscale(self._image, new_size, spyral.util.new_surface(new_size))
 
     def _get_pos(self):
         return self._pos
@@ -121,6 +129,7 @@ class Sprite(object):
         if self._image is image:
             return
         self._image = image
+        self._recalculate_scaled()
         self._recalculate_offset()
         if self._static:
             self._expire_static()
@@ -159,6 +168,8 @@ class Sprite(object):
             return
         self._anchor = anchor
         self._recalculate_offset()
+        if self._static:
+            self._expire_static()
         
     def _get_width(self):
         if self.image:
@@ -173,6 +184,19 @@ class Sprite(object):
     def _get_size(self):
         if self.image:
             return self._image.get_size()
+            
+    def _get_scale(self):
+        return self._scale
+        
+    def _set_scale(self, scale):
+        if self._scale == scale:
+            return
+        self._scale = scale
+        self._recalculate_scaled()
+        if self._static:
+            self._expire_static()
+            
+        
     
     position = property(_get_pos, _set_pos)
     pos = property(_get_pos, _set_pos)
@@ -182,6 +206,7 @@ class Sprite(object):
     x = property(_get_x, _set_x)
     y = property(_get_y, _set_y)
     anchor = property(_get_anchor, _set_anchor)
+    scale = property(_get_scale, _set_scale)
     width = property(_get_width)
     height = property(_get_height)
     size = property(_get_size)
@@ -219,7 +244,7 @@ class Sprite(object):
             return
         if self._make_static or self._age > 4:
             camera._static_blit(self,
-                                self._image,
+                                self._scaled_image,
                                 (self._pos[0] + self._offset[0],
                                  self._pos[1] + self._offset[1]),
                                 self._layer,
@@ -227,7 +252,7 @@ class Sprite(object):
             self._make_static = False
             self._static = True
             return
-        camera._blit(self._image,
+        camera._blit(self._scaled_image,
                      (self._pos[0] + self._offset[0],
                       self._pos[1] + self._offset[1]),
                      self._layer,

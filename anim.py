@@ -26,8 +26,7 @@ class Animation(object):
         # Idea: These animators could be used for camera control
         # at some point. Everything should work pretty much the same.
         
-        properties = ['x', 'y', 'image'] # , 'scale', 'scale_x', 'scale_y']
-        # Scaling properties will come with support for scaling on sprites.
+        properties = ['x', 'y', 'image', 'scale']
         self.property = property
         self.animation = animation
         self.duration = duration
