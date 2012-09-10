@@ -178,8 +178,11 @@ class Sprite(object):
                      self._blend_flags)
         self._age += 1
                                     
-    def update(self, camera, *args):
-        """ Called once per update tick. """
+    def update(self, dt, *args):
+        """
+        Called once per update tick. dt is the time in seconds since
+        the last update call
+        """
         pass
         
     def remove(self, *groups):
