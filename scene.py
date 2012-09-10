@@ -164,6 +164,7 @@ class Director(object):
                     if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
                         camera.redraw()
                         scene.redraw()
+                    scene.event_handler.tick()
                     scene.update(self._tick)
                     self._tick += 1
                 clock.frame_callback = frame_callback
@@ -176,8 +177,12 @@ class Scene(object):
     
     *self.clock* will contain an instance of GameClock which can be replaced
     or changed as is needed.
+    *self.event_handler* will contain an EventHandler object that this scene
+    should use to pull events.
+    *self.parent_camera* will contain a Camera object that this scene should
+    use as the basis for all of it's cameras.
     """
-    def __init__(self, max_ups = None, max_fps = None):
+    def __init__(self, event_handler = None, parent_camera = None, max_ups = None, max_fps = None):
         """
         By default, max_ups and max_fps are pulled from the director.
         """
@@ -188,6 +193,13 @@ class Scene(object):
                             max_fps=max_fps or spyral.director._max_fps,
                             max_ups=max_ups or spyral.director._max_ups)
         self.clock.use_wait = True
+        if event_handler is None:
+            event_handler = spyral.event.LiveEventHandler()
+        if parent_camera is None:
+            parent_camera = spyral.director.get_camera()
+            
+        self.event_handler = event_handler
+        self.parent_camera = parent_camera
 
     def on_exit(self):
         """
