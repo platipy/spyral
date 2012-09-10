@@ -6,6 +6,8 @@ __version__ = '0.1'
 __license__ = 'LGPLv2'
 __author__ = 'Robert Deaton'
 
+import spyral.compat
+
 import spyral.memoize
 import spyral.point
 import spyral.camera
