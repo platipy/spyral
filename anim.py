@@ -63,6 +63,7 @@ class AnimationGroup(Group):
         
     def update(self, dt):
         completed = []
+        on_completes = []
         for sprite in self._sprites:
             for animation in self._animations[sprite]:
                 self._progress[(sprite, animation)] += dt
@@ -70,16 +71,16 @@ class AnimationGroup(Group):
                 if progress > animation.duration:
                     progress = animation.duration
                     animation.evaluate(sprite, progress)
-                    c = self._on_complete[(sprite, animation)]
-                    if c is not None:
-                        c()
                     completed.append((sprite, animation))
                 else:
                     animation.evaluate(sprite, progress)
         for sprite, animation in completed:
             self._animations[sprite].remove(animation)
             del self._progress[(sprite, animation)]
+            c = self._on_complete[(sprite, animation)]
+            on_completes.append(c)
             del self._on_complete[(sprite, animation)]
+        d = [c() for c in on_completes if c is not None]
         Group.update(self, dt)
 
 class AnimationSprite(Sprite):
