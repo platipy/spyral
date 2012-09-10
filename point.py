@@ -68,3 +68,11 @@ def bounding_rect(l):
     minx = max(0, min(x))
     miny = max(0, min(y))
     return pygame.Rect(minx, miny, max(x)-minx, max(y)-miny)
+    
+def lies_in(p, top_left, bot_right):
+    """
+    Computes whether a point is in a rectangle defined by it's top right and bottom left coordinates.
+    
+    Edge blocks count on the left side, but not the right.
+    """
+    return top_left[0] <= p[0] < bot_right[0] and top_left[1] <= p[1] < bot_right[1]
