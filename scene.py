@@ -52,6 +52,7 @@ class Director(object):
         pygame.display.set_caption(caption)
 
         self._stack = []
+        self._tick = 0
 
         self._max_ups = max_ups
         self._max_fps = max_fps
@@ -70,6 +71,13 @@ class Director(object):
             return self._stack[-1]
         except IndexError:
             return None
+
+    def get_tick(self):
+        """
+        Returns the current tick number, where ticks happen on each update,
+        not on each frame.
+        """
+        return self._tick
 
     def replace(self, scene):
         """
@@ -158,6 +166,7 @@ class Director(object):
                         scene.redraw()
                     scene.event_handler.tick()
                     scene.update(dt)
+                    self._tick += 1
                 clock.frame_callback = frame_callback
                 clock.update_callback = update_callback
             clock.tick()
@@ -210,10 +219,9 @@ class Scene(object):
         """
         pass
 
-    def update(self, dt):
+    def update(self, tick):
         """
-        Called by the director when a new game logic step should be
-        taken. dt is the amount of time passed since the last update.
+        Called by the director when a new game logic step should be taken.
         """
         pass
         
