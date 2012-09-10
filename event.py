@@ -186,3 +186,12 @@ class AnnotationOverworld(spyral.scene.Scene):
     def render(self):
         self.group.draw()
         self.scene.render()
+
+class Keys(object):
+    def __init__(self):
+        self.up = 273
+        self.down = 274
+        self.right = 275
+        self.left = 276
+
+keys = Keys()
