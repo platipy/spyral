@@ -8,7 +8,5 @@ scale, allowing for the possibility of a [-1, 1] scale as well.
 
 def Linear(start, finish):
     def linear_animator(dt):
-        print 'Linear Animator'
-        print start, finish, dt, (finish-start)*(dt)+start
         return (finish-start)*(dt)+start
     return linear_animator
