@@ -8,12 +8,19 @@ import os
 import random
 import base64
 
+_event_names = ['QUIT', 'ACTIVEEVENT', 'KEYDOWN', 'KEYUP', 'MOUSEMOTION',
+                'MOUSEBUTTONUP', 'JOYAXISMOTION', 'JOYBALLMOTION', 
+                'JOYHATMOTION', 'JOYBUTTONUP', 'JOYBUTTONDOWN',
+                'VIDEORESIZE', 'VIDEOEXPOSE', 'USEREVENT']
+
+_type_to_name = {getattr(pygame, name) : name for name in _event_names}
+
 _type_to_attrs = {
-    pygame.QUIT           : ('type'),
+    pygame.QUIT           : ('type', ),
     pygame.ACTIVEEVENT    : ('type', 'gain', 'state'),
-    pygame.KEYDOWN      : ('type', 'unicode', 'key', 'mod'),
-    pygame.KEYUP            : ('type', 'key', 'mod'),
-    pygame.MOUSEMOTION  : ('type', 'pos', 'rel', 'buttons'),
+    pygame.KEYDOWN        : ('type', 'unicode', 'key', 'mod'),
+    pygame.KEYUP          : ('type', 'key', 'mod'),
+    pygame.MOUSEMOTION    : ('type', 'pos', 'rel', 'buttons'),
     pygame.MOUSEBUTTONUP  : ('type', 'pos', 'button'),
     pygame.MOUSEBUTTONDOWN: ('type', 'pos', 'button'),
     pygame.JOYAXISMOTION  : ('type', 'joy', 'axis', 'value'),
@@ -28,9 +35,14 @@ _type_to_attrs = {
 
 def _event_to_dict(event):
     attrs = _type_to_attrs[event.type]
-    return dict((attr, getattr(event, attr)) for attr in attrs)
+    d = dict((attr, getattr(event, attr)) for attr in attrs)
+    d['type'] = _type_to_name[event.type]
+    return d
 
 class EventHandler(object):
+    """
+    Base event handler class.
+    """
     def __init__(self):
         self._events = []
         self._mouse_pos = (0,0)
@@ -45,7 +57,8 @@ class EventHandler(object):
     def get(self, types = []):
         """
         Analagous to pygame.event.get(). Can take either a type or an iterable
-        of types.
+        of types. Events are pulled from self._events, populated by each
+        implementation.
         """
         try:
             types[0]
@@ -59,8 +72,8 @@ class EventHandler(object):
             self._events = []
             return ret
 
-        ret = [e for e in self._events if e.type in types]
-        self._events = [e for e in self._events if e.type not in types]
+        ret = [e for e in self._events if e['type'] in types]
+        self._events = [e for e in self._events if e['type'] not in types]
         return ret
 
 class LiveEventHandler(EventHandler):
@@ -76,11 +89,11 @@ class LiveEventHandler(EventHandler):
         
     def tick(self):
         mouse = pygame.mouse.get_pos()
-        events = pygame.event.get()
+        events = [_event_to_dict(e) for e in pygame.event.get()]
         self._mouse_pos = mouse
         self._events.extend(events)
         if self._save:
-            d = {'mouse' : mouse, 'events' : [_event_to_dict(e) for e in events]}
+            d = {'mouse' : mouse, 'events' : events}
             self._file.write(json.dumps(d) + "\n")
         
     def __del__(self):
