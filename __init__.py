@@ -17,6 +17,8 @@ import spyral.gui
 import spyral.scene
 import spyral._lib
 import spyral.event
+import spyral.animations
+import spyral.anim
 import pygame
 
 director = scene.Director()
