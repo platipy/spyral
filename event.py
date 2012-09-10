@@ -13,7 +13,7 @@ _event_names = ['QUIT', 'ACTIVEEVENT', 'KEYDOWN', 'KEYUP', 'MOUSEMOTION',
                 'JOYHATMOTION', 'JOYBUTTONUP', 'JOYBUTTONDOWN',
                 'VIDEORESIZE', 'VIDEOEXPOSE', 'USEREVENT', 'MOUSEBUTTONDOWN']
 
-_type_to_name = {getattr(pygame, name) : name for name in _event_names}
+_type_to_name = dict((getattr(pygame, name), name) for name in _event_names)
 
 _type_to_attrs = {
     pygame.QUIT           : ('type', ),
