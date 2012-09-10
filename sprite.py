@@ -13,10 +13,15 @@ class Sprite(object):
     Analagous to Sprite in pygame, but with many more features. For more
     detail, read the FAQ. Important member variables are:
     
-    | *position*, *pos* - (x,y) coordinates for where to draw. Supports
-      subpixel positioning. Automatically updates *rect* as well
-    | *rect* - a pygame.rect.Rect used for positioning. Does not support
-      subpixel positioning. Automatically updates *position*, *pos* as well.
+    | *position*, *pos* - (x,y) coordinates for the sprite. Supports
+      subpixel positioning and is kept in sync with *x* and *y*
+    | *x* - x coordinate for the sprite
+    | *y* - y coordinate for the sprite
+    | *anchor* - position that the *x* and *y* coordinates are relative
+      to on the image. Supports special values 'topleft', 'topright',
+      'bottomleft', 'bottomright', 'center', 'midtop', 'midbottom',
+      'midleft', 'midright', or a tuple of offsets which are treated
+      as relative to the top left of the image.
     | *layer* - a string representing the layer to draw on. It should be a
       layer which exists on the camera that is used for the group(s) the
       sprite belongs to; if it is not, it will be drawn on top
@@ -29,6 +34,8 @@ class Sprite(object):
     | *blend_flags* - blend flags for pygame.surface.Surface.blit(). See the
       pygame documentation for more information.
     | *visible* - whether or not to draw this sprite
+    | *width*, *height*, *size* - width, height, and size of the image
+      respectively. Read-only.
     """
 
     def __init__(self, *groups):
@@ -37,15 +44,15 @@ class Sprite(object):
         self._age = 0
         self._static = False
         self._image = None
-        self._rect = None
         self._layer = '__default__'
         self._groups = []
         self.add(*groups)
         self._make_static = False
         self._pos = (0,0)
-        self._double_check = False
         self._blend_flags = 0
         self.visible = True
+        self._anchor = 'topleft'
+        self._offset = (0, 0)
     
     def _set_static(self):
         self._make_static = True
@@ -60,26 +67,44 @@ class Sprite(object):
         self._age = 0
         return True
         
+    def _recalculate_offset(self):
+        w = self.width
+        h = self.height
+        a = self._anchor
+        
+        if a == 'topleft':
+            offset = (0, 0)
+        elif a == 'topright':
+            offset = (w, 0)
+        elif a == 'midtop':
+            offset = (w/2., 0)
+        elif a == 'bottomleft':
+            offset = (0, h)
+        elif a == 'bottomright':
+            offset = (w, h)
+        elif a == 'midbottom':
+            offset = (w/2., h)
+        elif a == 'midleft':
+            offset = (0, h/2.)
+        elif a == 'midright':
+            offset = (w, h/2.)
+        elif a == 'center':
+            offset = (w/2., h/2.)
+        else:
+            offset = a
+        self._offset = offset
+
+
+    def _get_pos(self):
+        return self._pos
+
     def _set_pos(self, pos):
         self._pos = pos
         self._age = 0
         if self._static:
             self._expire_static()
-        if self._rect is None:
-            return
-            if self._image is None:
-                return pygame.Rect(self._pos, (1,1))
-            else:
-                return pygame.Rect(self._pos, self._image.get_size())
-        self._rect.topleft = pos
         
-    def _get_pos(self):
-        if self._double_check:
-            if self._pos != self._rect.topleft:
-                self._expire_static()
-                self._pos = self._rect.topleft
-        return self._pos
-        
+
     def _get_layer(self):
         return self._layer
         
@@ -88,6 +113,7 @@ class Sprite(object):
         if self._static:
             self._expire_static()
         
+
     def _get_image(self):
         return self._image
         
@@ -95,44 +121,74 @@ class Sprite(object):
         if self._image is image:
             return
         self._image = image
+        self._recalculate_offset()
         if self._static:
             self._expire_static()
             
+
     def _get_blend_flags(self):
         return self._blend_flags
     
     def _set_blend_flags(self, flags):
+        if self._blend_flags == flags:
+            return
         self._blend_flags = flags
         if self._static:
             self._expire_static()
-            
-    def _get_rect(self):
-        self._double_check = True
-        if self._rect is None:
-            if self._pos is None:
-                raise AttributeError("Set pos or rect before accessing rect")
-            if self._image is None:
-                r = pygame.Rect(self._pos, (1,1))
-            else:
-                r = pygame.Rect(self._pos, self._image.get_size())
-            self._rect = r
-        return self._rect
+                    
+
+    def _get_x(self):
+        return self._get_pos()[0]
         
-    def _set_rect(self, rect):
-        if self._rect == rect:
+    def _set_x(self, x):
+        self._set_pos((x, self._get_y()))
+        
+
+    def _get_y(self):
+        return self._get_pos()[1]
+        
+    def _set_y(self, y):
+        self._set_pos((self._get_x(), y))
+        
+
+    def _get_anchor(self):
+        return self._anchor
+        
+    def _set_anchor(self, anchor):
+        if anchor == self._anchor:
             return
-        if self._static:
-            self._expire_static()
-        self._age = 0
-        self._pos = rect.topleft
-        self._rect = rect
+        self._anchor = anchor
+        self._recalculate_offset()
         
+    def _get_width(self):
+        if self.image:
+            return self._image.get_width()
+        return None
+    
+    def _get_height(self):
+        if self.image:
+            return self._image.get_height()
+        return None
+        
+    def _get_size(self):
+        if self.image:
+            return self._image.get_size()
+    
     position = property(_get_pos, _set_pos)
     pos = property(_get_pos, _set_pos)
     layer = property(_get_layer, _set_layer)
     image = property(_get_image, _set_image)
-    rect = property(_get_rect, _set_rect)
     blend_flags = property(_get_blend_flags, _set_blend_flags)
+    x = property(_get_x, _set_x)
+    y = property(_get_y, _set_y)
+    anchor = property(_get_anchor, _set_anchor)
+    width = property(_get_width)
+    height = property(_get_height)
+    size = property(_get_size)
+    
+    def get_rect(self):
+        return pygame.Rect((self._pos[0] - self._offset[0], self._pos[1] - self._offset[1]),
+                           (self.width, self.height))
         
     def add(self, *groups):
         """ Add this sprite to any groups passed in. """
@@ -159,21 +215,21 @@ class Sprite(object):
     def draw(self, camera):
         if not self.visible:
             return
-        if self._double_check:
-            self.pos
         if self._static:
             return
         if self._make_static or self._age > 4:
             camera._static_blit(self,
                                 self._image,
-                                self._pos,
+                                (self._pos[0] + self._offset[0],
+                                 self._pos[1] + self._offset[1]),
                                 self._layer,
                                 self._blend_flags)
             self._make_static = False
             self._static = True
             return
         camera._blit(self._image,
-                     self._pos,
+                     (self._pos[0] + self._offset[0],
+                      self._pos[1] + self._offset[1]),
                      self._layer,
                      self._blend_flags)
         self._age += 1
