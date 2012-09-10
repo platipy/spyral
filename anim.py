@@ -36,15 +36,7 @@ class Animation(object):
     def evaluate(self, sprite, progress):
         progress = progress/self.duration
         value = self.animation(progress)
-        if self.property == 'x':
-            pos = sprite.pos
-            sprite.pos = (value, pos[1])
-        elif self.property == 'y':
-            pos = sprite.pos
-            sprite.pos = (pos[0], value)
-        else:
-            setattr(sprite, self.property, value)
-            
+        return value            
 
 class AnimationGroup(Group):
     def __init__(self, *args):
@@ -52,6 +44,7 @@ class AnimationGroup(Group):
         self._animations = defaultdict(list)
         self._progress = {}
         self._on_complete = {}
+        self._start_state = {}
     
     def add_animation(self, sprite, animation, on_complete = None):
         for a in self._animations[sprite]:
@@ -60,6 +53,8 @@ class AnimationGroup(Group):
         self._animations[sprite].append(animation)
         self._progress[(sprite, animation)] = 0
         self._on_complete[(sprite, animation)] = on_complete
+        if animation.absolute is False:
+            self._start_state[(sprite, animation)] = getattr(sprite, animation.property)
         
     def update(self, dt):
         completed = []
@@ -70,16 +65,23 @@ class AnimationGroup(Group):
                 progress = self._progress[(sprite, animation)]
                 if progress > animation.duration:
                     progress = animation.duration
-                    animation.evaluate(sprite, progress)
                     completed.append((sprite, animation))
-                else:
-                    animation.evaluate(sprite, progress)
+    
+                value = animation.evaluate(sprite, progress)
+                if animation.absolute is False:
+                    value = value + self._start_state[(sprite, animation)]
+                setattr(sprite, animation.property, value)
+
         for sprite, animation in completed:
             self._animations[sprite].remove(animation)
             del self._progress[(sprite, animation)]
             c = self._on_complete[(sprite, animation)]
             on_completes.append(c)
             del self._on_complete[(sprite, animation)]
+            try:
+                del self._start_state[(sprite, animation)]
+            except KeyError:
+                pass
         d = [c() for c in on_completes if c is not None]
         Group.update(self, dt)
 
