@@ -11,7 +11,7 @@ import base64
 _event_names = ['QUIT', 'ACTIVEEVENT', 'KEYDOWN', 'KEYUP', 'MOUSEMOTION',
                 'MOUSEBUTTONUP', 'JOYAXISMOTION', 'JOYBALLMOTION', 
                 'JOYHATMOTION', 'JOYBUTTONUP', 'JOYBUTTONDOWN',
-                'VIDEORESIZE', 'VIDEOEXPOSE', 'USEREVENT']
+                'VIDEORESIZE', 'VIDEOEXPOSE', 'USEREVENT', 'MOUSEBUTTONDOWN']
 
 _type_to_name = {getattr(pygame, name) : name for name in _event_names}
 
