@@ -107,7 +107,7 @@ class SequentialAnimation(Animation):
         
 class DelayAnimation(Animation):
     def __init__(self, duration = 1.0):
-        self.abslute = False
+        self.absolute = False
         self.properties = set([])
         self.duration = duration
         
