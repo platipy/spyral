@@ -135,14 +135,13 @@ class AnimationGroup(Group):
         
     def update(self, dt):
         completed = []
-        on_completes = []
         for sprite in self._sprites:
             for animation in self._animations[sprite]:
                 self._progress[(sprite, animation)] += dt
                 progress = self._progress[(sprite, animation)]
                 if progress > animation.duration:
                     progress = animation.duration
-                    completed.append((sprite, animation))
+                    completed.append((animation, sprite))
     
                 values = animation.evaluate(sprite, progress)
                 for property in animation.properties:
@@ -154,18 +153,22 @@ class AnimationGroup(Group):
                         value = (value[0] + s[0], value[1] + s[1])
                     setattr(sprite, property, value)
 
-        for sprite, animation in completed:
-            self._animations[sprite].remove(animation)
-            del self._progress[(sprite, animation)]
-            c = self._on_complete[(sprite, animation)]
-            on_completes.append(c)
-            del self._on_complete[(sprite, animation)]
-            try:
-                del self._start_state[(sprite, animation)]
-            except KeyError:
-                pass
-        d = [c(animation) for c in on_completes if c is not None]
+        for animation, sprite in completed:
+            self.stop_animation(animation, sprite)
         Group.update(self, dt)
+
+    def stop_animation(self, animation, sprite):
+        self._animations[sprite].remove(animation)
+        del self._progress[(sprite, animation)]
+        c = self._on_complete[(sprite, animation)]
+        del self._on_complete[(sprite, animation)]
+        try:
+            del self._start_state[(sprite, animation)]
+        except KeyError:
+            pass
+        if c is not None:
+            c(animation, sprite)
+               
 
 class AnimationSprite(Sprite):
     """
