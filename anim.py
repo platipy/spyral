@@ -168,12 +168,23 @@ class AnimationGroup(Group):
             pass
         if c is not None:
             c(animation, sprite)
-               
+            
+    def stop_animations_for_sprite(self, sprite):
+        for animation in self._animations[sprite][:]:
+            self.stop_animation(animation, sprite)
 
-class AnimationSprite(Sprite):
-    """
-    TODO: Should verify the group it is added to is an AnimationGroup,
-    and enforce the one group per sprite rule
-    """
+class AnimationSprite(Sprite):        
     def animate(self, animation, on_complete = None):
-        self._groups[0].add_animation(self, animation, on_complete)
+        if self.group is None:
+            raise ValueError("You must add this sprite to an AnimationGroup before you can animate it.")
+        self.group.add_animation(self, animation, on_complete)
+        
+    def stop_animation(self, animation):
+        if self.group is None:
+            raise ValueError("You must add this sprite to an AnimationGroup before you can animate it.")
+        self.group.stop_animation(animation, self)
+        
+    def stop_all_animations(self):
+        if self.group is None:
+            raise ValueError("You must add this sprite to an AnimationGroup before you can animate it.")
+        self.group.stop_animations_for_sprite(self)
