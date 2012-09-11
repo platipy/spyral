@@ -36,9 +36,10 @@ class Sprite(object):
     | *visible* - whether or not to draw this sprite
     | *width*, *height*, *size* - width, height, and size of the image
       respectively. Read-only.
+    | *group* - the group in which this sprite is contained. Read-only.
     """
 
-    def __init__(self, *groups):
+    def __init__(self, group = None):
         """ Adds this sprite to any number of groups by default. """
         _all_sprites.append(_wref(self))
         self._age = 0
@@ -46,7 +47,6 @@ class Sprite(object):
         self._image = None
         self._layer = '__default__'
         self._groups = []
-        self.add(*groups)
         self._make_static = False
         self._pos = (0,0)
         self._blend_flags = 0
@@ -55,6 +55,10 @@ class Sprite(object):
         self._offset = (0, 0)
         self._scale = 1.0
         self._scaled_image = None
+        self._group = None
+        
+        if group is not None:
+           group.add(self) 
     
     def _set_static(self):
         self._make_static = True
@@ -196,8 +200,9 @@ class Sprite(object):
         if self._static:
             self._expire_static()
             
-        
-    
+    def _get_group(self):
+        return self._group
+
     position = property(_get_pos, _set_pos)
     pos = property(_get_pos, _set_pos)
     layer = property(_get_layer, _set_layer)
@@ -210,33 +215,12 @@ class Sprite(object):
     width = property(_get_width)
     height = property(_get_height)
     size = property(_get_size)
+    group = property(_get_group)
     
     def get_rect(self):
         return pygame.Rect((self._pos[0] - self._offset[0], self._pos[1] - self._offset[1]),
                            (self.width, self.height))
-        
-    def add(self, *groups):
-        """ Add this sprite to any groups passed in. """
-        self._expire_static()
-        for g in groups:
-            if g not in self._groups:
-                self._groups.append(g)
-                g.add(self)
-                
-    def kill(self):
-        """ Remove this sprite from all groups. """
-        self._expire_static()
-        for g in self._groups:
-            g.remove(self)
-            
-    def alive(self):
-        """ Return True if this sprite belongs to any groups, false otherwise"""
-        return len(self._groups) > 0
-        
-    def groups(self):
-        """ Return a list of groups that this sprite belongs to. """
-        return self._groups[:]
-        
+                                
     def draw(self, camera):
         if not self.visible:
             return
@@ -262,14 +246,7 @@ class Sprite(object):
     def update(self, camera, *args):
         """ Called once per update tick. """
         pass
-        
-    def remove(self, *groups):
-        """ Remove this sprite from any groups passed in. """
-        self._expire_static()
-        for g in groups:
-            if g in self._groups:
-                self._groups.remove(g)
-                
+                        
     def __del__(self):
         spyral.director.get_camera()._remove_static_blit(self)
 
@@ -301,14 +278,14 @@ class Group(object):
         for sprite in sprites:
             if sprite in self._sprites:
                 self._sprites.remove(sprite)
-                sprite.remove(self)
+                sprite._group = None
     
     def add(self, *sprites):
         """ Adds an object to its drawable list. """
         for sprite in sprites:
             if sprite not in self._sprites:
                 self._sprites.append(sprite)
-                sprite.add(self)
+                sprite._group = self
     
     def has(self, *sprites):
         """
@@ -324,6 +301,7 @@ class Group(object):
         """ Clears all sprites from the group. """
         for sprite in self._sprites:
             sprite.remove(self)
+            sprite._group = None
         self._sprites = []
         
     def sprites(self):
