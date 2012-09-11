@@ -66,6 +66,33 @@ class MultiAnimation(Animation):
             res.update(animation.evaluate(sprite, progress))
         return res
 
+class SequentialAnimation(Animation):
+    def __init__(self, *animations):
+        self.properties = set()
+        self._animations = animations
+        self.duration = 0
+        self._next_cutoff = animations[0].duration
+        self._old_cutoff = 0
+        self._index = 0
+        self._total = 0
+        self.absolute = False
+        for animation in animations:
+            self.properties.update(animation.properties)
+            self.duration += animation.duration
+
+    def evaluate(self, sprite, progress):
+        # Need to think carefully about floats and how to handle ending conditions, but later
+        res = dict((p, getattr(sprite, p)) for p in self.properties)
+        if progress > self._next_cutoff:
+            self._index += 1
+            self._old_cutoff = self._next_cutoff
+            self._next_cutoff += self._animations[self._index].duration
+            res.update(self._animations[self._index - 1].evaluate(sprite, self._animations[self._index - 1].duration))
+        progress = progress - self._old_cutoff
+        res.update(self._animations[self._index].evaluate(sprite, progress))
+        return res
+        
+
 class AnimationGroup(Group):
     def __init__(self, *args):
         Group.__init__(self, *args)
