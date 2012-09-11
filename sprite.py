@@ -245,16 +245,16 @@ class Sprite(object):
         if self._make_static or self._age > 4:
             camera._static_blit(self,
                                 self._scaled_image,
-                                (self._pos[0] + self._offset[0],
-                                 self._pos[1] + self._offset[1]),
+                                (self._pos[0] - self._offset[0],
+                                 self._pos[1] - self._offset[1]),
                                 self._layer,
                                 self._blend_flags)
             self._make_static = False
             self._static = True
             return
         camera._blit(self._scaled_image,
-                     (self._pos[0] + self._offset[0],
-                      self._pos[1] + self._offset[1]),
+                     (self._pos[0] - self._offset[0],
+                      self._pos[1] - self._offset[1]),
                      self._layer,
                      self._blend_flags)
         self._age += 1
