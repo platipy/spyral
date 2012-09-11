@@ -75,7 +75,8 @@ class MultiAnimation(Animation):
     def evaluate(self, sprite, progress):
         res = {}
         for animation in self._animations:
-            res.update(animation.evaluate(sprite, progress))
+            if progress <= animation.duration:
+                res.update(animation.evaluate(sprite, progress))
         return res
 
 class SequentialAnimation(Animation):
