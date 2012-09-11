@@ -24,3 +24,9 @@ def Sin(amplitude = 1.0, phase = 0, end_phase = 2.0*math.pi):
     def sin_animator(sprite, dt):
         return amplitude*math.sin(phase + dt*(2.0*math.pi-phase))
     return sin_animator
+    
+def LinearTuple(start = (0, 0), finish = (0, 0)):
+    def linear_animator(sprite, dt):
+        return ((finish[0] - start[0])*dt + start[0],
+                (finish[1] - start[1])*dt + start[1])
+    return linear_animator

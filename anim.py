@@ -26,7 +26,7 @@ class Animation(object):
         # Idea: These animators could be used for camera control
         # at some point. Everything should work pretty much the same.
         
-        properties = ['x', 'y', 'image', 'scale']
+        properties = ['x', 'y', 'image', 'scale', 'pos']
         self.property = property
         self.animation = animation
         self.duration = duration
@@ -73,7 +73,7 @@ class MultiAnimation(Animation):
             
             
     def evaluate(self, sprite, progress):
-        res = {}
+        res = dict((p, getattr(sprite, p)) for p in self.properties)
         for animation in self._animations:
             if progress <= animation.duration:
                 res.update(animation.evaluate(sprite, progress))
@@ -140,6 +140,9 @@ class AnimationGroup(Group):
                     value = values[property]
                     if animation.absolute is False and property in ('x', 'y', 'scale'):
                         value = value + self._start_state[(sprite, animation)][property]
+                    if animation.absolute is False and property in ('pos'):
+                        s = self._start_state[(sprite, animation)][property]
+                        value = (value[0] + s[0], value[1] + s[1])
                     setattr(sprite, property, value)
 
         for sprite, animation in completed:
