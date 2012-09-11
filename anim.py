@@ -32,10 +32,39 @@ class Animation(object):
         self.duration = duration
         self.absolute = absolute
         
+        self.properties = set((property,))
+        
     def evaluate(self, sprite, progress):
         progress = progress/self.duration
         value = self.animation(progress)
-        return value            
+        return {self.property : value}
+
+class MultiAnimation(Animation):
+    def __init__(self, *animations, **kwargs):
+        """
+        This does not respect the absolute setting on individual
+        animations. Pass absolute as a keyword argument to change,
+        default is True.
+        Absolute applies only to numerical properties.
+        """
+        self.properties = set()
+        self._animations = []
+        self.duration = 0
+        self.absolute = kwargs.get('absolute', True)
+        for animation in animations:
+            i = animation.properties.intersection(self.properties) 
+            if i:
+                raise ValueError("Cannot animate on the same properties twice: %s" % str(i))
+            self.properties.update(animation.properties)
+            self._animations.append(animation)
+            self.duration = max(self.duration, animation.duration)
+            
+            
+    def evaluate(self, sprite, progress):
+        res = {}
+        for animation in self._animations:
+            res.update(animation.evaluate(sprite, progress))
+        return res
 
 class AnimationGroup(Group):
     def __init__(self, *args):
@@ -47,13 +76,13 @@ class AnimationGroup(Group):
     
     def add_animation(self, sprite, animation, on_complete = None):
         for a in self._animations[sprite]:
-            if a.property == animation.property:
+            if a.properties.intersection(animation.properties):
                 raise ValueError("Cannot animate on propety %s twice" % animation.property)
         self._animations[sprite].append(animation)
         self._progress[(sprite, animation)] = 0
         self._on_complete[(sprite, animation)] = on_complete
         if animation.absolute is False:
-            self._start_state[(sprite, animation)] = getattr(sprite, animation.property)
+            self._start_state[(sprite, animation)] = dict((p, getattr(sprite, p)) for p in animation.properties)
         
     def update(self, dt):
         completed = []
@@ -66,10 +95,12 @@ class AnimationGroup(Group):
                     progress = animation.duration
                     completed.append((sprite, animation))
     
-                value = animation.evaluate(sprite, progress)
-                if animation.absolute is False:
-                    value = value + self._start_state[(sprite, animation)]
-                setattr(sprite, animation.property, value)
+                values = animation.evaluate(sprite, progress)
+                for property in animation.properties:
+                    value = values[property]
+                    if animation.absolute is False and property in ('x', 'y', 'scale'):
+                        value = value + self._start_state[(sprite, animation)][property]
+                    setattr(sprite, property, value)
 
         for sprite, animation in completed:
             self._animations[sprite].remove(animation)
