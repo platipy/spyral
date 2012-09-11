@@ -36,8 +36,20 @@ class Animation(object):
         
     def evaluate(self, sprite, progress):
         progress = progress/self.duration
-        value = self.animation(progress)
+        value = self.animation(sprite, progress)
         return {self.property : value}
+
+    def __and__(self, second):
+        return MultiAnimation(self, second)
+        
+    def __iand__(self, second):
+        return MultiAnimation(self, second)
+        
+    def __add__(self, second):
+        return SequentialAnimation(self, second)
+        
+    def __iadd__(self, second):
+        return SequentialAnimation(self, second)
 
 class MultiAnimation(Animation):
     def __init__(self, *animations, **kwargs):

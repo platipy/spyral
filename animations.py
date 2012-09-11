@@ -8,12 +8,12 @@ scale, allowing for the possibility of a [-1, 1] scale as well.
 """
 
 def Linear(start = 0, finish = 0):
-    def linear_animator(dt):
+    def linear_animator(sprite, dt):
         return (finish-start)*(dt)+start
     return linear_animator
     
 def Iterate(items, times = 1):
-    def iterate_animator(dt):
+    def iterate_animator(sprite, dt):
         # We preturb the result slightly negative so that it ends on
         # the last frame instead of looping back to the first
         i = math.floor(dt*len(items)*times-0.00000001) 
@@ -21,6 +21,6 @@ def Iterate(items, times = 1):
     return iterate_animator
     
 def Sin(amplitude = 1.0, phase = 0, end_phase = 2.0*math.pi):
-    def sin_animator(dt):
+    def sin_animator(sprite, dt):
         return amplitude*math.sin(phase + dt*(2.0*math.pi-phase))
     return sin_animator
