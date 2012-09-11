@@ -105,6 +105,15 @@ class SequentialAnimation(Animation):
         res.update(self._animations[self._index].evaluate(sprite, progress))
         return res
         
+class DelayAnimation(Animation):
+    def __init__(self, duration = 1.0):
+        self.abslute = False
+        self.properties = set([])
+        self.duration = duration
+        
+    def evaluate(self, sprite, progress):
+        return {}
+
 
 class AnimationGroup(Group):
     def __init__(self, *args):
@@ -155,7 +164,7 @@ class AnimationGroup(Group):
                 del self._start_state[(sprite, animation)]
             except KeyError:
                 pass
-        d = [c() for c in on_completes if c is not None]
+        d = [c(animation) for c in on_completes if c is not None]
         Group.update(self, dt)
 
 class AnimationSprite(Sprite):
