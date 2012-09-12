@@ -30,6 +30,7 @@ ANIMATIONS = [
                                                                radius = lambda theta: 100.0+25.0*math.sin(5.0*theta)),
                                                                duration = 3.0)),
     ('Sine', Animation('x', animations.Sine(amplitude = 100.0), duration=3.0, shift=300)),
+    ('Arc', Animation('pos', animations.Arc(center = (320, 240), radius = 100.0, theta_end = 1.4*math.pi)))
 ]
 
 class TextSprite(Sprite):
@@ -62,6 +63,12 @@ class AnimationExamples(Scene):
         self.index = 0
         
         self.set_animation()
+        
+        instructions = TextSprite(self.group, font)
+        instructions.anchor = 'midbottom'
+        instructions.x = 320
+        instructions.y = 470
+        instructions.render("n: next example  p: previous example  q: quit")
                 
     def on_enter(self):
         bg = spyral.util.new_surface(SIZE)
