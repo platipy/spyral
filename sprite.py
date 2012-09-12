@@ -74,6 +74,8 @@ class Sprite(object):
         return True
         
     def _recalculate_offset(self):
+        if self.image is None:
+            return
         w = self.width
         h = self.height
         a = self._anchor
