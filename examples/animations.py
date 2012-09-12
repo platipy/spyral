@@ -74,7 +74,7 @@ class AnimationExamples(Scene):
         self.title.render(self.animations[self.index])
         
         self.block.stop_all_animations()
-        a = ANIMATIONS[self.animations[self.index]] # + DELAY
+        a = ANIMATIONS[self.animations[self.index]] + DELAY
         a.loop = True
         self.block.animate(a)
         
