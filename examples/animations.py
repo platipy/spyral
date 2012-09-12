@@ -17,18 +17,18 @@ FG_COLOR = (255, 255, 255)
 
 DELAY = DelayAnimation(1.5)
 
-ANIMATIONS = {
-    'Linear' : Animation('x', animations.Linear(0, 600), duration = 3.0),
-    'QuadraticIn' : Animation('x', animations.QuadraticIn(0, 600), duration = 3.0),
-    'QuadraticOut' : Animation('x', animations.QuadraticOut(0, 600), duration = 3.0),
-    'QuadraticInOut' : Animation('x', animations.QuadraticInOut(0, 600), duration = 3.0),
-    'CubicIn' : Animation('x', animations.CubicIn(0, 600), duration = 3.0),
-    'CubicOut' : Animation('x', animations.CubicOut(0, 600), duration = 3.0),
-    'CubicInOut' : Animation('x', animations.CubicInOut(0, 600), duration = 3.0),
-    'Custom (Using Polar)' : Animation('pos', animations.Polar(center = (320, 240),
+ANIMATIONS = [
+    ('Linear', Animation('x', animations.Linear(0, 600), duration = 3.0)),
+    ('QuadraticIn', Animation('x', animations.QuadraticIn(0, 600), duration = 3.0)),
+    ('QuadraticOut', Animation('x', animations.QuadraticOut(0, 600), duration = 3.0)),
+    ('QuadraticInOut', Animation('x', animations.QuadraticInOut(0, 600), duration = 3.0)),
+    ('CubicIn', Animation('x', animations.CubicIn(0, 600), duration = 3.0)),
+    ('CubicOut', Animation('x', animations.CubicOut(0, 600), duration = 3.0)),
+    ('CubicInOut', Animation('x', animations.CubicInOut(0, 600), duration = 3.0)),
+    ('Custom (Using Polar)', Animation('pos', animations.Polar(center = (320, 240),
                                                                radius = lambda theta: 100.0+25.0*math.sin(5.0*theta)),
-                                                               duration = 3.0)
-}
+                                                               duration = 3.0))
+]
 
 class TextSprite(Sprite):
     def __init__(self, group, font):
@@ -57,7 +57,6 @@ class AnimationExamples(Scene):
         self.block.image.fill(FG_COLOR)
         self.block.y = 300
         
-        self.animations = list(ANIMATIONS.iterkeys())
         self.index = 0
         
         self.set_animation()
@@ -71,21 +70,21 @@ class AnimationExamples(Scene):
         self.group.draw()
         
     def set_animation(self):
-        self.title.render(self.animations[self.index])
+        self.title.render(ANIMATIONS[self.index][0])
         
         self.block.stop_all_animations()
-        a = ANIMATIONS[self.animations[self.index]] + DELAY
+        a = ANIMATIONS[self.index][1] + DELAY
         a.loop = True
         self.block.animate(a)
         
     def next(self):
         self.index += 1
-        self.index %= len(self.animations)
+        self.index %= len(ANIMATIONS)
         self.set_animation()
         
     def previous(self):
         self.index -= 1
-        self.index %= len(self.animations)
+        self.index %= len(ANIMATIONS)
         self.set_animation()
         
     def update(self, dt):
