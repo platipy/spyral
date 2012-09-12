@@ -31,6 +31,7 @@ class Animation(object):
         self.animation = animation
         self.duration = duration
         self.absolute = absolute
+        self.loop = False
         
         self.properties = set((property,))
         
@@ -154,7 +155,10 @@ class AnimationGroup(Group):
                     setattr(sprite, property, value)
 
         for animation, sprite in completed:
-            self.stop_animation(animation, sprite)
+            if animation.loop:
+                self._progress[(sprite, animation)] = 0
+            else:
+                self.stop_animation(animation, sprite)
         Group.update(self, dt)
 
     def stop_animation(self, animation, sprite):
