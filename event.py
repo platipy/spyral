@@ -37,6 +37,8 @@ def _event_to_dict(event):
     attrs = _type_to_attrs[event.type]
     d = dict((attr, getattr(event, attr)) for attr in attrs)
     d['type'] = _type_to_name[event.type]
+    if d['type'] in ('KEYDOWN', 'KEYUP'):
+        d['ascii'] = chr(d['key'])
     return d
 
 class EventHandler(object):
