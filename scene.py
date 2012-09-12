@@ -190,7 +190,6 @@ class Scene(object):
         """
         By default, max_ups and max_fps are pulled from the director.
         """
-        from sys import platform
         time_source = time.time
         self.clock = spyral._lib.gameclock.GameClock(
             time_source=time_source,
