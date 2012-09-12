@@ -1,18 +1,16 @@
-from spyral import animations
 from spyral.sprite import Sprite, Group
 from collections import defaultdict
-from spyral import animations
 
 class Animation(object):
     def __init__(self, property,
-                       animation,
+                       animator,
                        duration = 1.0,
                        absolute = True,
                        shift = None,
                        loop = False
                        ):
         """
-        *animation* determines the animation you wish to apply
+        *animator* determines the animation you wish to apply
         
         *duration* is the amount of time the animation should take.
         
@@ -26,7 +24,7 @@ class Animation(object):
         
         properties = ['x', 'y', 'image', 'scale', 'pos']
         self.property = property
-        self.animation = animation
+        self.animator = animator
         self.duration = duration
         self.loop = loop
         self.properties = set((property,))
@@ -34,7 +32,7 @@ class Animation(object):
                 
     def evaluate(self, sprite, progress):
         progress = progress/self.duration
-        value = self.animation(sprite, progress)
+        value = self.animator(sprite, progress)
         if self._shift is not None:
             if self.property == 'pos':
                 value = (value[0] + self._shift[0],
