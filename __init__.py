@@ -13,7 +13,6 @@ import point
 import camera
 import util
 import sprite
-import gui
 import scene
 import _lib
 import event
