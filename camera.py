@@ -14,8 +14,8 @@ def _scale(s, factor):
     new_size = (int(math.ceil(size[0] * factor[0])),
                 int(math.ceil(size[1] * factor[1])))
     t = pygame.transform.scale(s,
-            new_size,
-            spyral.util.new_surface(new_size))
+                               new_size,
+                               spyral.util.new_surface(new_size))
     return t
 
 
@@ -24,14 +24,14 @@ class Camera(object):
     Represents an area to draw to. It can handle automatic scaling with optional
     offsets, layering, and more soon.
     """
-    def __init__(self, virtual_size = None,
-                       real_size    = None,
-                       offset       = (0, 0),
-                       layers       = None,
-                       root         = False):
+    def __init__(self, virtual_size=None,
+                 real_size=None,
+                 offset=(0, 0),
+                 layers = None,
+                 root = False):
         if root:
             self._surface = pygame.display.get_surface()
-            if real_size is None or real_size == (0,0):
+            if real_size is None or real_size == (0, 0):
                 self._rsize = self._surface.get_size()
             else:
                 self._rsize = real_size
@@ -40,7 +40,7 @@ class Camera(object):
         else:
             self._rsize = real_size
 
-        if virtual_size is None or virtual_size == (0,0):
+        if virtual_size is None or virtual_size == (0, 0):
             self._vsize = self._rsize
             self._scale = (1.0, 1.0)
         else:
@@ -68,13 +68,13 @@ class Camera(object):
             self._saved_blits = {}
             self._backgrounds = {}
 
-    def make_child(self, virtual_size = None,
-                         real_size    = None,
-                         offset       = (0, 0),
-                         layers       = ['all']):
+    def make_child(self, virtual_size=None,
+                   real_size=None,
+                   offset=(0, 0),
+                   layers = ['all']):
         """
         Method for creating a new Camera.
-        
+
         | *virtual_size* is a size of the virtual resolution to be used.
         | *real_size* is a size of the resolution with respect to the parent
           camera (not to the physical display, unless the parent camera is the
@@ -83,7 +83,7 @@ class Camera(object):
           parent camera's coordinates.
         | *layers* is a list of layers which should be drawn bottom to top.
         """
-        if real_size == (0,0) or real_size == None:
+        if real_size == (0, 0) or real_size is None:
             real_size = self.get_size()
         y = spyral.camera.Camera(virtual_size, real_size, offset, layers, 0)
         y._parent = self
@@ -102,12 +102,12 @@ class Camera(object):
         Returns the virtual size of this camera's display.
         """
         return self._vsize
-        
+
     def get_rect(self):
         """
         Returns a rect the virtual size of this camera's display
         """
-        return pygame.rect.Rect((0,0), self._vsize)
+        return pygame.rect.Rect((0, 0), self._vsize)
 
     def set_background(self, surface):
         """
@@ -123,7 +123,8 @@ class Camera(object):
                                       self._offset)
             self._rs._clear_this_frame.append(self._rs._background.get_rect())
         else:
-            raise ValueError("You cannot set the background on the root camera directly.")
+            raise ValueError(
+                "You cannot set the background on the root camera directly.")
             self._background = surface
             self._clear_this_frame.append(surface.get_rect())
 
@@ -183,9 +184,9 @@ class Camera(object):
             return
 
         rs._static_blits[sprite] = (new_surface,
-                                  r,
-                                  layer,
-                                  flags)
+                                    r,
+                                    layer,
+                                    flags)
         if redraw:
             rs._clear_this_frame.append(r2.union(r))
         else:
@@ -276,15 +277,19 @@ class Camera(object):
         # print "%d / %d static drawn, %d dynamic" %
         #       (drawn_static, len(s), len(blits))
         pygame.display.set_caption("%d / %d static, %d dynamic. %d ups, %d fps" %
-            (drawn_static, len(s), len(blits), spyral.director.get_scene().clock.ups,
-            spyral.director.get_scene().clock.fps))
+                                   (
+                                   drawn_static, len(
+                                   s), len(
+                                       blits), spyral.director.get_scene(
+                                       ).clock.ups,
+                                   spyral.director.get_scene().clock.fps))
         # Do the display update
         pygame.display.update(self._clear_next_frame + self._clear_this_frame)
         # Get ready for the next call
         self._clear_this_frame = self._clear_next_frame
         self._clear_next_frame = []
         self._blits = []
-        
+
     def _exit_scene(self, scene):
         self._saved_blits[scene] = self._static_blits
         self._static_blits = {}
@@ -292,7 +297,7 @@ class Camera(object):
         self._background = pygame.surface.Surface(self._rsize)
         self._background.fill((255, 255, 255))
         self._surface.blit(self._background, (0, 0))
-        
+
     def _enter_scene(self, scene):
         self._static_blits = self._saved_blits.pop(scene, self._static_blits)
         if scene in self._backgrounds:
@@ -313,6 +318,6 @@ class Camera(object):
             pos = spyral.point.unscale(pos, self._scale)
             return pos
         return None
-        
+
     def redraw(self):
         self._clear_this_frame.append(self.get_rect())

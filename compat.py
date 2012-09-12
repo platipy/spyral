@@ -1,6 +1,6 @@
 # We use a patcher here to add some functionality from Python 2.6+ to 2.5
 import sys
-if sys.version_info[0] == 2 and sys.version_info[1] == 5:    
+if sys.version_info[0] == 2 and sys.version_info[1] == 5:
     _property = property
 
     class property(property):
@@ -17,5 +17,5 @@ if sys.version_info[0] == 2 and sys.version_info[1] == 5:
             cls_ns[propname] = property(self.fget, fset,
                                         self.fdel, self.__doc__)
             return cls_ns[propname]
-            
+
     __builtins__['property'] = property

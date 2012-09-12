@@ -1,11 +1,12 @@
 import pygame
 import spyral
 
+
 class MouseSprite(spyral.sprite.Sprite):
     """
     A Sprite class to handle mouse hovering and clicks. It conforms to layers
     for event prioritizing. The following attributes may be useful:
-    
+
     | *click_rect = None* represents a rectangle for clickable area. If None,
       the sprite's *rect* is used.
     | *hover_rect = None* represents a rectangle for hoverable area. If None,
@@ -19,37 +20,37 @@ class MouseSprite(spyral.sprite.Sprite):
     | *enable_middle = False* is whether middle clicks should trigger a click
       event
     """
-    
+
     def __init__(self, *args):
         spyral.sprite.Sprite.__init__(self, *args)
-        
+
         self.click_rect = None
         self.hover_rect = None
         self.consume_clicks = True
         self.consume_hover = False
         self.enable_right = False
         self.enable_middle = False
-        
+
     def on_click(self, event):
         """ Called when this sprite is clicked. """
         pass
-        
+
     def on_right_click(self, event):
         """ Called when this sprite is right clicked, if enabled. """
         pass
-        
+
     def on_middle_click(self, event):
         """ Called when this sprite is middle clicked, if enabled. """
         pass
-        
+
     def on_mouse_over(self):
         """ Called when the mouse begins hovering over this sprite. """
         pass
-        
+
     def on_mouse_off(self):
         """ Called when the mouse stops hovering over this sprite. """
         pass
-    
+
     def _handle_click(self, event):
         if event.button == 3 and self.enable_right is False:
             return False
@@ -68,7 +69,7 @@ class MouseSprite(spyral.sprite.Sprite):
         else:
             self.on_middle_click(event)
         return self.consume_clicks
-        
+
     def _hover(self, pos):
         if self.hover_rect is None:
             r = self.rect
@@ -77,6 +78,7 @@ class MouseSprite(spyral.sprite.Sprite):
         if r.collidepoint(pos):
             return (True, self.consume_hover)
         return (False, False)
+
 
 class DragSprite(MouseSprite):
     """
@@ -104,8 +106,9 @@ class DragSprite(MouseSprite):
             local = camera.world_to_local(pygame.mouse.get_pos())
             if local is not None:
                 self.pos = (spyral.point.add(
-                             camera.world_to_local(pygame.mouse.get_pos()),
-                                                   self.drag_offset))
+                            camera.world_to_local(pygame.mouse.get_pos()),
+                            self.drag_offset))
+
 
 class GUIGroup(spyral.sprite.Group):
     """
@@ -119,7 +122,8 @@ class GUIGroup(spyral.sprite.Group):
     def update(self, *args):
         spyral.sprite.Group.update(self, *args)
         layers = self.camera.layers()
-        mapping = dict((layer,index) for layer, sprite in enumerate(layers))
+        mapping = dict((layer, index) for layer, sprite in enumerate(layers))
+
         def sort_key(sprite):
             try:
                 return mapping[x.layer]
@@ -169,7 +173,7 @@ class GUIGroup(spyral.sprite.Group):
                 sprite.on_mouse_over()
                 if hover[1] is True:
                     break
-        
+
         for sprite in self._mouse_previously_over:
             if sprite in mouse_now_over:
                 continue

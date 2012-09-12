@@ -4,15 +4,18 @@ from weakref import ref as _wref
 
 _all_sprites = []
 
+
 def _switch_scene():
     global _all_sprites
-    _all_sprites = [s for s in _all_sprites if s() is not None and s()._expire_static()]
+    _all_sprites = [s for s in _all_sprites if s() is not None and s()
+                    ._expire_static()]
+
 
 class Sprite(object):
     """
     Analagous to Sprite in pygame, but with many more features. For more
     detail, read the FAQ. Important member variables are:
-    
+
     | *position*, *pos* - (x,y) coordinates for the sprite. Supports
       subpixel positioning and is kept in sync with *x* and *y*
     | *x* - x coordinate for the sprite
@@ -26,11 +29,11 @@ class Sprite(object):
       layer which exists on the camera that is used for the group(s) the
       sprite belongs to; if it is not, it will be drawn on top
     | *image* - a pygame.surface.Surface to be drawn to the screen. The surface
-      must, for now, have certain flags set. Use spyral.util.new_surface and 
+      must, for now, have certain flags set. Use spyral.util.new_surface and
       spyral.util.load_image to get surfaces. One caveat is that once it is
       drawn to the camera, if the camera uses scaling, and the surface is
       changed, the display will not reflect this due to caching. If you must
-      change a surface, copy it first. 
+      change a surface, copy it first.
     | *blend_flags* - blend flags for pygame.surface.Surface.blit(). See the
       pygame documentation for more information.
     | *visible* - whether or not to draw this sprite
@@ -39,7 +42,7 @@ class Sprite(object):
     | *group* - the group in which this sprite is contained. Read-only.
     """
 
-    def __init__(self, group = None):
+    def __init__(self, group=None):
         """ Adds this sprite to any number of groups by default. """
         _all_sprites.append(_wref(self))
         self._age = 0
@@ -48,7 +51,7 @@ class Sprite(object):
         self._layer = '__default__'
         self._groups = []
         self._make_static = False
-        self._pos = (0,0)
+        self._pos = (0, 0)
         self._blend_flags = 0
         self.visible = True
         self._anchor = 'topleft'
@@ -56,14 +59,14 @@ class Sprite(object):
         self._scale = 1.0
         self._scaled_image = None
         self._group = None
-        
+
         if group is not None:
-           group.add(self) 
-    
+            group.add(self)
+
     def _set_static(self):
         self._make_static = True
         self._static = True
-    
+
     def _expire_static(self):
         # Expire static is part of the private API which must
         # be implemented by Sprites that wish to be static.
@@ -72,42 +75,44 @@ class Sprite(object):
         self._static = False
         self._age = 0
         return True
-        
+
     def _recalculate_offset(self):
         if self.image is None:
             return
         w = self.width
         h = self.height
         a = self._anchor
-        
+
         if a == 'topleft':
             offset = (0, 0)
         elif a == 'topright':
             offset = (w, 0)
         elif a == 'midtop':
-            offset = (w/2., 0)
+            offset = (w / 2., 0)
         elif a == 'bottomleft':
             offset = (0, h)
         elif a == 'bottomright':
             offset = (w, h)
         elif a == 'midbottom':
-            offset = (w/2., h)
+            offset = (w / 2., h)
         elif a == 'midleft':
-            offset = (0, h/2.)
+            offset = (0, h / 2.)
         elif a == 'midright':
-            offset = (w, h/2.)
+            offset = (w, h / 2.)
         elif a == 'center':
-            offset = (w/2., h/2.)
+            offset = (w / 2., h / 2.)
         else:
             offset = a
         self._offset = offset
-        
+
     def _recalculate_scaled(self):
         if self._scale == 1.0:
             self._scaled_image = self._image
         else:
-            new_size = (int(self._image.get_width() * self._scale), int(self._image.get_height() * self._scale))
-            self._scaled_image = pygame.transform.smoothscale(self._image, new_size, spyral.util.new_surface(new_size))
+            new_size = (int(self._image.get_width(
+            ) * self._scale), int(self._image.get_height() * self._scale))
+            self._scaled_image = pygame.transform.smoothscale(
+                self._image, new_size, spyral.util.new_surface(new_size))
 
     def _get_pos(self):
         return self._pos
@@ -117,20 +122,18 @@ class Sprite(object):
         self._age = 0
         if self._static:
             self._expire_static()
-        
 
     def _get_layer(self):
         return self._layer
-        
+
     def _set_layer(self, layer):
         self._layer = layer
         if self._static:
             self._expire_static()
-        
 
     def _get_image(self):
         return self._image
-        
+
     def _set_image(self, image):
         if self._image is image:
             return
@@ -139,36 +142,32 @@ class Sprite(object):
         self._recalculate_offset()
         if self._static:
             self._expire_static()
-            
 
     def _get_blend_flags(self):
         return self._blend_flags
-    
+
     def _set_blend_flags(self, flags):
         if self._blend_flags == flags:
             return
         self._blend_flags = flags
         if self._static:
             self._expire_static()
-                    
 
     def _get_x(self):
         return self._get_pos()[0]
-        
+
     def _set_x(self, x):
         self._set_pos((x, self._get_y()))
-        
 
     def _get_y(self):
         return self._get_pos()[1]
-        
+
     def _set_y(self, y):
         self._set_pos((self._get_x(), y))
-        
 
     def _get_anchor(self):
         return self._anchor
-        
+
     def _set_anchor(self, anchor):
         if anchor == self._anchor:
             return
@@ -176,24 +175,24 @@ class Sprite(object):
         self._recalculate_offset()
         if self._static:
             self._expire_static()
-        
+
     def _get_width(self):
         if self.image:
             return self._image.get_width()
         return None
-    
+
     def _get_height(self):
         if self.image:
             return self._image.get_height()
         return None
-        
+
     def _get_size(self):
         if self.image:
             return self._image.get_size()
-            
+
     def _get_scale(self):
         return self._scale
-        
+
     def _set_scale(self, scale):
         if self._scale == scale:
             return
@@ -201,7 +200,7 @@ class Sprite(object):
         self._recalculate_scaled()
         if self._static:
             self._expire_static()
-            
+
     def _get_group(self):
         return self._group
 
@@ -218,11 +217,12 @@ class Sprite(object):
     height = property(_get_height)
     size = property(_get_size)
     group = property(_get_group)
-    
+
     def get_rect(self):
-        return pygame.Rect((self._pos[0] - self._offset[0], self._pos[1] - self._offset[1]),
-                           (self.width, self.height))
-                                
+        return pygame.Rect(
+            (self._pos[0] - self._offset[0], self._pos[1] - self._offset[1]),
+            (self.width, self.height))
+
     def draw(self, camera):
         if not self.visible:
             return
@@ -244,19 +244,20 @@ class Sprite(object):
                      self._layer,
                      self._blend_flags)
         self._age += 1
-                                    
+
     def update(self, camera, *args):
         """ Called once per update tick. """
         pass
-                        
+
     def __del__(self):
         spyral.director.get_camera()._remove_static_blit(self)
 
 ### Group classes ###
-        
+
+
 class Group(object):
     """ Behaves like sprite.Group in pygame. """
-    
+
     def __init__(self, camera, *sprites):
         """
         Create a group and associate a camera with it. This is where all drawing
@@ -264,31 +265,31 @@ class Group(object):
         """
         self.camera = camera
         self._sprites = list(sprites)
-        
+
     def draw(self):
         """ Draws all of its sprites to the group's camera. """
         c = self.camera
         for x in self._sprites:
             x.draw(c)
-    
+
     def update(self, *args):
-        """ Calls update on all of its Sprites. """ 
+        """ Calls update on all of its Sprites. """
         [x.update(self.camera, *args) for x in self._sprites]
-        
+
     def remove(self, *sprites):
         """ Removes Sprites from this Group. """
         for sprite in sprites:
             if sprite in self._sprites:
                 self._sprites.remove(sprite)
                 sprite._group = None
-    
+
     def add(self, *sprites):
         """ Adds an object to its drawable list. """
         for sprite in sprites:
             if sprite not in self._sprites:
                 self._sprites.append(sprite)
                 sprite._group = self
-    
+
     def has(self, *sprites):
         """
         Return true if all sprites are contained in the group. Unlike
@@ -298,14 +299,14 @@ class Group(object):
             if sprite not in self._sprites:
                 return False
         return True
-    
+
     def empty(self):
         """ Clears all sprites from the group. """
         for sprite in self._sprites:
             sprite.remove(self)
             sprite._group = None
         self._sprites = []
-        
+
     def sprites(self):
         """ Return a list of the sprites in this group. """
         return self._sprites[:]

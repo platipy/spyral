@@ -23,10 +23,12 @@ import pygame
 
 director = scene.Director()
 
+
 def init():
     pygame.init()
     pygame.font.init()
-    
+
+
 def quit():
     pygame.quit()
     spyral.director._stack = []

@@ -1,5 +1,6 @@
 import spyral
 
+
 class FPSSprite(spyral.sprite.Sprite):
     def __init__(self, font, color):
         spyral.sprite.Sprite.__init__(self)
@@ -10,8 +11,7 @@ class FPSSprite(spyral.sprite.Sprite):
 
     def render(self, fps, ups):
         self.image = self.font.render("%d / %d" % (fps, ups), 0, self.color)
-        
-        
+
     def update(self, *args, **kwargs):
         self.update_in -= 1
         if self.update_in == 0:

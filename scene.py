@@ -2,6 +2,7 @@ import pygame
 import spyral
 import time
 
+
 class Director(object):
     """
     The director, accessible at *spyral.director*, handles running the game.
@@ -13,14 +14,14 @@ class Director(object):
         pass
 
     def init(self,
-             size = (0, 0),
-             max_ups          = 30,
-             max_fps          = 30,
-             fullscreen       = False,
-             caption          = "spyral"):
+             size=(0, 0),
+             max_ups = 30,
+             max_fps = 30,
+             fullscreen = False,
+             caption = "spyral"):
         """
         Initializes the director.
-        
+
         | *size* is the resolution of the display. (0,0) uses the screen resolution
         | *max_ups* sets the number of times scene.update() should be
            called per frame. This will remain the same, even if fps drops.
@@ -35,9 +36,9 @@ class Director(object):
 
         flags = 0
         # These flags are going to be managed better or elsewhere later
-        resizable        = False
-        noframe          = False
-        
+        resizable = False
+        noframe = False
+
         if resizable:
             flags |= pygame.RESIZABLE
         if noframe:
@@ -131,10 +132,10 @@ class Director(object):
         scene.on_enter()
         pygame.event.get()
 
-    def run(self, sugar = False, profiling = False):
+    def run(self, sugar=False, profiling=False):
         """
         Runs the scene as dictated by the stack.
-        
+
         If profiling is enabled, this function will return on every
         scene change so that scenes can be profiled independently.
         """
@@ -154,9 +155,11 @@ class Director(object):
                     return
                 clock = scene.clock
                 old_scene = scene
+
                 def frame_callback(interpolation):
                     scene.render()
                     camera._draw()
+
                 def update_callback(dt):
                     if sugar:
                         while gtk.events_pending():
@@ -171,10 +174,11 @@ class Director(object):
                 clock.update_callback = update_callback
             clock.tick()
 
+
 class Scene(object):
     """
     Represents a state of the game as it runs.
-    
+
     *self.clock* will contain an instance of GameClock which can be replaced
     or changed as is needed.
     *self.event_handler* will contain an EventHandler object that this scene
@@ -182,22 +186,22 @@ class Scene(object):
     *self.parent_camera* will contain a Camera object that this scene should
     use as the basis for all of it's cameras.
     """
-    def __init__(self, event_handler = None, parent_camera = None, max_ups = None, max_fps = None):
+    def __init__(self, event_handler=None, parent_camera=None, max_ups=None, max_fps=None):
         """
         By default, max_ups and max_fps are pulled from the director.
         """
         from sys import platform
         time_source = time.time
         self.clock = spyral._lib.gameclock.GameClock(
-                            time_source=time_source,
-                            max_fps=max_fps or spyral.director._max_fps,
-                            max_ups=max_ups or spyral.director._max_ups)
+            time_source=time_source,
+            max_fps=max_fps or spyral.director._max_fps,
+            max_ups=max_ups or spyral.director._max_ups)
         self.clock.use_wait = True
         if event_handler is None:
             event_handler = spyral.event.LiveEventHandler()
         if parent_camera is None:
             parent_camera = spyral.director.get_camera()
-            
+
         self.event_handler = event_handler
         self.parent_camera = parent_camera
 
@@ -224,7 +228,7 @@ class Scene(object):
         Called by the director when a new game logic step should be taken.
         """
         pass
-        
+
     def redraw(self):
         """
         Advanced: Called by the director if the scene should force redraw of non-spyral based assets, like PGU
