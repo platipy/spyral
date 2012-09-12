@@ -78,7 +78,7 @@ def LinearTuple(start = (0, 0), finish = (0, 0)):
                 (finish[1] - start[1])*dt + start[1])
     return linear_animator
     
-def ArcTuple(center = (0, 0), radius = 1, theta_start = 0, theta_end = 2*math.pi):
+def Arc(center = (0, 0), radius = 1, theta_start = 0, theta_end = 2*math.pi):
     def arc_animator(sprite, dt):
         theta = (theta_end - theta_start)*dt
         return (center[0] + radius * math.cos(theta),
