@@ -9,6 +9,7 @@ from spyral.anim import AnimationSprite, AnimationGroup, Animation, DelayAnimati
 from spyral.scene import Scene
 import spyral.animations as animations
 import math
+import sys
 
 SIZE = (640, 480)
 FONT_SIZE = 42
@@ -92,6 +93,7 @@ class AnimationExamples(Scene):
         for event in self.event_handler.get():
             if event['type'] == 'QUIT':
                 spyral.quit()
+                sys.exit()
             if event['type'] == 'KEYDOWN':
                 if event['ascii'] == 'p':
                     self.previous()
