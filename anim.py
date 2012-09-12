@@ -115,7 +115,6 @@ class SequentialAnimation(Animation):
                 raise ValueError("Looping animation in the middle of a sequence is not allowed.")
         if animations[-1].loop is True:
             self.loop = self.duration - animations[-1].duration
-        print self.loop
     def evaluate(self, sprite, progress):
         res = dict((p, getattr(sprite, p)) for p in self.properties)
         if progress == self.duration:
@@ -176,7 +175,6 @@ class AnimationGroup(Group):
             if animation.loop is True:
                 self._progress[(sprite, animation)] = 0
             elif animation.loop:
-                print animation.loop
                 self._progress[(sprite, animation)] = animation.loop
             else:
                 self.stop_animation(animation, sprite)
