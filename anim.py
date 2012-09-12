@@ -85,7 +85,7 @@ class SequentialAnimation(Animation):
         self.properties = set()
         self._animations = animations
         self.duration = 0
-        self.absolute = False
+        self.absolute = True
         for animation in animations:
             self.properties.update(animation.properties)
             self.duration += animation.duration
@@ -100,7 +100,10 @@ class SequentialAnimation(Animation):
         while progress > self._animations[i].duration:
             progress -= self._animations[i].duration
             i += 1
+        if i > 0:
+            res.update(self._animations[i-1].evaluate(sprite, self._animations[i-1].duration))
         res.update(self._animations[i].evaluate(sprite, progress))
+        print res
         return res
         
 class DelayAnimation(Animation):
