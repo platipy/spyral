@@ -121,7 +121,7 @@ class AnimationGroup(Group):
         self._on_complete = {}
         self._start_state = {}
     
-    def add_animation(self, sprite, animation, on_complete = None):
+    def add_animation(self, animation, sprite, on_complete = None):
         for a in self._animations[sprite]:
             if a.properties.intersection(animation.properties):
                 raise ValueError("Cannot animate on propety %s twice" % animation.property)
@@ -130,6 +130,18 @@ class AnimationGroup(Group):
         self._on_complete[(sprite, animation)] = on_complete
         if animation.absolute is False:
             self._start_state[(sprite, animation)] = dict((p, getattr(sprite, p)) for p in animation.properties)
+        self.evaluate(animation, sprite, 0.0)
+            
+    def evaluate(self, animation, sprite, progress):
+        values = animation.evaluate(sprite, progress)
+        for property in animation.properties:
+            value = values[property]
+            if animation.absolute is False and property in ('x', 'y', 'scale'):
+                value = value + self._start_state[(sprite, animation)][property]
+            if animation.absolute is False and property in ('pos'):
+                s = self._start_state[(sprite, animation)][property]
+                value = (value[0] + s[0], value[1] + s[1])
+            setattr(sprite, property, value)
         
     def update(self, dt):
         completed = []
@@ -140,16 +152,7 @@ class AnimationGroup(Group):
                 if progress > animation.duration:
                     progress = animation.duration
                     completed.append((animation, sprite))
-    
-                values = animation.evaluate(sprite, progress)
-                for property in animation.properties:
-                    value = values[property]
-                    if animation.absolute is False and property in ('x', 'y', 'scale'):
-                        value = value + self._start_state[(sprite, animation)][property]
-                    if animation.absolute is False and property in ('pos'):
-                        s = self._start_state[(sprite, animation)][property]
-                        value = (value[0] + s[0], value[1] + s[1])
-                    setattr(sprite, property, value)
+                self.evaluate(animation, sprite, progress)
 
         for animation, sprite in completed:
             if animation.loop:
@@ -178,7 +181,7 @@ class AnimationSprite(Sprite):
     def animate(self, animation, on_complete = None):
         if self.group is None:
             raise ValueError("You must add this sprite to an AnimationGroup before you can animate it.")
-        self.group.add_animation(self, animation, on_complete)
+        self.group.add_animation(animation, self, on_complete)
         
     def stop_animation(self, animation):
         if self.group is None:
