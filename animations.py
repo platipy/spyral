@@ -67,7 +67,7 @@ def Iterate(items, times = 1):
         return items[int(i % len(items))]
     return iterate_animator
     
-def Sin(amplitude = 1.0, phase = 0, end_phase = 2.0*math.pi):
+def Sine(amplitude = 1.0, phase = 0, end_phase = 2.0*math.pi):
     def sin_animator(sprite, dt):
         return amplitude*math.sin(phase + dt*(2.0*math.pi-phase))
     return sin_animator
