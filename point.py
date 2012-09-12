@@ -1,5 +1,5 @@
-import math as math
-
+import math
+import pygame
 
 def sub(p1, p2):
     """ Computes p2-p1. """
