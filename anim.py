@@ -85,10 +85,6 @@ class SequentialAnimation(Animation):
         self.properties = set()
         self._animations = animations
         self.duration = 0
-        self._next_cutoff = animations[0].duration
-        self._old_cutoff = 0
-        self._index = 0
-        self._total = 0
         self.absolute = False
         for animation in animations:
             self.properties.update(animation.properties)
@@ -97,13 +93,14 @@ class SequentialAnimation(Animation):
     def evaluate(self, sprite, progress):
         # Need to think carefully about floats and how to handle ending conditions, but later
         res = dict((p, getattr(sprite, p)) for p in self.properties)
-        if progress > self._next_cutoff:
-            self._index += 1
-            self._old_cutoff = self._next_cutoff
-            self._next_cutoff += self._animations[self._index].duration
-            res.update(self._animations[self._index - 1].evaluate(sprite, self._animations[self._index - 1].duration))
-        progress = progress - self._old_cutoff
-        res.update(self._animations[self._index].evaluate(sprite, progress))
+        if progress == self.duration:
+            res.update(self._animations[-1].evaluate(sprite, self._animations[-1].duration))
+            return res
+        i = 0
+        while progress > self._animations[i].duration:
+            progress -= self._animations[i].duration
+            i += 1
+        res.update(self._animations[i].evaluate(sprite, progress))
         return res
         
 class DelayAnimation(Animation):
