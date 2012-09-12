@@ -3,14 +3,61 @@ import math
 All animators should be functions which take the input time as a number
 from 0 to 1 and return a new value for the property they are animating.
 
-For numerical properties, this should also be normalized to a [0, 1]
-scale, allowing for the possibility of a [-1, 1] scale as well.
+For numerical properties, this should also be normalized when using
+default parameters to a [0, 1] scale, allowing for the possibility of
+a [-1, 1] scale as well. This will allow fun composition.
 """
 
-def Linear(start = 0, finish = 0):
+"""
+Many of these animators were inspired by Clutter/Kivy, but have been
+generalized.
+"""
+
+
+def Linear(start = 0.0, finish = 1.0):
     def linear_animator(sprite, dt):
         return (finish-start)*(dt)+start
     return linear_animator
+    
+def QuadraticIn(start = 0.0, finish = 1.0):
+    def quadratic_animator(sprite, dt):
+        return start + (finish-start)*dt*dt
+    return quadratic_animator
+    
+def QuadraticOut(start = 0.0, finish = 1.0):
+    def quadratic_out_animator(sprite, dt):
+        return start + (finish-start)*(2.0*dt-dt*dt)
+    return quadratic_out_animator
+    
+def QuadraticInOut(start = 0.0, finish = 1.0):
+    def quadratic_in_out_animator(sprite, dt):
+        dt *= 2
+        if dt < 1:
+            return start + 0.5*dt*dt*(finish-start)
+        dt -= 1
+        return start + (dt-0.5*dt*dt+0.5)*(finish-start)
+    return quadratic_in_out_animator
+    
+def CubicIn(start = 0.0, finish = 1.0):
+    def cubic_in_animator(sprite, dt):
+        return start + (dt*dt*dt)*(finish-start)
+    return cubic_in_animator
+        
+def CubicOut(start = 0.0, finish = 1.0):
+    def cubic_out_animator(sprite, dt):
+        dt -= 1.0
+        return start + (dt*dt*dt+1.0)*(finish-start)
+    return cubic_out_animator
+    
+def CubicInOut(start = 0.1, finish = 1.0):
+    def cubic_in_out_animator(sprite, dt):
+        dt *= 2.0
+        if dt < 1.0:
+            return start + 0.5*dt*dt*dt*(finish-start)
+        dt -= 2.0
+        return (1.0+0.5*dt*dt*dt)*(finish-start)+2.0*start
+    return cubic_in_out_animator
+        
     
 def Iterate(items, times = 1):
     def iterate_animator(sprite, dt):
@@ -36,4 +83,11 @@ def ArcTuple(center = (0, 0), radius = 1, theta_start = 0, theta_end = 2*math.pi
         theta = (theta_end - theta_start)*dt
         return (center[0] + radius * math.cos(theta),
                 center[1] + radius * math.sin(theta))
+    return arc_animator
+    
+def Polar(center = (0, 0), radius = lambda theta : 1.0, theta_start = 0, theta_end = 2*math.pi):
+    def arc_animator(sprite, dt):
+        theta = (theta_end - theta_start)*dt
+        return (center[0] + radius(theta) * math.cos(theta),
+                center[1] + radius(theta) * math.sin(theta))
     return arc_animator
