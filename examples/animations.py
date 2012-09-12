@@ -27,7 +27,8 @@ ANIMATIONS = [
     ('CubicInOut', Animation('x', animations.CubicInOut(0, 600), duration = 3.0)),
     ('Custom (Using Polar)', Animation('pos', animations.Polar(center = (320, 240),
                                                                radius = lambda theta: 100.0+25.0*math.sin(5.0*theta)),
-                                                               duration = 3.0))
+                                                               duration = 3.0)),
+    ('Sine', Animation('x', animations.Sine(amplitude = 100.0), duration=3.0, shift=300)),
 ]
 
 class TextSprite(Sprite):
@@ -71,8 +72,8 @@ class AnimationExamples(Scene):
         
     def set_animation(self):
         self.title.render(ANIMATIONS[self.index][0])
-        
         self.block.stop_all_animations()
+        self.block.y = 300 # Reset the y-coordinate.
         a = ANIMATIONS[self.index][1] + DELAY
         a.loop = True
         self.block.animate(a)
