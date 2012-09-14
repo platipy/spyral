@@ -176,17 +176,20 @@ class AnimationGroup(Group):
                 self._progress[(sprite, animation)] += dt
                 progress = self._progress[(sprite, animation)]
                 if progress > animation.duration:
-                    progress = animation.duration
-                    completed.append((animation, sprite))
-                self.evaluate(animation, sprite, progress)
+                    self.evaluate(animation, sprite, animation.duration)
+                    if animation.loop is True:
+                        self.evaluate(animation, sprite, progress - animation.duration)
+                        self._progress[(sprite, animation)] = progress - animation.duration
+                    elif animation.loop:
+                        self.evaluate(animation, sprite, progress - animation.duration + animation.loop)
+                        self._progress[(sprite, animation)] = progress - animation.duration + animation.loop
+                    else:
+                        completed.append((animation, sprite))
+                else:
+                    self.evaluate(animation, sprite, progress)
 
         for animation, sprite in completed:
-            if animation.loop is True:
-                self._progress[(sprite, animation)] = 0
-            elif animation.loop:
-                self._progress[(sprite, animation)] = animation.loop
-            else:
-                self.stop_animation(animation, sprite)
+            self.stop_animation(animation, sprite)
         Group.update(self, dt)
 
     def stop_animation(self, animation, sprite):
