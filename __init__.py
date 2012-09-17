@@ -3,7 +3,7 @@ Spyral, an awesome library for making games.
 """
 
 __version__ = '0.1'
-__license__ = 'LGPLv2'
+__license__ = 'MIT'
 __author__ = 'Robert Deaton'
 
 import compat
