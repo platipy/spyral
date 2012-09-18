@@ -39,7 +39,12 @@ class TextSprite(Sprite):
         self.font = font
         
     def render(self, text):
-        self.image = self.font.render(text, True, FG_COLOR).convert_alpha()
+        surf = self.font.render(text, True, FG_COLOR).convert_alpha()
+        # This should be fixed up once the font system is in place
+        class DumbImage(spyral.Image):
+            def __init__(self):
+                self._surf = surf
+        self.image = DumbImage()
 
 
 class AnimationExamples(Scene):
@@ -56,7 +61,7 @@ class AnimationExamples(Scene):
         self.title.render("N")
         
         self.block = AnimationSprite(self.group)
-        self.block.image = spyral.util.new_surface((40, 40))
+        self.block.image = spyral.Image(size=(40,40))
         self.block.image.fill(FG_COLOR)
         self.block.y = 300
         
@@ -71,7 +76,7 @@ class AnimationExamples(Scene):
         instructions.render("n: next example  p: previous example  q: quit")
                 
     def on_enter(self):
-        bg = spyral.util.new_surface(SIZE)
+        bg = spyral.Image(size=SIZE)
         bg.fill(BG_COLOR)
         self.camera.set_background(bg)
                 
@@ -108,6 +113,7 @@ class AnimationExamples(Scene):
                     self.next()
                 elif event['ascii'] == 'q':
                     spyral.quit()
+                    sys.exit()
                     
         self.group.update(dt)
 

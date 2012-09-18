@@ -8,6 +8,10 @@ import os
 import random
 import base64
 
+"""
+Event handler
+"""
+
 _event_names = ['QUIT', 'ACTIVEEVENT', 'KEYDOWN', 'KEYUP', 'MOUSEMOTION',
                 'MOUSEBUTTONUP', 'JOYAXISMOTION', 'JOYBALLMOTION',
                 'JOYHATMOTION', 'JOYBUTTONUP', 'JOYBUTTONDOWN',
@@ -39,7 +43,10 @@ def _event_to_dict(event):
     d = dict((attr, getattr(event, attr)) for attr in attrs)
     d['type'] = _type_to_name[event.type]
     if d['type'] in ('KEYDOWN', 'KEYUP'):
-        d['ascii'] = chr(d['key'])
+        try:
+            d['ascii'] = chr(d['key'])
+        except ValueError:
+            d['ascii'] = ''
     return d
 
 
@@ -51,7 +58,7 @@ class EventHandler(object):
         self._events = []
         self._mouse_pos = (0, 0)
 
-    def tick(self):
+    def _tick(self):
         """
         Should be called at the beginning of each tick. It will pre-select all
         the relevant events.
@@ -60,9 +67,8 @@ class EventHandler(object):
 
     def get(self, types=[]):
         """
-        Analagous to pygame.event.get(). Can take either a type or an iterable
-        of types. Events are pulled from self._events, populated by each
-        implementation.
+        Gets events from the event handler. Types is an optional
+        iterable which has types which you would like to get.
         """
         try:
             types[0]
@@ -92,7 +98,7 @@ class LiveEventHandler(EventHandler):
             random.seed(seed)
             self._file.write(json.dumps(info) + "\n")
 
-    def tick(self):
+    def _tick(self):
         mouse = pygame.mouse.get_pos()
         events = [_event_to_dict(e) for e in pygame.event.get()]
         self._mouse_pos = mouse
@@ -113,7 +119,7 @@ class ReplayEventHandler(EventHandler):
         info = json.loads(self._file.readline())
         random.seed(base64.decodestring(info['random_seed']))
 
-    def tick(self):
+    def _tick(self):
         try:
             d = json.loads(self._file.readline())
         except ValueError:
@@ -202,5 +208,6 @@ class Keys(object):
         self.down = 274
         self.right = 275
         self.left = 276
+        self.space = 32
 
 keys = Keys()

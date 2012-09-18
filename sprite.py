@@ -40,6 +40,7 @@ class Sprite(object):
     | *width*, *height*, *size* - width, height, and size of the image
       respectively. Read-only.
     | *group* - the group in which this sprite is contained. Read-only.
+    | *scale* - a factor by which to scale the image by before drawing.
     """
 
     def __init__(self, group=None):
@@ -107,12 +108,12 @@ class Sprite(object):
 
     def _recalculate_scaled(self):
         if self._scale == 1.0:
-            self._scaled_image = self._image
+            self._scaled_image = self._surface
         else:
             new_size = (int(self._image.get_width(
             ) * self._scale), int(self._image.get_height() * self._scale))
             self._scaled_image = pygame.transform.smoothscale(
-                self._image, new_size, spyral.util.new_surface(new_size))
+                self._surface, new_size, spyral.util.new_surface(new_size))
 
     def _get_pos(self):
         return self._pos
@@ -138,6 +139,7 @@ class Sprite(object):
         if self._image is image:
             return
         self._image = image
+        self._surface = image._surf
         self._recalculate_scaled()
         self._recalculate_offset()
         if self._static:
@@ -219,7 +221,7 @@ class Sprite(object):
     group = property(_get_group)
 
     def get_rect(self):
-        return pygame.Rect(
+        return spyral.Rect(
             (self._pos[0] - self._offset[0], self._pos[1] - self._offset[1]),
             (self.width, self.height))
 
@@ -245,7 +247,7 @@ class Sprite(object):
                      self._blend_flags)
         self._age += 1
 
-    def update(self, camera, *args):
+    def update(self, *args):
         """ Called once per update tick. """
         pass
 
@@ -274,7 +276,7 @@ class Group(object):
 
     def update(self, *args):
         """ Calls update on all of its Sprites. """
-        [x.update(self.camera, *args) for x in self._sprites]
+        [x.update(*args) for x in self._sprites]
 
     def remove(self, *sprites):
         """ Removes Sprites from this Group. """

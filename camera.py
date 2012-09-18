@@ -109,10 +109,11 @@ class Camera(object):
         """
         return pygame.rect.Rect((0, 0), self._vsize)
 
-    def set_background(self, surface):
+    def set_background(self, image):
         """
         Sets a background for this camera's display.
         """
+        surface = image._surf
         # This is CPython specific, but right now so is Pygame.
         if sys._getframe(1).f_code.co_name == "__init__":
             raise RuntimeError("Background initialization must be done in a scene's on_enter, not __init__")

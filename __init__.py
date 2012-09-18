@@ -19,7 +19,19 @@ import event
 import animator
 import animation
 import pygame
+import image
+import color
+import rect
 
+Scene = scene.Scene
+Image = image.Image
+Sprite = sprite.Sprite
+Group = sprite.Group
+AnimationSprite = animation.AnimationSprite
+AnimationGroup = animation.AnimationGroup
+Rect = rect.Rect
+
+keys = event.keys
 director = scene.Director()
 
 
