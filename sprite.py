@@ -284,6 +284,7 @@ class Group(object):
             if sprite in self._sprites:
                 self._sprites.remove(sprite)
                 sprite._group = None
+                sprite._expire_static()
 
     def add(self, *sprites):
         """ Adds an object to its drawable list. """
