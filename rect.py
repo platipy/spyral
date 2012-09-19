@@ -168,9 +168,7 @@ class Rect(object):
         
     def collide_rect(self, r):
         # Probably write a better optimized version of this later
-        if self.clip(r).size == (0,0) and r.clip(self).size == (0,0):
-            return True
-        return False
+        return self.clip(r).size != (0,0) or r.clip(self).size != (0,0)
         
     def collide_point(self, point):
         # This could probably be optimized as well
