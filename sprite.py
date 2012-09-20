@@ -278,7 +278,8 @@ class Group(object):
 
     def update(self, *args):
         """ Calls update on all of its Sprites. """
-        [x.update(*args) for x in self._sprites]
+        for sprite in self._sprites:
+            sprite.update(*args)
 
     def remove(self, *sprites):
         """ Removes Sprites from this Group. """
