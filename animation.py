@@ -89,6 +89,8 @@ class MultiAnimation(Animation):
         for animation in self._animations:
             if progress <= animation.duration:
                 res.update(animation.evaluate(sprite, progress))
+            else:
+                res.update(animation.evaluate(sprite, animation.duration))
         return res
 
 
