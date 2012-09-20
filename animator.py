@@ -69,7 +69,7 @@ def Iterate(items, times=1):
     def iterate_animator(sprite, dt):
         # We preturb the result slightly negative so that it ends on
         # the last frame instead of looping back to the first
-        i = math.floor(dt * len(items) * times - 0.00000001)
+        i = round(dt * len(items) * times)
         return items[int(i % len(items))]
     return iterate_animator
 
