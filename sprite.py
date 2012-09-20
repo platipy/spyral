@@ -60,6 +60,8 @@ class Sprite(object):
         self._scale = 1.0
         self._scaled_image = None
         self._group = None
+        
+        self.on_remove = spyral.Signal()
 
         if group is not None:
             group.add(self)
@@ -285,6 +287,7 @@ class Group(object):
                 self._sprites.remove(sprite)
                 sprite._group = None
                 sprite._expire_static()
+                sprite.on_remove.emit(self)
 
     def add(self, *sprites):
         """ Adds an object to its drawable list. """

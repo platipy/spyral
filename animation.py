@@ -1,3 +1,4 @@
+import spyral
 from spyral.sprite import Sprite, Group
 from collections import defaultdict
 
@@ -32,6 +33,8 @@ class Animation(object):
         self.loop = loop
         self.properties = set((property,))
         self._shift = shift
+        
+        self.on_complete = spyral.Signal()
 
     def evaluate(self, sprite, progress):
         progress = progress / self.duration
@@ -154,16 +157,14 @@ class AnimationGroup(Group):
         Group.__init__(self, *args)
         self._animations = defaultdict(list)
         self._progress = {}
-        self._on_complete = {}
 
-    def add_animation(self, animation, sprite, on_complete=None):
+    def add_animation(self, animation, sprite):
         for a in self._animations[sprite]:
             if a.properties.intersection(animation.properties):
                 raise ValueError(
                     "Cannot animate on propety %s twice" % animation.property)
         self._animations[sprite].append(animation)
         self._progress[(sprite, animation)] = 0
-        self._on_complete[(sprite, animation)] = on_complete
         self.evaluate(animation, sprite, 0.0)
 
     def evaluate(self, animation, sprite, progress):
@@ -195,12 +196,10 @@ class AnimationGroup(Group):
         Group.update(self, dt)
 
     def stop_animation(self, animation, sprite):
-        self._animations[sprite].remove(animation)
-        del self._progress[(sprite, animation)]
-        c = self._on_complete[(sprite, animation)]
-        del self._on_complete[(sprite, animation)]
-        if c is not None:
-            c(animation, sprite)
+        if sprite in self._animations and animation in self._animations[sprite]:
+            self._animations[sprite].remove(animation)
+            animation.on_complete.emit(animation, sprite)
+            del self._progress[(sprite, animation)]
 
     def stop_animations_for_sprite(self, sprite):
         for animation in self._animations[sprite][:]:
@@ -208,10 +207,10 @@ class AnimationGroup(Group):
 
 
 class AnimationSprite(Sprite):
-    def animate(self, animation, on_complete=None):
+    def animate(self, animation):
         if self.group is None:
             raise ValueError("You must add this sprite to an AnimationGroup before you can animate it.")
-        self.group.add_animation(animation, self, on_complete)
+        self.group.add_animation(animation, self)
 
     def stop_animation(self, animation):
         if self.group is None:
