@@ -11,7 +11,6 @@ import compat
 import memoize
 import point
 import camera
-import util
 import sprite
 import scene
 import _lib

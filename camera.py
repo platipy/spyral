@@ -15,7 +15,7 @@ def _scale(s, factor):
                 int(math.ceil(size[1] * factor[1])))
     t = pygame.transform.scale(s,
                                new_size,
-                               spyral.util.new_surface(new_size))
+                               pygame.Surface(new_size, pygame.SRCALPHA))
     return t
 
 
