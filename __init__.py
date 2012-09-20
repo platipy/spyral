@@ -21,6 +21,9 @@ import pygame
 import image
 import color
 import rect
+import signal
+import font
+import vector
 
 Scene = scene.Scene
 Image = image.Image
@@ -29,6 +32,8 @@ Group = sprite.Group
 AnimationSprite = animation.AnimationSprite
 AnimationGroup = animation.AnimationGroup
 Rect = rect.Rect
+Signal = signal.Signal
+Vec2D = vector.Vec2D
 
 keys = event.keys
 director = scene.Director()
