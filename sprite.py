@@ -119,7 +119,7 @@ class Sprite(object):
         return self._pos
 
     def _set_pos(self, pos):
-        self._pos = pos
+        self._pos = spyral.Vec2D(pos)
         self._age = 0
         if self._static:
             self._expire_static()
