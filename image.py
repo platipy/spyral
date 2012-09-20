@@ -1,5 +1,6 @@
 import pygame
 import spyral
+import copy
 
 class Image(object):
     """
@@ -80,4 +81,26 @@ class Image(object):
         color = spyral.color._determine(color)
         pygame.draw.circle(self._surf, color, position, radius, width)
         
+    def draw_image(self, image, position = (0, 0)):
+        """
+        Draws another image onto this one at the specified position.
+        """
+        self._surf.blit(image._surf, position)
         
+    def rotate(self, angle):
+        """
+        Rotates the image by *angle* degrees clockwise. This may change
+        the image dimensions if the angle is not a multiple of 90.
+        
+        Successive rotations degrate image quality. Save a copy of the
+        original if you plan to do many rotations.
+        """
+        self._surf = pygame.transform.rotate(self._surf, angle)
+        
+    def copy(self):
+        """
+        Returns a copy of this image.
+        """
+        new = copy.copy(self)
+        new._surf = self._surf.copy()
+        return new
