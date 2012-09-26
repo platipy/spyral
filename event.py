@@ -17,25 +17,28 @@ _event_names = ['QUIT', 'ACTIVEEVENT', 'KEYDOWN', 'KEYUP', 'MOUSEMOTION',
                 'JOYHATMOTION', 'JOYBUTTONUP', 'JOYBUTTONDOWN',
                 'VIDEORESIZE', 'VIDEOEXPOSE', 'USEREVENT', 'MOUSEBUTTONDOWN']
 
-_type_to_name = dict((getattr(pygame, name), name) for name in _event_names)
+def init():
+    global _type_to_name
+    global _type_to_attrs
+    _type_to_name = dict((getattr(pygame, name), name) for name in _event_names)
 
-_type_to_attrs = {
-    pygame.QUIT: ('type', ),
-    pygame.ACTIVEEVENT: ('type', 'gain', 'state'),
-    pygame.KEYDOWN: ('type', 'unicode', 'key', 'mod'),
-    pygame.KEYUP: ('type', 'key', 'mod'),
-    pygame.MOUSEMOTION: ('type', 'pos', 'rel', 'buttons'),
-    pygame.MOUSEBUTTONUP: ('type', 'pos', 'button'),
-    pygame.MOUSEBUTTONDOWN: ('type', 'pos', 'button'),
-    pygame.JOYAXISMOTION: ('type', 'joy', 'axis', 'value'),
-    pygame.JOYBALLMOTION: ('type', 'joy', 'ball', 'rel'),
-    pygame.JOYHATMOTION: ('type', 'joy', 'hat', 'value'),
-    pygame.JOYBUTTONUP: ('type', 'joy', 'button'),
-    pygame.JOYBUTTONDOWN: ('type', 'joy', 'button'),
-    pygame.VIDEORESIZE: ('type', 'size, w, h'),
-    pygame.VIDEOEXPOSE: ('type', 'none'),
-    pygame.USEREVENT: ('type', 'code')
-}
+    _type_to_attrs = {
+        pygame.QUIT: ('type', ),
+        pygame.ACTIVEEVENT: ('type', 'gain', 'state'),
+        pygame.KEYDOWN: ('type', 'unicode', 'key', 'mod'),
+        pygame.KEYUP: ('type', 'key', 'mod'),
+        pygame.MOUSEMOTION: ('type', 'pos', 'rel', 'buttons'),
+        pygame.MOUSEBUTTONUP: ('type', 'pos', 'button'),
+        pygame.MOUSEBUTTONDOWN: ('type', 'pos', 'button'),
+        pygame.JOYAXISMOTION: ('type', 'joy', 'axis', 'value'),
+        pygame.JOYBALLMOTION: ('type', 'joy', 'ball', 'rel'),
+        pygame.JOYHATMOTION: ('type', 'joy', 'hat', 'value'),
+        pygame.JOYBUTTONUP: ('type', 'joy', 'button'),
+        pygame.JOYBUTTONDOWN: ('type', 'joy', 'button'),
+        pygame.VIDEORESIZE: ('type', 'size, w, h'),
+        pygame.VIDEOEXPOSE: ('type', 'none'),
+        pygame.USEREVENT: ('type', 'code')
+    }
 
 
 def _event_to_dict(event):

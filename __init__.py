@@ -40,6 +40,7 @@ director = scene.Director()
 
 
 def init():
+    event.init()
     pygame.init()
     pygame.font.init()
 
