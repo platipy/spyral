@@ -22,7 +22,6 @@ import image
 import color
 import rect
 import signal
-import font
 import vector
 
 Scene = scene.Scene
