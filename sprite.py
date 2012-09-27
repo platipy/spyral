@@ -207,6 +207,11 @@ class Sprite(object):
 
     def _get_group(self):
         return self._group
+        
+    def _set_group(self, group):
+        if self._group is not None:
+            self._group.remove(self)
+        group.add(self)
 
     position = property(_get_pos, _set_pos)
     pos = property(_get_pos, _set_pos)
@@ -220,7 +225,7 @@ class Sprite(object):
     width = property(_get_width)
     height = property(_get_height)
     size = property(_get_size)
-    group = property(_get_group)
+    group = property(_get_group, _set_group)
 
     def get_rect(self):
         return spyral.Rect(
