@@ -95,7 +95,13 @@ class Image(object):
         Successive rotations degrate image quality. Save a copy of the
         original if you plan to do many rotations.
         """
-        self._surf = pygame.transform.rotate(self._surf, angle)
+        self._surf = pygame.transform.rotate(self._surf, angle).convert_alpha()
+        
+    def scale(self, size):
+        """
+        Scales the image to the destination size.
+        """
+        self._surf = pygame.transform.smoothscale(self._surf, size).convert_alpha()
         
     def copy(self):
         """
