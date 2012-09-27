@@ -35,7 +35,7 @@ def init():
         pygame.JOYHATMOTION: ('type', 'joy', 'hat', 'value'),
         pygame.JOYBUTTONUP: ('type', 'joy', 'button'),
         pygame.JOYBUTTONDOWN: ('type', 'joy', 'button'),
-        pygame.VIDEORESIZE: ('type', 'size, w, h'),
+        pygame.VIDEORESIZE: ('type', 'size', 'w', 'h'),
         pygame.VIDEOEXPOSE: ('type', 'none'),
         pygame.USEREVENT: ('type', 'code')
     }
