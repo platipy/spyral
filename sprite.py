@@ -310,7 +310,6 @@ class Group(object):
     def empty(self):
         """ Clears all sprites from the group. """
         for sprite in self._sprites:
-            sprite.remove(self)
             sprite._group = None
         self._sprites = []
 
