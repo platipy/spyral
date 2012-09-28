@@ -14,34 +14,40 @@ def _switch_scene():
 
 class Sprite(object):
     """
-    Analagous to Sprite in pygame, but with many more features. For more
-    detail, read the FAQ. Important member variables are:
-
-    | *position*, *pos* - (x,y) coordinates for the sprite. Supports
-      subpixel positioning and is kept in sync with *x* and *y*
-    | *x* - x coordinate for the sprite
-    | *y* - y coordinate for the sprite
-    | *anchor* - position that the *x* and *y* coordinates are relative
-      to on the image. Supports special values 'topleft', 'topright',
-      'bottomleft', 'bottomright', 'center', 'midtop', 'midbottom',
-      'midleft', 'midright', or a tuple of offsets which are treated
-      as relative to the top left of the image.
-    | *layer* - a string representing the layer to draw on. It should be a
-      layer which exists on the camera that is used for the group(s) the
-      sprite belongs to; if it is not, it will be drawn on top
-    | *image* - a pygame.surface.Surface to be drawn to the screen. The surface
-      must, for now, have certain flags set. Use spyral.util.new_surface and
-      spyral.util.load_image to get surfaces. One caveat is that once it is
-      drawn to the camera, if the camera uses scaling, and the surface is
-      changed, the display will not reflect this due to caching. If you must
-      change a surface, copy it first.
-    | *blend_flags* - blend flags for pygame.surface.Surface.blit(). See the
-      pygame documentation for more information.
-    | *visible* - whether or not to draw this sprite
-    | *width*, *height*, *size* - width, height, and size of the image
-      respectively. Read-only.
-    | *group* - the group in which this sprite is contained. Read-only.
-    | *scale* - a factor by which to scale the image by before drawing.
+    Sprites are how images are positioned and drawn onto the screen. 
+    They aggregate information such as where to be drawn, layering
+    information, and more together.
+    
+    Each sprite should belong to a group, which handles tracking and
+    drawing sprites.
+    
+    Sprites have the following built-in attributes.
+    
+    ============    ============
+    Attribute       Description
+    ============    ============
+    pos             The position of a sprite in 2D coordinates, represented as a Vec2D
+    x               The x coordinate of the sprite, which will remain synced with the Vec2D
+    y               The y coordinate of the sprite, which will remain synced with the Vec2D
+    position        An alias for pos
+    anchor          Defines an anchor point where coordinates are relative to on the image.
+                    Special attributes for the anchor are 'topleft', 'topright',
+                    'bottomleft', 'bottomright', 'center', 'midtop', 'midbottom',
+                    'midleft', 'midright', or a 2D tuple/Vec2D can be used.
+    layer           The name of the layer this sprite belongs to. See `layering <http://todo>`_ for more.
+    image           The image for this sprite
+    visible         A boolean that represents whether this sprite should be drawn.
+    width           Width of the image after all transforms. Read-only
+    height          Height of the image after all transforms. Read-only
+    size            (width, height) of the image after all transforms. Read-only
+    group           The group which this sprite belongs to. If this property is changed, the sprite will be removed from the old group.
+    scale           A scale factor for resizing the image. It will always contain a Vec2D with an x factor and a y factor, but it can be set to a numeric value which will be set for both coordinates.
+    scale_x         The x factor of the scaling. Kept in sync with scale
+    scale_y         The y factor of the scaling. Kept in sync with scale
+    flip_x          A boolean that determines whether the image should be flipped horizontally
+    flip_y          A boolean that determines whether the image should be flipped vertically
+    angle           An angle to rotate the image by. Rotation is computed after scaling and flipping, and keeps the center of the original image aligned with the center of the rotated image.
+    ============    ============
     """
 
     def __init__(self, group=None):
