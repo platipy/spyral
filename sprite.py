@@ -64,6 +64,8 @@ class Sprite(object):
         self._angle = 0
         self._transform_image = None
         self._transform_offset = spyral.Vec2D(0, 0)
+        self._flip_x = False
+        self._flip_y = False
         
         self.on_remove = spyral.Signal()
 
@@ -116,13 +118,16 @@ class Sprite(object):
     def _recalculate_transforms(self):
         source = self._image._surf
         
-        # scale first
+        # flip
+        source = pygame.transform.flip(source, self._flip_x, self._flip_y)
+
+        # scale
         if self._scale != (1.0, 1.0):
             new_size = self._scale * self._image.get_size()
             new_size = (int(new_size[0]), int(new_size[1]))
             source = pygame.transform.smoothscale(source, new_size, pygame.Surface(new_size, pygame.SRCALPHA))
-        # flip
         
+        # rotate
         if self._angle != 0:
             angle = 180.0 / math.pi * self._angle % 360
             old = spyral.Vec2D(source.get_rect().center)
@@ -237,6 +242,24 @@ class Sprite(object):
             return
         self._angle = angle
         self._recalculate_transforms()
+        
+    def _get_flip_x(self):
+        return self._flip_x
+    
+    def _set_flip_x(self, flip_x):
+        if self._flip_x == flip_x:
+            return
+        self._flip_x = flip_x
+        self._recalculate_transforms()
+
+    def _get_flip_y(self):
+        return self._flip_y
+    
+    def _set_flip_y(self, flip_y):
+        if self._flip_y == flip_y:
+            return
+        self._flip_y = flip_y
+        self._recalculate_transforms()
 
     position = property(_get_pos, _set_pos)
     pos = property(_get_pos, _set_pos)
@@ -253,6 +276,8 @@ class Sprite(object):
     size = property(_get_size)
     group = property(_get_group, _set_group)
     angle = property(_get_angle, _set_angle)
+    flip_x = property(_get_flip_x, _set_flip_x)
+    flip_y = property(_get_flip_y, _set_flip_y)
 
     def get_rect(self):
         return spyral.Rect(
