@@ -33,11 +33,8 @@ class Vec2D(object):
         except (IndexError, TypeError):
             return False
     
-    def __neq__(self, o):
-        try:
-            return self.x != o[0] or self.y != o[1]
-        except (IndexError, TypeError):
-            return True
+    def __ne__(self, o):
+        return not self.__eq__(o)
     
     def __add__(self, o):
         try:
@@ -63,7 +60,7 @@ class Vec2D(object):
             
     def __mul__(self, o):
         try:
-            return Vec2D(self.x * o[0], self.y * o[0])
+            return Vec2D(self.x * o[0], self.y * o[1])
         except (IndexError, TypeError):
             pass
         
