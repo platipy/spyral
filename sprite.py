@@ -57,7 +57,7 @@ class Sprite(object):
         self.visible = True
         self._anchor = 'topleft'
         self._offset = (0, 0)
-        self._scale = 1.0
+        self._scale = spyral.Vec2D(1.0, 1.0)
         self._scaled_image = None
         self._group = None
         
@@ -109,13 +109,13 @@ class Sprite(object):
         self._offset = offset
 
     def _recalculate_scaled(self):
-        if self._scale == 1.0:
+        if self._scale == (1.0, 1.0):
             self._scaled_image = self._surface
         else:
             new_size = (int(self._image.get_width(
-            ) * self._scale), int(self._image.get_height() * self._scale))
+            ) * self._scale[0]), int(self._image.get_height() * self._scale[1]))
             self._scaled_image = pygame.transform.smoothscale(
-                self._surface, new_size, spyral.util.new_surface(new_size))
+                self._surface, new_size, pygame.Surface(new_size, pygame.SRCALPHA))
 
     def _get_pos(self):
         return self._pos
@@ -198,9 +198,11 @@ class Sprite(object):
         return self._scale
 
     def _set_scale(self, scale):
+        if isinstance(scale, (int, float)):
+            scale = spyral.Vec2D(scale, scale)
         if self._scale == scale:
             return
-        self._scale = scale
+        self._scale = Vec2D(scale)
         self._recalculate_scaled()
         if self._static:
             self._expire_static()
