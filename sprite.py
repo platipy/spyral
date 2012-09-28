@@ -119,7 +119,8 @@ class Sprite(object):
         source = self._image._surf
         
         # flip
-        source = pygame.transform.flip(source, self._flip_x, self._flip_y)
+        if self._flip_x or self._flip_y:
+            source = pygame.transform.flip(source, self._flip_x, self._flip_y)
 
         # scale
         if self._scale != (1.0, 1.0):
