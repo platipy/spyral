@@ -1,6 +1,7 @@
 import spyral
 import pygame as pygame
 from weakref import ref as _wref
+import math
 
 _all_sprites = []
 
@@ -52,14 +53,17 @@ class Sprite(object):
         self._layer = '__default__'
         self._groups = []
         self._make_static = False
-        self._pos = (0, 0)
+        self._pos = spyral.Vec2D(0, 0)
         self._blend_flags = 0
         self.visible = True
         self._anchor = 'topleft'
-        self._offset = (0, 0)
+        self._offset = spyral.Vec2D(0, 0)
         self._scale = spyral.Vec2D(1.0, 1.0)
         self._scaled_image = None
         self._group = None
+        self._angle = 0
+        self._transform_image = None
+        self._transform_offset = spyral.Vec2D(0, 0)
         
         self.on_remove = spyral.Signal()
 
@@ -82,8 +86,9 @@ class Sprite(object):
     def _recalculate_offset(self):
         if self.image is None:
             return
-        w = self.width
-        h = self.height
+        size = self._scale * self._image.get_size()
+        w = size[0]
+        h = size[1]
         a = self._anchor
 
         if a == 'topleft':
@@ -106,16 +111,28 @@ class Sprite(object):
             offset = (w / 2., h / 2.)
         else:
             offset = a
-        self._offset = offset
-
-    def _recalculate_scaled(self):
-        if self._scale == (1.0, 1.0):
-            self._scaled_image = self._surface
-        else:
-            new_size = (int(self._image.get_width(
-            ) * self._scale[0]), int(self._image.get_height() * self._scale[1]))
-            self._scaled_image = pygame.transform.smoothscale(
-                self._surface, new_size, pygame.Surface(new_size, pygame.SRCALPHA))
+        self._offset = spyral.Vec2D(offset) - self._transform_offset
+            
+    def _recalculate_transforms(self):
+        source = self._image._surf
+        
+        # scale first
+        if self._scale != (1.0, 1.0):
+            new_size = self._scale * self._image.get_size()
+            new_size = (int(new_size[0]), int(new_size[1]))
+            source = pygame.transform.smoothscale(source, new_size, pygame.Surface(new_size, pygame.SRCALPHA))
+        # flip
+        
+        if self._angle != 0:
+            angle = 180.0 / math.pi * self._angle % 360
+            old = spyral.Vec2D(source.get_rect().center)
+            source = pygame.transform.rotate(source, angle).convert_alpha()
+            new = source.get_rect().center
+            self._transform_offset = old - new
+        
+        self._transform_image = source
+        self._recalculate_offset()
+        self._expire_static()
 
     def _get_pos(self):
         return self._pos
@@ -142,18 +159,7 @@ class Sprite(object):
         if self._image is image:
             return
         self._image = image
-        self._surface = image._surf
-        self._recalculate_scaled()
-        self._recalculate_offset()
-        self._expire_static()
-
-    def _get_blend_flags(self):
-        return self._blend_flags
-
-    def _set_blend_flags(self, flags):
-        if self._blend_flags == flags:
-            return
-        self._blend_flags = flags
+        self._recalculate_transforms()
         self._expire_static()
 
     def _get_x(self):
@@ -179,18 +185,17 @@ class Sprite(object):
         self._expire_static()
 
     def _get_width(self):
-        if self.image:
-            return self._image.get_width()
-        return None
+        if self._transform_image:
+            return spyral.Vec2D(self._transform_image.get_width())
 
     def _get_height(self):
-        if self.image:
-            return self._image.get_height()
-        return None
+        if self._transform_image:
+            return spyral.Vec2D(self._transform_image.get_height())
 
     def _get_size(self):
-        if self.image:
-            return self._image.get_size()
+        if self._transform_image:
+            return spyral.Vec2D(self._transform_image.get_size())
+        return spyral.Vec2D(0, 0)
 
     def _get_scale(self):
         return self._scale
@@ -201,7 +206,7 @@ class Sprite(object):
         if self._scale == scale:
             return
         self._scale = spyral.Vec2D(scale)
-        self._recalculate_scaled()
+        self._recalculate_transforms()
         self._expire_static()
             
     def _get_scale_x(self):
@@ -223,12 +228,20 @@ class Sprite(object):
         if self._group is not None:
             self._group.remove(self)
         group.add(self)
+        
+    def _get_angle(self):
+        return self._angle
+        
+    def _set_angle(self, angle):
+        if self._angle == angle:
+            return
+        self._angle = angle
+        self._recalculate_transforms()
 
     position = property(_get_pos, _set_pos)
     pos = property(_get_pos, _set_pos)
     layer = property(_get_layer, _set_layer)
     image = property(_get_image, _set_image)
-    blend_flags = property(_get_blend_flags, _set_blend_flags)
     x = property(_get_x, _set_x)
     y = property(_get_y, _set_y)
     anchor = property(_get_anchor, _set_anchor)
@@ -239,11 +252,12 @@ class Sprite(object):
     height = property(_get_height)
     size = property(_get_size)
     group = property(_get_group, _set_group)
+    angle = property(_get_angle, _set_angle)
 
     def get_rect(self):
         return spyral.Rect(
             (self._pos[0] - self._offset[0], self._pos[1] - self._offset[1]),
-            (self.width, self.height))
+            self.size)
 
     def draw(self, camera):
         if not self.visible:
@@ -252,7 +266,7 @@ class Sprite(object):
             return
         if self._make_static or self._age > 4:
             camera._static_blit(self,
-                                self._scaled_image,
+                                self._transform_image,
                                 (self._pos[0] - self._offset[0],
                                  self._pos[1] - self._offset[1]),
                                 self._layer,
@@ -260,7 +274,7 @@ class Sprite(object):
             self._make_static = False
             self._static = True
             return
-        camera._blit(self._scaled_image,
+        camera._blit(self._transform_image,
                      (self._pos[0] - self._offset[0],
                       self._pos[1] - self._offset[1]),
                      self._layer,
