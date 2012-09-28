@@ -31,7 +31,7 @@ ANIMATIONS = [
                                                                duration = 3.0)),
     ('Sine', Animation('x', animator.Sine(amplitude = 100.0), duration=3.0, shift=300)),
     ('Arc', Animation('pos', animator.Arc(center = (320, 240), radius = 100.0, theta_end = 1.4*math.pi))),
-    ('Scale', Animation('scale', animator.LinearTuple((1.0, 1.0), (0.0, 2.0)), duration = 3.0))
+    ('Scale', Animation('scale', animator.LinearTuple((1.0, 1.0), (0.0, 2.0)), duration = 3.0)),
 ]
 
 class TextSprite(Sprite):
