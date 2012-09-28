@@ -202,10 +202,28 @@ class Sprite(object):
             scale = spyral.Vec2D(scale, scale)
         if self._scale == scale:
             return
-        self._scale = Vec2D(scale)
+        self._scale = spyral.Vec2D(scale)
         self._recalculate_scaled()
         if self._static:
             self._expire_static()
+            
+    def _get_scale_x(self):
+        return self._scale[0]
+        
+    def _get_scale_y(self):
+        return self._scale[1]
+        
+    def _set_scale_x(self, x):
+        self._scale = spyral.Vec2D(x, self._scale[1])
+        self._recalculate_scaled()
+        if self._static:
+            self._expire_static()        
+
+    def _set_scale_y(self, y):
+        self._scale = spyral.Vec2D(self._scale[0], y)
+        self._recalculate_scaled()
+        if self._static:
+            self._expire_static()        
 
     def _get_group(self):
         return self._group
@@ -224,6 +242,8 @@ class Sprite(object):
     y = property(_get_y, _set_y)
     anchor = property(_get_anchor, _set_anchor)
     scale = property(_get_scale, _set_scale)
+    scale_x = property(_get_scale_x, _set_scale_x)
+    scale_y = property(_get_scale_y, _set_scale_y)
     width = property(_get_width)
     height = property(_get_height)
     size = property(_get_size)
