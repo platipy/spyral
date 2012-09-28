@@ -62,6 +62,7 @@ class Camera(object):
             self._dirty_rects = []
             self._clear_this_frame = []
             self._clear_next_frame = []
+            self._soft_clear = []
             self._static_blits = {}
             self._rs = self
             self._rect = self._surface.get_rect()
@@ -218,7 +219,7 @@ class Camera(object):
         # Let's finish up any rendering from the previous frame
         # First, we put the background over all blits
         x = self._background.get_rect()
-        for i in self._clear_this_frame:
+        for i in self._clear_this_frame + self._soft_clear:
             i = x.clip(i)
             b = self._background.subsurface(i)
             screen.blit(b, i)
@@ -229,6 +230,8 @@ class Camera(object):
         blits = self._blits
         clear_this = self._clear_this_frame
         clear_next = self._clear_next_frame
+        soft_clear = self._soft_clear
+        self._soft_clear = []
         update_this = []
         screen_rect = screen.get_rect()
         s.sort(key=operator.itemgetter(2))
@@ -242,6 +245,7 @@ class Camera(object):
                 while i < len(s) and s[i][2] == layer:
                     surf, pos, layer, flags = list(s)[i]
                     # Now, does this need to be redrawn
+                    b = False
                     for rect in clear_this:
                         if pos.colliderect(rect):
                             if v < (1, 8):
@@ -249,6 +253,21 @@ class Camera(object):
                             else:
                                 screen.blit(surf, pos, None, flags)
                             clear_this.append(pos)
+                            self._soft_clear.append(pos)
+                            drawn_static += 1
+                            b = True
+                            break
+                    if b:
+                        i = i + 1
+                        continue
+                    for rect in soft_clear:
+                        if pos.colliderect(rect):
+                            if v < (1, 8):
+                                screen.blit(surf, pos)
+                            else:
+                                screen.blit(surf, pos, None, flags)
+                            soft_clear.append(pos)
+                            update_this.append(pos)
                             drawn_static += 1
                             break
                     i = i + 1
