@@ -121,18 +121,19 @@ class Sprite(object):
         return self._pos
 
     def _set_pos(self, pos):
+        if pos == self._pos:
+            return
         self._pos = spyral.Vec2D(pos)
-        self._age = 0
-        if self._static:
-            self._expire_static()
+        self._expire_static()
 
     def _get_layer(self):
         return self._layer
 
     def _set_layer(self, layer):
+        if layer == self._layer:
+            return
         self._layer = layer
-        if self._static:
-            self._expire_static()
+        self._expire_static()
 
     def _get_image(self):
         return self._image
@@ -144,8 +145,7 @@ class Sprite(object):
         self._surface = image._surf
         self._recalculate_scaled()
         self._recalculate_offset()
-        if self._static:
-            self._expire_static()
+        self._expire_static()
 
     def _get_blend_flags(self):
         return self._blend_flags
@@ -154,8 +154,7 @@ class Sprite(object):
         if self._blend_flags == flags:
             return
         self._blend_flags = flags
-        if self._static:
-            self._expire_static()
+        self._expire_static()
 
     def _get_x(self):
         return self._get_pos()[0]
@@ -177,8 +176,7 @@ class Sprite(object):
             return
         self._anchor = anchor
         self._recalculate_offset()
-        if self._static:
-            self._expire_static()
+        self._expire_static()
 
     def _get_width(self):
         if self.image:
@@ -204,8 +202,7 @@ class Sprite(object):
             return
         self._scale = spyral.Vec2D(scale)
         self._recalculate_scaled()
-        if self._static:
-            self._expire_static()
+        self._expire_static()
             
     def _get_scale_x(self):
         return self._scale[0]
@@ -214,16 +211,10 @@ class Sprite(object):
         return self._scale[1]
         
     def _set_scale_x(self, x):
-        self._scale = spyral.Vec2D(x, self._scale[1])
-        self._recalculate_scaled()
-        if self._static:
-            self._expire_static()        
+        self._set_scale((x, self._scale[1]))
 
     def _set_scale_y(self, y):
-        self._scale = spyral.Vec2D(self._scale[0], y)
-        self._recalculate_scaled()
-        if self._static:
-            self._expire_static()        
+        self._set_scale((self._scale[0], y))
 
     def _get_group(self):
         return self._group
