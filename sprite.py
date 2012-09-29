@@ -133,8 +133,13 @@ class Sprite(object):
         if self._scale != (1.0, 1.0):
             new_size = self._scale * self._image.get_size()
             new_size = (int(new_size[0]), int(new_size[1]))
+            if 0 in new_size:
+                self._transform_image = pygame.Surface((1,1), pygame.SRCALPHA)
+                self._recalculate_offset()
+                self._expire_static()
+                return
             source = pygame.transform.smoothscale(source, new_size, pygame.Surface(new_size, pygame.SRCALPHA))
-        
+
         # rotate
         if self._angle != 0:
             angle = 180.0 / math.pi * self._angle % 360
