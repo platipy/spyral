@@ -328,17 +328,17 @@ class Sprite(object):
         
     def animate(self, animation):
         if self.group is None:
-            raise ValueError("You must add this sprite to an AnimationGroup before you can animate it.")
+            raise ValueError("You must add this sprite to an Group before you can animate it.")
         self.group._add_animation(animation, self)
 
     def stop_animation(self, animation):
         if self.group is None:
-            raise ValueError("You must add this sprite to an AnimationGroup before you can animate it.")
+            raise ValueError("You must add this sprite to an Group before you can animate it.")
         self.group._stop_animation(animation, self)
 
     def stop_all_animations(self):
         if self.group is None:
-            raise ValueError("You must add this sprite to an AnimationGroup before you can animate it.")
+            raise ValueError("You must add this sprite to an Group before you can animate it.")
         self.group._stop_animations_for_sprite(self)
 
 
