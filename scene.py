@@ -5,9 +5,9 @@ import time
 
 class Director(object):
     """
-    The director, accessible at *spyral.director*, handles running the game.
-    It will switch between scenes and call their render and update methods
-    as necessary.
+    The director, accessible at *spyral.director*, runs the game.
+    It is used to switch between scenes and call scenes' render and update 
+    methods as necessary.
         """
     def __init__(self):
         self._initialized = False
@@ -83,7 +83,8 @@ class Director(object):
     def replace(self, scene):
         """
         Replace the currently running scene on the stack with *scene*.
-        This does return control, so remember to return after calling it.
+        This does return control, so remember to return immediately after 
+        calling it.
         """
         if self._stack:
             old = self._stack.pop()
@@ -100,7 +101,8 @@ class Director(object):
         Pop the top scene off the stack, returning control to the next scene
         on the stack. If the stack is empty, the program will quit.
 
-        This does return control, so remember to return after calling it.
+        This does return control, so remember to return immediately after 
+        calling it.
         """
         if len(self._stack) < 1:
             return
@@ -120,7 +122,8 @@ class Director(object):
         """
         Place *scene* on the top of the stack, and move control to it.
 
-        This does return control, so remember to return after calling it.
+        This does return control, so remember to return immediately after 
+        calling it.
         """
         if self._stack:
             old = self._stack[-1]

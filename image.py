@@ -36,7 +36,7 @@ class Image(object):
         
     def get_size(self):
         """
-        Returns the (width, height) of the image)
+        Returns the (width, height) of the image.
         """
         return self._surf.get_size()
     
@@ -86,7 +86,7 @@ class Image(object):
         Draws an ellipse on this surface. position = (x, y) specifies 
         the top-left corner, and size = (width, height) specifies the
         width and height of the ellipse. border_width specifies the
-        width of the border to draw. If it is 0, the rectangle is
+        width of the border to draw. If it is 0, the ellipse is
         filled with the color specified.
         """
         # We'll try to make sure that everything is okay later
