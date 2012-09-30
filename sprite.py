@@ -418,7 +418,8 @@ class Group(object):
     def _evaluate(self, animation, sprite, progress):
         values = animation.evaluate(sprite, progress)
         for property in animation.properties:
-            setattr(sprite, property, values[property])
+            if property in values:
+                setattr(sprite, property, values[property])
             
     def _run_animations(self, dt):
         completed = []
