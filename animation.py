@@ -24,9 +24,6 @@ class Animation(object):
         # Idea: These animators could be used for camera control
         # at some point. Everything should work pretty much the same.
 
-        properties = ['x', 'y', 'image', 'scale', 'pos']
-        if property not in properties:
-            raise ValueError('%s is not a valid animation property.' % (property))
         self.property = property
         self.animator = animator
         self.duration = duration
