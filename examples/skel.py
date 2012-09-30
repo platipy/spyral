@@ -4,11 +4,12 @@ except NameError:
     pass
 import pygame
 import spyral
+import sys
 
 SIZE = (640, 480)
 BG_COLOR = (0, 0, 0)
 
-class Game(spyral.scene.Scene):
+class Game(spyral.Scene):
     """
     A Scene represents a distinct state of your game. They could be menus,
     different subgames, or any other things which are mostly distinct.
@@ -21,13 +22,13 @@ class Game(spyral.scene.Scene):
         scene, and setup groups and other structures which are needed for the
         scene.
         """
-        spyral.scene.Scene.__init__(self)
+        spyral.Scene.__init__(self)
         # We cannot draw directly to the root camera, so we always make a child
         # camera for our scene with our requested virtual resolution. In this
         # case we'll use the same as the window size, but this doesn't have to be
         # the case
-        self.camera = spyral.director.get_camera().make_child(SIZE)
-        self.group = spyral.sprite.Group(self.camera)
+        self.camera = self.parent_camera.make_child(SIZE)
+        self.group = spyral.Group(self.camera)
         self.initialized = False
         
     def on_enter(self):
@@ -36,7 +37,7 @@ class Game(spyral.scene.Scene):
             return
         self.initialized = True
         # Other things you may want to do only once
-        bg = spyral.util.new_surface(SIZE)
+        bg = spyral.Image(size=SIZE)
         bg.fill(BG_COLOR)
         self.camera.set_background(bg)
         # More setup here
@@ -49,13 +50,18 @@ class Game(spyral.scene.Scene):
         """
         self.group.draw()
         
-    def update(self, tick):
+    def update(self, dt):
         """
         The update function should contain or call out to all the logic.
         Here is where group.update() should be called for the groups, where
         event handling should be taken care of, etc.
         """
-        self.group.update()
+        for event in self.event_handler.get():
+            if event['type'] == 'QUIT':
+                spyral.quit()
+                sys.exit()
+                    
+        self.group.update(dt)
 
 if __name__ == "__main__":
     spyral.init() # Always call spyral.init() first

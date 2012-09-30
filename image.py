@@ -47,7 +47,7 @@ class Image(object):
         color = spyral.color._determine(color)
         self._surf.fill(color)
         
-    def draw_rect(self, color, position, size, border_width = 0):
+    def draw_rect(self, color, position, size, border_width = 0, anchor= 'topleft'):
         """
         Draws a rectangle on this surface. position = (x, y) specifies 
         the top-left corner, and size = (width, height) specifies the
@@ -58,6 +58,7 @@ class Image(object):
         # We'll try to make sure that everything is okay later
         
         color = spyral.color._determine(color)
+        offset = self._calculate_offset(anchor)
         pygame.draw.rect(self._surf, color, (position, size), border_width)
         
     def draw_lines(self, color, points, width = 1, closed = False):
@@ -126,8 +127,34 @@ class Image(object):
         
     def copy(self):
         """
-        Returns a copy of this image.
+        Returns a copy of this image that can be changed while preserving the
+        original.
         """
         new = copy.copy(self)
         new._surf = self._surf.copy()
         return new
+        
+    def _calculate_offset(self, anchor_type):
+        w, h = self._surf.get_size()
+        a = anchor_type
+
+        if a == 'topleft':
+            return (0, 0)
+        elif a == 'topright':
+            return (w, 0)
+        elif a == 'midtop':
+            return (w / 2., 0)
+        elif a == 'bottomleft':
+            return (0, h)
+        elif a == 'bottomright':
+            return (w, h)
+        elif a == 'midbottom':
+            return (w / 2., h)
+        elif a == 'midleft':
+            return (0, h / 2.)
+        elif a == 'midright':
+            return (w, h / 2.)
+        elif a == 'center':
+            return (w / 2., h / 2.)
+        else:
+            return a
