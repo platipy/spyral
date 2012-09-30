@@ -138,7 +138,7 @@ class Vec2D(object):
         """
         Return the angle this vector makes with the positive x axis.
         """
-        return math.atan2(y, x)
+        return math.atan2(self.y, self.x)
                 
     def perpendicular(self):
         """
@@ -194,3 +194,17 @@ class Vec2D(object):
         if self.get_length() == 0:
             return None
         return Vec2D(self.x/l, self.y/l)
+        
+    def to_polar(self):
+        """
+        Returns Vec2D(r, theta) for this vector.
+        """
+        return Vec2D(self.get_length(), self.get_angle())
+
+    @staticmethod
+    def from_polar(*args):
+        """
+        Takes in r, theta or (r, theta) and returns rectangular Vec2D.
+        """
+        v = Vec2D(*args)
+        return Vec2D(v.x*math.cos(v.y), v.x*math.sin(v.y))
