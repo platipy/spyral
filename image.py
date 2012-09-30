@@ -81,6 +81,27 @@ class Image(object):
         color = spyral.color._determine(color)
         pygame.draw.circle(self._surf, color, position, radius, width)
         
+    def draw_ellipse(self, color, position, size, border_width = 0):
+        """
+        Draws an ellipse on this surface. position = (x, y) specifies 
+        the top-left corner, and size = (width, height) specifies the
+        width and height of the ellipse. border_width specifies the
+        width of the border to draw. If it is 0, the rectangle is
+        filled with the color specified.
+        """
+        # We'll try to make sure that everything is okay later
+        
+        color = spyral.color._determine(color)
+        pygame.draw.ellipse(self._surf, color, (position, size), border_width)
+    
+    def draw_point(self, color, position):
+        """
+        Draws a point on this surface. position = (x, y) specifies
+        the position of the point.
+        """
+        color = spyral.color._determine(color)
+        self._surf.set_at(position, color)
+        
     def draw_image(self, image, position = (0, 0)):
         """
         Draws another image onto this one at the specified position.
