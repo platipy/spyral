@@ -53,7 +53,8 @@ class Image(object):
         the top-left corner, and size = (width, height) specifies the
         width and height of the rectangle. border_width specifies the
         width of the border to draw. If it is 0, the rectangle is
-        filled with the color specified.
+        filled with the color specified. The anchor parameter is an :ref:`anchor 
+        position <anchors>`.
         """
         # We'll try to make sure that everything is okay later
         
@@ -61,7 +62,7 @@ class Image(object):
         offset = self._calculate_offset(anchor, size)
         pygame.draw.rect(self._surf, color, (position + offset, size), border_width)
         
-    def draw_lines(self, color, points, width = 1, closed = False, anchor= 'topleft'):
+    def draw_lines(self, color, points, width = 1, closed = False):
         """
         Draws a series of connected lines on a surface, with the
         vertices specified by points. This does not draw any sort of
@@ -77,7 +78,8 @@ class Image(object):
         """
         Draws a circle on this surface. position = (x, y) specifies
         the center of the circle, and radius the radius. If width is
-        0, the circle is filled.
+        0, the circle is filled. The anchor parameter is an :ref:`anchor 
+        position <anchors>`.
         """
         color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor)
@@ -89,7 +91,8 @@ class Image(object):
         the top-left corner, and size = (width, height) specifies the
         width and height of the ellipse. border_width specifies the
         width of the border to draw. If it is 0, the ellipse is
-        filled with the color specified.
+        filled with the color specified. The anchor parameter is an :ref:`anchor 
+        position <anchors>`.
         """
         # We'll try to make sure that everything is okay later
         
@@ -100,7 +103,8 @@ class Image(object):
     def draw_point(self, color, position, anchor= 'topleft'):
         """
         Draws a point on this surface. position = (x, y) specifies
-        the position of the point.
+        the position of the point. The anchor parameter is an :ref:`anchor 
+        position <anchors>`.
         """
         color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor)
@@ -108,7 +112,8 @@ class Image(object):
         
     def draw_image(self, image, position = (0, 0), anchor= 'topleft'):
         """
-        Draws another image onto this one at the specified position.
+        Draws another image onto this one at the specified position. The anchor 
+        parameter is an :ref:`anchor position <anchors>`.
         """
         offset = self._calculate_offset(anchor, image._surf.get_size())
         self._surf.blit(image._surf, position + offset)
