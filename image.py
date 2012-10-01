@@ -129,6 +129,12 @@ class Image(object):
         """
         self._surf = pygame.transform.smoothscale(self._surf, size).convert_alpha()
         
+    def flip(self, xbool, ybool):
+        """
+        Flips the image horizontally, vertically, or both.
+        """
+        self._surf = pygame.transform.flip(self._surf, xbool, ybool).convert_alpha()
+        
     def copy(self):
         """
         Returns a copy of this image that can be changed while preserving the
@@ -137,6 +143,11 @@ class Image(object):
         new = copy.copy(self)
         new._surf = self._surf.copy()
         return new
+        
+    def crop(self, position, size):
+        new = pygame.Surface((int(size[0]), int(size[1])), pygame.SRCALPHA, 32)
+        new.blit(self._surf, (0,0), (position, size))
+        self._surf = new
         
     def _calculate_offset(self, anchor_type, size = (0,0)):
         w, h = self._surf.get_size()
