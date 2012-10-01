@@ -59,7 +59,7 @@ class Image(object):
         
         color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor)
-        pygame.draw.rect(self._surf, color, (position, size), border_width)
+        pygame.draw.rect(self._surf, color, (position + offset, size), border_width)
         
     def draw_lines(self, color, points, width = 1, closed = False):
         """
@@ -73,14 +73,16 @@ class Image(object):
         color = spyral.color._determine(color)
         pygame.draw.aalines(self._surf, color, closed, points, True, width)
     
-    def draw_circle(self, color, position, radius, width = 0):
+    def draw_circle(self, color, position, radius, width = 0, anchor= 'topleft'):
         """
         Draws a circle on this surface. position = (x, y) specifies
         the center of the circle, and radius the radius. If width is
         0, the circle is filled.
         """
         color = spyral.color._determine(color)
-        pygame.draw.circle(self._surf, color, position, radius, width)
+        offset = self._calculate_offset(anchor)
+        print position + offset
+        pygame.draw.circle(self._surf, color, position + offset, radius, width)
         
     def draw_ellipse(self, color, position, size, border_width = 0):
         """
@@ -139,22 +141,22 @@ class Image(object):
         a = anchor_type
 
         if a == 'topleft':
-            return (0, 0)
+            return spyral.Vec2D(0, 0)
         elif a == 'topright':
-            return (w, 0)
+            return spyral.Vec2D(w, 0)
         elif a == 'midtop':
-            return (w / 2., 0)
+            return spyral.Vec2D(w / 2., 0)
         elif a == 'bottomleft':
-            return (0, h)
+            return spyral.Vec2D(0, h)
         elif a == 'bottomright':
-            return (w, h)
+            return spyral.Vec2D(w, h)
         elif a == 'midbottom':
-            return (w / 2., h)
+            return spyral.Vec2D(w / 2., h)
         elif a == 'midleft':
-            return (0, h / 2.)
+            return spyral.Vec2D(0, h / 2.)
         elif a == 'midright':
-            return (w, h / 2.)
+            return spyral.Vec2D(w, h / 2.)
         elif a == 'center':
-            return (w / 2., h / 2.)
+            return spyral.Vec2D(w / 2., h / 2.)
         else:
-            return a
+            return spyral.Vec2D(a)
