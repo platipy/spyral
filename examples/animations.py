@@ -5,8 +5,9 @@ except NameError:
 import pygame
 import spyral
 from spyral.sprite import Sprite
-from spyral.animation import AnimationSprite, AnimationGroup, Animation, DelayAnimation
+from spyral.animation import Animation, DelayAnimation
 from spyral.scene import Scene
+from spyral import Group
 import spyral.animator as animator
 import math
 import sys
@@ -32,6 +33,7 @@ ANIMATIONS = [
     ('Sine', Animation('x', animator.Sine(amplitude = 100.0), duration=3.0, shift=300)),
     ('Arc', Animation('pos', animator.Arc(center = (320, 240), radius = 100.0, theta_end = 1.4*math.pi))),
     ('Scale', Animation('scale', animator.LinearTuple((1.0, 1.0), (0.0, 2.0)), duration = 3.0)),
+    ('Rotate', Animation('angle', animator.Linear(0, 2.0*math.pi), duration = 3.0))
 ]
 
 class TextSprite(Sprite):
@@ -40,19 +42,22 @@ class TextSprite(Sprite):
         self.font = font
         
     def render(self, text):
-        surf = self.font.render(text, True, FG_COLOR).convert_alpha()
+        surf = self.font.render(text, True, FG_COLOR)
+        surf2 = pygame.Surface(surf.get_size(), pygame.SRCALPHA)
+        surf2.blit(surf, (0, 0))
         # This should be fixed up once the font system is in place
         class DumbImage(spyral.Image):
             def __init__(self):
-                self._surf = surf
+                self._surf = surf2
         self.image = DumbImage()
+
 
 
 class AnimationExamples(Scene):
     def __init__(self):
         Scene.__init__(self)
         self.camera = self.parent_camera.make_child(SIZE)
-        self.group = AnimationGroup(self.camera)
+        self.group = Group(self.camera)
         
         font = pygame.font.SysFont(None, FONT_SIZE)
         
@@ -61,7 +66,7 @@ class AnimationExamples(Scene):
         self.title.pos = (SIZE[0] / 2, 30)
         self.title.render("N")
         
-        self.block = AnimationSprite(self.group)
+        self.block = Sprite(self.group)
         self.block.image = spyral.Image(size=(40,40))
         self.block.image.fill(FG_COLOR)
         self.block.y = 300
