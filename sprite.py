@@ -27,19 +27,19 @@ class Sprite(object):
     ============    ============
     Attribute       Description
     ============    ============
-    pos             The position of a sprite in 2D coordinates, represented as a Vec2D
-    x               The x coordinate of the sprite, which will remain synced with the Vec2D
-    y               The y coordinate of the sprite, which will remain synced with the Vec2D
+    pos             The position of a sprite in 2D coordinates, represented as a :ref:`Vec2D <spyral_Vec2D>`
+    x               The x coordinate of the sprite, which will remain synced with the :ref:`Vec2D <spyral_Vec2D>`
+    y               The y coordinate of the sprite, which will remain synced with the :ref:`Vec2D <spyral_Vec2D>`
     position        An alias for pos
     anchor          Defines an :ref:`anchor point <anchors>` where coordinates are relative to on the image.
-    layer           The name of the layer this sprite belongs to. See `layering <http://todo>`_ for more.
+    layer           The name of the layer this sprite belongs to. See :ref:`layering <spyral_layering>` for more.
     image           The image for this sprite
     visible         A boolean that represents whether this sprite should be drawn.
     width           Width of the image after all transforms. Read-only
     height          Height of the image after all transforms. Read-only
     size            (width, height) of the image after all transforms. Read-only
     group           The group which this sprite belongs to. If this property is changed, the sprite will be removed from the old group.
-    scale           A scale factor for resizing the image. It will always contain a Vec2D with an x factor and a y factor, but it can be set to a numeric value which will be set for both coordinates.
+    scale           A scale factor for resizing the image. It will always contain a :ref:`Vec2D <spyral_Vec2D>` with an x factor and a y factor, but it can be set to a numeric value which will be set for both coordinates.
     scale_x         The x factor of the scaling. Kept in sync with scale
     scale_y         The y factor of the scaling. Kept in sync with scale
     flip_x          A boolean that determines whether the image should be flipped horizontally
@@ -290,11 +290,20 @@ class Sprite(object):
     flip_y = property(_get_flip_y, _set_flip_y)
 
     def get_rect(self):
+        """
+        Returns a :ref:`rect <spyral_Rect>` representing where this
+        sprite will be drawn.
+        """
         return spyral.Rect(
             (self._pos[0] - self._offset[0], self._pos[1] - self._offset[1]),
             self.size)
 
     def draw(self, camera):
+        """
+        Draws this sprite to the camera specified. Called automatically in
+        the render loop. This should only be overridden in extreme
+        circumstances.
+        """
         if not self.visible:
             return
         if self._static:
@@ -324,16 +333,25 @@ class Sprite(object):
         spyral.director.get_camera()._remove_static_blit(self)
         
     def animate(self, animation):
+        """
+        Animates this sprite given an animation. Read more about :ref:`animation <spyral_animation>`.
+        """
         if self.group is None:
             raise ValueError("You must add this sprite to an Group before you can animate it.")
         self.group._add_animation(animation, self)
 
     def stop_animation(self, animation):
+        """
+        Stops a given animation currently running on this sprite.
+        """
         if self.group is None:
             raise ValueError("You must add this sprite to an Group before you can animate it.")
         self.group._stop_animation(animation, self)
 
     def stop_all_animations(self):
+        """
+        Stops all animations currently running on this sprite.
+        """
         if self.group is None:
             raise ValueError("You must add this sprite to an Group before you can animate it.")
         self.group._stop_animations_for_sprite(self)
@@ -385,8 +403,7 @@ class Group(object):
 
     def has(self, *sprites):
         """
-        Return true if all sprites are contained in the group. Unlike
-        pygame, this does not take an iterator for each argument, only sprites.
+        Return true if all sprites are contained in the group.
         """
         for sprite in sprites:
             if sprite not in self._sprites:
@@ -451,10 +468,22 @@ class Group(object):
             self._stop_animation(animation, sprite)
             
 class AggregateSprite(Sprite):
-    def __init__(self, camera):
-        Sprite.__init__(self)
-        self._internal_group = Group(camera)
+    """
+    An AggregateSprite is a sprite which also acts similarly to a
+    group. Child sprites can be added to the group, and their drawing
+    is offset by the position of the AggregateSprite. Their positioning
+    can also be anchored with the attribute *child_anchor*, which will
+    specify an :ref:`anchor point <anchors>` on the parent which the
+    child sprites are relative to.
+    
+    Child sprites do not need to worry about being in a Group, the
+    AggregateSprite will handle that for them.
+    """
+    def __init__(self, group):
+        Sprite.__init__(self, group)
+        self._internal_group = Group(self.group.camera)
         self._child_anchor = spyral.Vec2D(0, 0)
+        self.group = group
         
     def _get_child_anchor(self):
         return self._child_anchor
@@ -470,12 +499,32 @@ class AggregateSprite(Sprite):
     child_anchor = property(_get_child_anchor, _set_child_anchor)
         
     def add_child(self, sprite):
+        """
+        Adds a child to this AggregateSprite.
+        """
         self._internal_group.add(sprite)
         
+    def remove_child(self, sprite):
+        """
+        Remove a child from this AggregateSprite.
+        """
+        self._internal_group.remove(sprite)
+        
+    def get_children(self):
+        """
+        Return a list of the children sprites
+        """
+        return self._internal_group.sprites()
+        
     def update(self, dt, *args):
+        """ Called once per update tick. """
         self._internal_group.update(dt, *args)
     
     def draw(self, camera):
+        """
+        Draws this sprite and all children to the camera. Should be
+        overridden only in extreme circumstances.
+        """
         if self._age == 0:
             for sprite in self._internal_group.sprites():
                 sprite._expire_static()
