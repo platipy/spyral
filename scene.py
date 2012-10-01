@@ -236,3 +236,5 @@ class Scene(object):
         Advanced: Called by the director if the scene should force redraw of non-spyral based assets, like PGU
         """
         pass
+
+director = Director()

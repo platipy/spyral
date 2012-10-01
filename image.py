@@ -25,7 +25,7 @@ class Image(object):
             self._surf = pygame.Surface((int(size[0]), int(size[1])), pygame.SRCALPHA, 32)
             self._name = None
         else:
-            self._surf = pygame.image.load(filename)
+            self._surf = pygame.image.load(filename).convert_alpha()
             self._name = filename
     
     def get_width(self):
