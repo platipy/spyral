@@ -14,14 +14,14 @@ import pygame
 
 # import mapping to objects in other modules
 all_by_module = {
-    'spyral.sprite' : ['Sprite', 'Group'],
+    'spyral.sprite' : ['Sprite', 'Group', 'AggregateSprite'],
     'spyral.scene' : ['Scene', 'director'],
     'spyral.image' : ['Image'],
     'spyral.vector' : ['Vec2D'],
     'spyral.signal' : ['Signal'],
     'spyral.rect' : ['Rect'],
-    'spyral.animation' : ['AnimationSprite', 'AnimationGroup'],
-    'spyral.core' : ['init', 'quit']
+    'spyral.animation' : ['Animation'],
+    'spyral.core' : ['init', 'quit'],
 }
 
 # modules that should be imported when accessed as attributes of werkzeug
