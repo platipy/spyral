@@ -58,10 +58,10 @@ class Image(object):
         # We'll try to make sure that everything is okay later
         
         color = spyral.color._determine(color)
-        offset = self._calculate_offset(anchor)
+        offset = self._calculate_offset(anchor, size)
         pygame.draw.rect(self._surf, color, (position + offset, size), border_width)
         
-    def draw_lines(self, color, points, width = 1, closed = False):
+    def draw_lines(self, color, points, width = 1, closed = False, anchor= 'topleft'):
         """
         Draws a series of connected lines on a surface, with the
         vertices specified by points. This does not draw any sort of
@@ -71,7 +71,7 @@ class Image(object):
         If closed is True and width is 0, the shape will be filled.
         """
         color = spyral.color._determine(color)
-        pygame.draw.aalines(self._surf, color, closed, points, True, width)
+        pygame.draw.aalines(self._surf, color, closed, points)
     
     def draw_circle(self, color, position, radius, width = 0, anchor= 'topleft'):
         """
@@ -81,10 +81,9 @@ class Image(object):
         """
         color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor)
-        print position + offset
         pygame.draw.circle(self._surf, color, position + offset, radius, width)
         
-    def draw_ellipse(self, color, position, size, border_width = 0):
+    def draw_ellipse(self, color, position, size, border_width = 0, anchor= 'topleft'):
         """
         Draws an ellipse on this surface. position = (x, y) specifies 
         the top-left corner, and size = (width, height) specifies the
@@ -95,21 +94,24 @@ class Image(object):
         # We'll try to make sure that everything is okay later
         
         color = spyral.color._determine(color)
-        pygame.draw.ellipse(self._surf, color, (position, size), border_width)
+        offset = self._calculate_offset(anchor, size)
+        pygame.draw.ellipse(self._surf, color, (position + offset, size), border_width)
     
-    def draw_point(self, color, position):
+    def draw_point(self, color, position, anchor= 'topleft'):
         """
         Draws a point on this surface. position = (x, y) specifies
         the position of the point.
         """
         color = spyral.color._determine(color)
-        self._surf.set_at(position, color)
+        offset = self._calculate_offset(anchor)
+        self._surf.set_at(position + offset, color)
         
-    def draw_image(self, image, position = (0, 0)):
+    def draw_image(self, image, position = (0, 0), anchor= 'topleft'):
         """
         Draws another image onto this one at the specified position.
         """
-        self._surf.blit(image._surf, position)
+        offset = self._calculate_offset(anchor, image._surf.get_size())
+        self._surf.blit(image._surf, position + offset)
         
     def rotate(self, angle):
         """
@@ -136,27 +138,28 @@ class Image(object):
         new._surf = self._surf.copy()
         return new
         
-    def _calculate_offset(self, anchor_type):
+    def _calculate_offset(self, anchor_type, size = (0,0)):
         w, h = self._surf.get_size()
+        w2, h2 = size
         a = anchor_type
 
         if a == 'topleft':
             return spyral.Vec2D(0, 0)
         elif a == 'topright':
-            return spyral.Vec2D(w, 0)
+            return spyral.Vec2D(w - w2, 0)
         elif a == 'midtop':
-            return spyral.Vec2D(w / 2., 0)
+            return spyral.Vec2D( (w - w2) / 2., 0)
         elif a == 'bottomleft':
-            return spyral.Vec2D(0, h)
+            return spyral.Vec2D(0, h - h2)
         elif a == 'bottomright':
-            return spyral.Vec2D(w, h)
+            return spyral.Vec2D(w - w2, h - h2)
         elif a == 'midbottom':
-            return spyral.Vec2D(w / 2., h)
+            return spyral.Vec2D((w - w2) / 2., h - h2)
         elif a == 'midleft':
-            return spyral.Vec2D(0, h / 2.)
+            return spyral.Vec2D(0, (h - h2) / 2.)
         elif a == 'midright':
-            return spyral.Vec2D(w, h / 2.)
+            return spyral.Vec2D(w - w2, (h - h2) / 2.)
         elif a == 'center':
-            return spyral.Vec2D(w / 2., h / 2.)
+            return spyral.Vec2D((w - w2) / 2., (h - h2) / 2.)
         else:
-            return spyral.Vec2D(a)
+            return spyral.Vec2D(a) - spyral.Vec2D(w2, h2)
