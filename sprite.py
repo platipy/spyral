@@ -31,10 +31,7 @@ class Sprite(object):
     x               The x coordinate of the sprite, which will remain synced with the Vec2D
     y               The y coordinate of the sprite, which will remain synced with the Vec2D
     position        An alias for pos
-    anchor          Defines an anchor point where coordinates are relative to on the image.
-                    Special attributes for the anchor are 'topleft', 'topright',
-                    'bottomleft', 'bottomright', 'center', 'midtop', 'midbottom',
-                    'midleft', 'midright', or a 2D tuple/Vec2D can be used.
+    anchor          Defines an :ref:`anchor point <anchors>` where coordinates are relative to on the image.
     layer           The name of the layer this sprite belongs to. See `layering <http://todo>`_ for more.
     image           The image for this sprite
     visible         A boolean that represents whether this sprite should be drawn.
