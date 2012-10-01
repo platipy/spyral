@@ -145,6 +145,10 @@ class Image(object):
         return new
         
     def crop(self, position, size):
+        """
+        Removes the edges of an image, keeping the internal rectangle specified
+        by position and size.
+        """
         new = pygame.Surface((int(size[0]), int(size[1])), pygame.SRCALPHA, 32)
         new.blit(self._surf, (0,0), (position, size))
         self._surf = new
