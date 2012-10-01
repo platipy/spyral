@@ -1,4 +1,18 @@
 class Rect(object):
+    """
+    Rect represents a rectangle and provides some useful features.
+    
+    Rects can be specified 3 ways in the constructor
+    
+    * Another rect, which is copied
+    * Two tuples, `(x, y)` and `(width, height)`
+    * Four numbers, `x`, `y`, `width`, `height`
+    
+    Rects support all the usual :ref:`anchor points <anchors>` as 
+    attributes, so you can both get `rect.center` and assign to it.
+    Rects also support attributes of `right`, `left`, `top`, `bottom`,
+    `x`, and `y`.
+    """
     def __init__(self, *args):
         # Again with the weird non-pythonic mess
         if len(args) == 1: # copy another rect
@@ -104,27 +118,47 @@ class Rect(object):
             raise AttributeError("You done goofed!")
             
     def copy(self):
+        """
+        Returns a copy of this rect
+        """
         return Rect(self._x, self._y, self._w, self._h)
         
     def move(self, x, y):
+        """
+        Returns a copy of this rect offset by *x* and *y*.
+        """
         return Rect(x, y, self._w, self._h)
         
     def move_ip(self, x, y):
-        self._x, self._y = x,y
+        """
+        Moves this rect by *x* and *y*.
+        """
+        self._x, self._y = self._x + x, self._y + y
         
-    def inflate(self, x, y):
+    def inflate(self, width, height):
+        """
+        Returns a copy of this rect inflated by *width* and *height*.
+        """
         c = self.center
         n = self.copy()
         n.size = (self._w + x, self._h + y)
         n.center = c
         return n
         
-    def inflate_ip(self, x, y):
+    def inflate_ip(self, width, height):
+        """
+        Inflates this rect by *width*, *height*.
+        """
         c = self.center
         self.size = (self._w + x, self._h + y)
         self.center = c
         
-    def clip(self, B):
+    def clip(self, r):
+        """
+        Returns a Rect which is cropped to be completely inside of r.
+        If the r does not overlap with this rect, 0 is returned.
+        """
+        B = r
         A = self
         try:
             B._x
@@ -162,15 +196,23 @@ class Rect(object):
         return Rect(x, y, w, h)
         
     def contains(self, r):
+        """
+        Returns True if the rect r is contained inside this rect
+        """
         if self.clip(r).size == r.size:
             return True
         return False
         
     def collide_rect(self, r):
-        # Probably write a better optimized version of this later
+        """
+        Returns true if this rect collides with rect r.
+        """
         return self.clip(r).size != (0,0) or r.clip(self).size != (0,0)
         
     def collide_point(self, point):
+        """
+        Returns true if this rect collides with point
+        """
         # This could probably be optimized as well
         return point[0] > self.left and point[0] < self.right and \
             point[1] > self.top and point[1] < self.bottom
