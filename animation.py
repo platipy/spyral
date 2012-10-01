@@ -24,9 +24,6 @@ class Animation(object):
         # Idea: These animators could be used for camera control
         # at some point. Everything should work pretty much the same.
 
-        properties = ['x', 'y', 'image', 'scale', 'pos']
-        if property not in properties:
-            raise ValueError('%s is not a valid animation property.' % (property))
         self.property = property
         self.animator = animator
         self.duration = duration
@@ -85,11 +82,18 @@ class MultiAnimation(Animation):
             self.duration = max(self.duration, animation.duration)
             if animation.loop:
                 self.loop = True
+        # Ensure we don't clobber on properties
+        clobbering_animations = [('scale', {'scale_x', 'scale_y'}),
+                                 ('pos', {'x', 'y', 'position'}),
+                                 ('position', {'x', 'y', 'pos'})]
+        for p, others in clobbering_animations:
+            if p in self.properties and self.properties.intersection(others):
+                raise ValueError("Cannot animate on %s and %s in the same animation." % (p, str(self.properties.intersection(others).pop())))
         self.loop = kwargs.get('loop', self.loop)
         self.on_complete = spyral.Signal()
 
     def evaluate(self, sprite, progress):
-        res = dict((p, getattr(sprite, p)) for p in self.properties)
+        res = {}
         for animation in self._animations:
             if progress <= animation.duration:
                 res.update(animation.evaluate(sprite, progress))
@@ -127,7 +131,7 @@ class SequentialAnimation(Animation):
         self.on_complete = spyral.Signal()
 
     def evaluate(self, sprite, progress):
-        res = dict((p, getattr(sprite, p)) for p in self.properties)
+        res = {}
         if progress == self.duration:
             res.update(self._animations[-1].evaluate(sprite,
                        self._animations[-1].duration))

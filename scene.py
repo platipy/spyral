@@ -31,8 +31,7 @@ class Director(object):
         """
         if self._initialized:
             print('Warning: Tried to initialize the director twice. Ignoring.')
-        pygame.init()
-        pygame.font.init()
+        spyral.init()
 
         flags = 0
         # These flags are going to be managed better or elsewhere later

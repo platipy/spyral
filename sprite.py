@@ -418,7 +418,8 @@ class Group(object):
     def _evaluate(self, animation, sprite, progress):
         values = animation.evaluate(sprite, progress)
         for property in animation.properties:
-            setattr(sprite, property, values[property])
+            if property in values:
+                setattr(sprite, property, values[property])
             
     def _run_animations(self, dt):
         completed = []
@@ -451,3 +452,60 @@ class Group(object):
     def _stop_animations_for_sprite(self, sprite):
         for animation in self._animations[sprite][:]:
             self._stop_animation(animation, sprite)
+            
+class AggregateSprite(Sprite):
+    def __init__(self, camera):
+        Sprite.__init__(self)
+        self._internal_group = Group(camera)
+        self._child_anchor = spyral.Vec2D(0, 0)
+        
+    def _get_child_anchor(self):
+        return self._child_anchor
+        
+    def _set_child_anchor(self, anchor):
+        for sprite in self._internal_group.sprites():
+            sprite._expire_static()
+        try:
+            self._child_anchor = spyral.Vec2D(anchor)
+        except Exception:
+            self._child_anchor = anchor
+            
+    child_anchor = property(_get_child_anchor, _set_child_anchor)
+        
+    def add_child(self, sprite):
+        self._internal_group.add(sprite)
+        
+    def update(self, dt, *args):
+        self._internal_group.update(dt, *args)
+    
+    def draw(self, camera):
+        if self._age == 0:
+            for sprite in self._internal_group.sprites():
+                sprite._expire_static()
+        Sprite.draw(self, camera)
+        if not self.visible:
+            return
+        try:
+            offset = getattr(self.get_rect(), self._child_anchor)
+        except TypeError, AttributeError:
+            offset = self.pos - self._offset
+        
+        for sprite in self._internal_group.sprites():
+            if not sprite.visible:
+                return
+            if sprite._static:
+                return
+            if sprite._make_static or sprite._age > 4:
+                camera._static_blit(sprite,
+                                    sprite._transform_image,
+                                    sprite._pos - sprite._offset + offset,
+                                    sprite._layer,
+                                    sprite._blend_flags)
+                sprite._make_static = False
+                sprite._static = True
+                return
+            camera._blit(sprite._transform_image,
+                            sprite._pos - sprite._offset + offset,
+                            sprite._layer,
+                            sprite._blend_flags)
+            sprite._age += 1
