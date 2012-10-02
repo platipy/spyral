@@ -1,6 +1,5 @@
 import math
-__doc__ = 
-"""
+__doc__ = """
 This module provides a set of built-in animators which can be used by
 any game. Additionally, custom animators can be built. An animator
 should be a function (or callable) which takes in a sprite, and a 
