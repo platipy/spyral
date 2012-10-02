@@ -42,14 +42,7 @@ class TextSprite(Sprite):
         self.font = font
         
     def render(self, text):
-        surf = self.font.render(text, True, FG_COLOR)
-        surf2 = pygame.Surface(surf.get_size(), pygame.SRCALPHA)
-        surf2.blit(surf, (0, 0))
-        # This should be fixed up once the font system is in place
-        class DumbImage(spyral.Image):
-            def __init__(self):
-                self._surf = surf2
-        self.image = DumbImage()
+        self.image = self.font.render(text)
 
 
 
@@ -59,7 +52,7 @@ class AnimationExamples(Scene):
         self.camera = self.parent_camera.make_child(SIZE)
         self.group = Group(self.camera)
         
-        font = pygame.font.SysFont(None, FONT_SIZE)
+        font = spyral.Font(None, FONT_SIZE, FG_COLOR)
         
         self.title = TextSprite(self.group, font)
         self.title.anchor = 'center'
