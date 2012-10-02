@@ -126,11 +126,10 @@ class GameClock(object):
     GameClock is an implementation of fixed-timestep clocks used for
     running the game.
     
-    ============    ============
+    =============== ============
     Attribute       Description
-    ============    ============
-    get_ticks       The time source for the game. Should support
-                    at least subsecond accuracy.
+    =============== ============
+    get_ticks       The time source for the game. Should support at least subsecond accuracy.
     max_ups         The maximum number of updates per second. The clock
                     will prioritize trying to keep the number of
                     updates per second at this level, at the cost of
@@ -146,14 +145,14 @@ class GameClock(object):
                     rendering
     game_time       Virtual elapsed time in milliseconds
     paused          The game time at which the clock was paused
-    ============    ============
+    =============== ============
     
     In addition to these attributes, the following read-only attributes
     provide some useful metrics on performance of the program.
     
-    ============    ============
+    =============== ============
     Attribute       Description
-    ============    ============
+    =============== ============
     num_updates     The number of updates run in the current one-second
                     interval
     num_frames      The number of frames run in the current one-second
@@ -166,7 +165,7 @@ class GameClock(object):
                     five seconds
     fps             Average number of frames per second over the last
                     five seconds
-    ============    ============
+    =============== ============
     """
     def __init__(self,
             max_ups=30,
@@ -384,18 +383,19 @@ class GameClock(object):
         self._real_time = real_time
     
     def schedule_interval(self, func, interval, life=0, args=[]):
-        """Schedule an item to be called back each time an interval elapses.
+        """
+        
+        Schedule an item to be called back each time an interval elapses.
         
         While the clock is paused time does not pass.
         
-        Parameters:
-            func -> The callback function.
-            interval -> The time in seconds (float) between calls.
-            life -> The number of times the callback will fire, after which the
-                schedule will be removed. If the value 0 is specified, the event
-                will persist until manually unscheduled.
-            args -> A list that will be passed to the callback as an unpacked
-                sequence, like so: item.func(*[item.interval]+item.args).
+        | *func*: The callback function.
+        | *interval*: The time in seconds (float) between calls.
+        | *life*: The number of times the callback will fire, after which the
+          schedule will be removed. If the value 0 is specified, the event
+          will persist until manually unscheduled.
+        | *args*: A list that will be passed to the callback as an unpacked
+          sequence, like so: item.func(\*[item.interval]+item.args).
             
         """
         self.unschedule(func)
