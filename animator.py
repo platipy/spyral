@@ -1,11 +1,17 @@
 import math
+__doc__ = 
 """
-All animators should be functions which take the input time as a number
-from 0 to 1 and return a new value for the property they are animating.
+This module provides a set of built-in animators which can be used by
+any game. Additionally, custom animators can be built. An animator
+should be a function (or callable) which takes in a sprite, and a 
+time delta which is normalized to [0,1], and returns the state of
+animator at that time. See the source code of this module for some
+example implementations.
 
-For numerical properties, this should also be normalized when using
-default parameters to a [0, 1] scale, allowing for the possibility of
-a [-1, 1] scale as well. This will allow fun composition.
+Built-in animators are stateless, so the same animation can be used
+many times or on many different objects. Custom animators do not
+have to be stateless.
+
 """
 
 """
