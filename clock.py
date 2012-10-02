@@ -241,9 +241,6 @@ class GameClock(object):
         return self._game_time
     @property
     def paused(self):
-        """The real time at which the clock was paused, or zero if the clock
-        is not paused.
-        """
         return self._paused
     
     @property
