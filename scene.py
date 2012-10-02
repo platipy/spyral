@@ -193,7 +193,7 @@ class Scene(object):
         By default, max_ups and max_fps are pulled from the director.
         """
         time_source = time.time
-        self.clock = spyral._lib.gameclock.GameClock(
+        self.clock = spyral.GameClock(
             time_source=time_source,
             max_fps=max_fps or spyral.director._max_fps,
             max_ups=max_ups or spyral.director._max_ups)
