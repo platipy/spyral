@@ -2,7 +2,7 @@
 Spyral, an awesome library for making games.
 """
 
-__version__ = '0.1.1'
+__version__ = '0.2'
 __license__ = 'MIT'
 __author__ = 'Robert Deaton'
 
