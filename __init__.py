@@ -22,10 +22,13 @@ all_by_module = {
     'spyral.rect' : ['Rect'],
     'spyral.animation' : ['Animation'],
     'spyral.core' : ['init', 'quit'],
+    'spyral.font' : ['Font'],
+    'spyral.camera' : ['Camera'],
+    'spyral.clock' : ['GameClock'],
 }
 
 # modules that should be imported when accessed as attributes of werkzeug
-attribute_modules = frozenset(['memoize', 'point', 'camera', 'animator', 'event', '_lib', 'color'])
+attribute_modules = frozenset(['memoize', 'point', 'camera', 'animator', 'event', '_lib', 'color', 'font'])
 
 object_origins = {}
 for module, items in all_by_module.iteritems():
