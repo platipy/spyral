@@ -123,7 +123,11 @@ class _IntervalItem(object):
 
 class GameClock(object):
     """
+<<<<<<< HEAD:clock.py
     GameClock is an implementation of fixed-timestep clocks used for
+=======
+    GameClock is an implementatino of fixed-timestep clocks used for
+>>>>>>> 6e75a583ff19746934a884b263227755cec440fc:clock.py
     running the game.
     
     ============    ============
