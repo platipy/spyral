@@ -243,7 +243,9 @@ class Camera(object):
         drawn_static = 0
         v = pygame.version.vernum
         # Reminder: blits are (surf, pos, layer)
-        for layer in range(-100, 20):
+        layers = list(set([x[2] for x in s] + [x[2] for x in blits]))
+        layers.sort()
+        for layer in layers:
             if len(s) > 0:
                 while i < len(s) and s[i][2] == layer:
                     surf, pos, layer, flags = list(s)[i]
