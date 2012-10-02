@@ -21,8 +21,11 @@ def _scale(s, factor):
 
 class Camera(object):
     """
-    Represents an area to draw to. It can handle automatic scaling with optional
-    offsets, layering, and more soon.
+    Represents an area to draw to. It can handle automatic scaling with
+    optional offsets and optional layering.
+    
+    Cameras should never be instantiated directly. Instead, you should
+    call `make_camera` on the camera passed into your scene.
     """
     def __init__(self, virtual_size=None,
                  real_size=None,
