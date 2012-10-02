@@ -1,9 +1,7 @@
-# spyral uses this file as-is, without modification, from Gummworld2
+# spyral uses a modified version of this file from Gummworld2
 # and Trolls Outta Luckland, and thanks the authors for their great,
-# reusable piece of code.
-
-
-#!/usr/bin/env python
+# reusable piece of code. It is licensed separately from spyral
+# under the LGPLv3 or newer.
 
 # This file is part of Gummworld2.
 #
@@ -21,11 +19,28 @@
 # License along with Gummworld2.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# CREDITS
+#
+# The inspiration for this module came from Koen Witters's superb article
+# "deWiTTERS Game Loop", aka "Constant Game Speed independent of Variable FPS"
+# at http://www.koonsolo.com/news/dewitters-gameloop/.
+#
+# The clock was changed to use a fixed time-step after many discussions with
+# DR0ID, and a few readings of
+# http://gafferongames.com/game-physics/fix-your-timestep/.
+#
+# Thanks to Koen Witters, DR0ID, and Glenn Fiedler for sharing.
+#
+# Pythonated by Gummbum. While the builtin demo requires pygame, the module
+# does not. The GameClock class is purely Python and should be compatible with
+# other Python-based multi-media and game development libraries.
+
+
 __version__ = '$Id: gameclock.py$'
 __author__ = 'Gummbum, (c) 2011-2012'
 
 
-__doc__ = """gameclock.py - Game clock for Gummworld2.
+__doc__ = """
 
 GameClock is a fixed time-step clock that keeps time in terms of game
 time. It will attempt to keep game time close to real time, so if an
@@ -90,42 +105,7 @@ User-defined interval callbacks accept at least a DT argument, which is
 the scheduled item's interval, and optional user-defined arguments. See
 GameClock.schedule_interval.
 
-DEPRECATIONS
-
-Old Style Game Loop
-
-Use of the old style game loop is deprecated. Don't do this anymore:
-    
-    if clock.update_ready:
-        update(clock.dt_update)
-    if clock.frame_ready:
-        draw(clock.interpolate)
-
-The old style game loop will work on sufficiently fast hardware. Timekeeping
-will break on slow hardware that cannot keep up with a heavy workload. This is
-because the old style ignores the cost of the frame routine. By using callbacks
-instead, cost is factored into the frame scheduling and overloading the CPU has
-fewer negative side effects.
-
-The update_ready and frame_ready public attributes have been removed.
-
-CREDITS
-
-The inspiration for this module came from Koen Witters's superb article
-"deWiTTERS Game Loop", aka "Constant Game Speed independent of Variable FPS"
-at http://www.koonsolo.com/news/dewitters-gameloop/.
-
-The clock was changed to use a fixed time-step after many discussions with
-DR0ID, and a few readings of
-http://gafferongames.com/game-physics/fix-your-timestep/.
-
-Thanks to Koen Witters, DR0ID, and Glenn Fiedler for sharing.
-
-Pythonated by Gummbum. While the builtin demo requires pygame, the module
-does not. The GameClock class is purely Python and should be compatible with
-other Python-based multi-media and game development libraries.
 """
-
 
 import time
 
@@ -142,7 +122,52 @@ class _IntervalItem(object):
 
 
 class GameClock(object):
+    """
+    GameClock is an implementation of fixed-timestep clocks used for
+    running the game.
     
+    ============    ============
+    Attribute       Description
+    ============    ============
+    get_ticks       The time source for the game. Should support
+                    at least subsecond accuracy.
+    max_ups         The maximum number of updates per second. The clock
+                    will prioritize trying to keep the number of
+                    updates per second at this level, at the cost of
+                    frames per second
+    max_fps         The maximum number of frames per second.
+    use_wait        Boolean which represents whether the clock should
+                    try to sleep when possible. Setting this to False
+                    will give better game performance on lower end
+                    hardware, but take more CPU power
+    update_callback The function which should be called when for
+                    updates
+    frame_callback  The function which should be called for frame
+                    rendering
+    game_time       Virtual elapsed time in milliseconds
+    paused          The game time at which the clock was paused
+    ============    ============
+    
+    In addition to these attributes, the following read-only attributes
+    provide some useful metrics on performance of the program.
+    
+    ============    ============
+    Attribute       Description
+    ============    ============
+    num_updates     The number of updates run in the current one-second
+                    interval
+    num_frames      The number of frames run in the current one-second
+                    interval
+    dt_update       Duration of the previous update
+    dt_frame        Duration of the previous update
+    cost_of_update  How much real time the update callback takes
+    cost_of_frame   How much real time the frame callback takes
+    ups             Average number of updates per second over the last
+                    five seconds
+    fps             Average number of frames per second over the last
+                    five seconds
+    ============    ============
+    """
     def __init__(self,
             max_ups=30,
             max_fps=0,
@@ -214,8 +239,6 @@ class GameClock(object):
     
     @property
     def game_time(self):
-        """Virtual elapsed time in game milliseconds.
-        """
         return self._game_time
     @property
     def paused(self):
@@ -230,6 +253,9 @@ class GameClock(object):
         return interp if interp <= 1.0 else 1.0
     
     def tick(self):
+        """
+        Should be called in a loop, will run and handle timers.
+        """
         # Now.
         real_time = self.get_ticks()
         self._real_time = real_time
@@ -435,94 +461,3 @@ class GameClock(object):
         
         self._last_second = real_time
         self._next_second += 1.0
-
-
-if __name__ == '__main__':
-    import pygame
-    from pygame.locals import *
-    
-    class Game(object):
-        
-        def __init__(self):
-            pygame.init()
-            self.screen = pygame.display.set_mode((640,480))
-            self.screen_rect = self.screen.get_rect()
-            self.black = Color('black')
-            self.clock = GameClock(
-                max_ups=30, max_fps=256,
-                update_callback=self._update, frame_callback=self._draw)
-            self.clock.schedule_interval(self._update_caption, 1.0)
-            #
-            ball = pygame.sprite.Sprite()
-            ball.image = pygame.Surface((20,20))
-            ball.rect = ball.image.get_rect()
-            pygame.draw.rect(ball.image, Color('white'), ball.rect, 1)
-            ball.rect.center = self.screen_rect.center
-            ball.pos = float(ball.rect.centerx),float(ball.rect.centery)
-            ball.vec = 3,5
-            self.ball = ball
-            #
-            self.cfg_draw_simple = False
-        
-        def run(self):
-            while 1:
-                self.clock.tick()
-        
-        def _update(self, dt):
-            self._do_events()
-            #
-            ball = self.ball
-            screen_rect = self.screen_rect
-            #
-            x,y = ball.pos
-            vx,vy = ball.vec
-            x += vx
-            y += vy
-            ball.rect.centerx = round(x)
-            ball.rect.centery = round(y)
-            ball.pos = x,y
-            if not screen_rect.contains(ball.rect):
-                if ball.rect.right > screen_rect.right:
-                    vx *= -1
-                elif ball.rect.left < screen_rect.left:
-                    vx *= -1
-                if ball.rect.bottom > screen_rect.bottom:
-                    vy *= -1
-                elif ball.rect.top < screen_rect.top:
-                    vy *= -1
-                ball.vec = vx,vy
-        
-        def _update_caption(self, *args):
-            pygame.display.set_caption('{0} ups | {1} fps | {2}'.format(
-                self.clock.ups, self.clock.fps,
-                'Draw SIMPLE' if self.cfg_draw_simple else 'Draw COMPLEX'))
-        
-        def _draw(self, interp):
-            ball = self.ball
-            screen = self.screen
-            black = self.black
-            #
-            screen.fill(black)
-            #
-            x,y = ball.rect.topleft
-            vx,vy = ball.vec
-            x1 = int(round(ball.rect.x - vx) + (vx * interp))
-            y1 = int(round(ball.rect.y - vy) + (vy * interp))
-            screen.blit(ball.image, (x,y) if self.cfg_draw_simple else (x1,y1))
-            #
-            pygame.display.flip()
-        
-        def _do_events(self):
-            mouse_motion = None
-            for e in pygame.event.get():
-                if e.type == KEYDOWN:
-                    if e.key == K_SPACE:
-                        self.cfg_draw_simple = not self.cfg_draw_simple
-                    elif e.key == K_ESCAPE:
-                        quit()
-                elif e.type == MOUSEMOTION:
-                    mouse_motion = e
-            if mouse_motion:
-                pass
-    
-    Game().run()
