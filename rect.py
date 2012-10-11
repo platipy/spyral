@@ -142,7 +142,7 @@ class Rect(object):
         """
         c = self.center
         n = self.copy()
-        n.size = (self._w + x, self._h + y)
+        n.size = (self._w + width, self._h + height)
         n.center = c
         return n
         
@@ -151,7 +151,7 @@ class Rect(object):
         Inflates this rect by *width*, *height*.
         """
         c = self.center
-        self.size = (self._w + x, self._h + y)
+        self.size = (self._w + width, self._h + height)
         self.center = c
         
     def clip(self, r):
