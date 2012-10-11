@@ -533,7 +533,7 @@ class AggregateSprite(Sprite):
             return
         try:
             offset = getattr(self.get_rect(), self._child_anchor)
-        except TypeError, AttributeError:
+        except (TypeError, AttributeError):
             offset = self.pos - self._offset
         
         for sprite in self._internal_group.sprites():
