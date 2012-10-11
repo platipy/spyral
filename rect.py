@@ -14,9 +14,10 @@ class Rect(object):
     `x`, and `y`.
     """
     def __init__(self, *args):
-        # Again with the weird non-pythonic mess
-        if len(args) == 1: # copy another rect
-            return args[0].copy()
+        if len(args) == 1:
+            r = args[0]
+            self._x, self._y = r.x, r.y
+            self._w, self._h = r.w, r.h
         elif len(args) == 2:
             self._x, self._y = args[0]
             self._w, self._h = args[1]
@@ -24,7 +25,7 @@ class Rect(object):
             self.left, self.top, self.width, self.height = args
         else:
             raise ValueError("You done goofed.")
-            
+                
     def __getattr__(self, name):
         if name == "right":
             return self._x + self._w
