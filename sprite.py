@@ -201,11 +201,11 @@ class Sprite(object):
 
     def _get_width(self):
         if self._transform_image:
-            return spyral.Vec2D(self._transform_image.get_width())
+            return self._transform_image.get_width()
 
     def _get_height(self):
         if self._transform_image:
-            return spyral.Vec2D(self._transform_image.get_height())
+            return self._transform_image.get_height()
 
     def _get_size(self):
         if self._transform_image:
