@@ -21,8 +21,11 @@ def _scale(s, factor):
 
 class Camera(object):
     """
-    Represents an area to draw to. It can handle automatic scaling with optional
-    offsets, layering, and more soon.
+    Represents an area to draw to. It can handle automatic scaling with
+    optional offsets and optional layering.
+    
+    Cameras should never be instantiated directly. Instead, you should
+    call `make_camera` on the camera passed into your scene.
     """
     def __init__(self, virtual_size=None,
                  real_size=None,
@@ -240,7 +243,9 @@ class Camera(object):
         drawn_static = 0
         v = pygame.version.vernum
         # Reminder: blits are (surf, pos, layer)
-        for layer in range(-100, 20):
+        layers = list(set([x[2] for x in s] + [x[2] for x in blits]))
+        layers.sort()
+        for layer in layers:
             if len(s) > 0:
                 while i < len(s) and s[i][2] == layer:
                     surf, pos, layer, flags = list(s)[i]

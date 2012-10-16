@@ -6,7 +6,9 @@ class Image(object):
     """
     The image is the basic drawable item in spyral. They can be created
     either by loading from common file formats, or by creating a new
-    image and using some of the draw methods.
+    image and using some of the draw methods. Images are not drawn on
+    their own, they are placed as the *image* attribute on Sprites to
+    be drawn.
 
     | *size*: If *size* is passed, creates a new blank image of
       that size to draw on. Size should be an iterable with two

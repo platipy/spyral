@@ -4,6 +4,18 @@ from collections import defaultdict
 
 
 class Animation(object):
+    """
+    Creates an animation on *property*, with the specified
+    *animator*, to last *duration* in seconds.
+    
+    For example. Animation('x', animator.Linear(0, 100), 2.0)
+    creates an animation that will change the x propety of what it
+    is applied to from 0 to 100 over 2 seconds.
+    
+    Animations can be appended one after another with the `+`
+    operator, and can be run in parallel with the `&` operator.
+    """
+
     def __init__(self, property,
                  animator,
                  duration=1.0,
@@ -11,16 +23,6 @@ class Animation(object):
                  shift=None,
                  loop=False
                  ):
-        """
-        *animator* determines the animation you wish to apply
-
-        *duration* is the amount of time the animation should take.
-
-        *property* is the property of the sprite you wish to animate.
-        Special properties are "x" and "y" which refer to the first
-        and second parts of the position tuple.
-        """
-
         # Idea: These animators could be used for camera control
         # at some point. Everything should work pretty much the same.
 
@@ -148,6 +150,10 @@ class SequentialAnimation(Animation):
 
 
 class DelayAnimation(Animation):
+    """
+    Animation which performs no actions. Useful for lining up appended
+    and parallel animations so that things run at the right times.
+    """
     def __init__(self, duration=1.0):
         self.absolute = False
         self.properties = set([])
