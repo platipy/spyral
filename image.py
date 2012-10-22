@@ -111,6 +111,20 @@ class Image(object):
         color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor)
         self._surf.set_at(position + offset, color)
+    
+    def draw_arc(self, color, position, size, start_angle, end_angle, border_width = 0, anchor = 'topleft'):
+        """
+        Draws an elliptical arc on this surface. position = (x, y) specifies 
+        the top-left corner, and size = (width, height) specifies the
+        width and height of the ellipse. The start_angle and end_angle specify
+        the range of the arc to draw. border_width specifies the
+        width of the border to draw. If it is 0, the ellipse is
+        filled with the color specified. The anchor parameter is an :ref:`anchor 
+        position <anchors>`.
+        """
+        color = spyral.color._determine(color)
+        offset = self._calculate_offset(anchor, size)
+        pygame.draw.arc(self._surf, color, (position + offset, size), start_angle, end_angle, border_width)
         
     def draw_image(self, image, position = (0, 0), anchor= 'topleft'):
         """
