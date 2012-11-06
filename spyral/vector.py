@@ -118,9 +118,6 @@ class Vec2D(object):
         
     def __pos__(self):
         return self
-        
-    def __contains__(self, item):
-        return item in (self.x, self.y)
             
     def get_length(self):
         """
