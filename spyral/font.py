@@ -39,7 +39,7 @@ class Font(object):
         s2 = pygame.Surface(s1.get_size(), pygame.SRCALPHA)
         s2.blit(s1, (0, 0))
         
-        return _FontImage(s2)
+        return _FontImage(s2.convert_alpha())
 
     def get_height(self):
         """

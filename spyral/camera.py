@@ -13,9 +13,9 @@ def _scale(s, factor):
     size = s.get_size()
     new_size = (int(math.ceil(size[0] * factor[0])),
                 int(math.ceil(size[1] * factor[1])))
-    t = pygame.transform.scale(s,
+    t = pygame.transform.smoothscale(s,
                                new_size,
-                               pygame.Surface(new_size, pygame.SRCALPHA))
+                               pygame.Surface(new_size, pygame.SRCALPHA).convert_alpha())
     return t
 
 
