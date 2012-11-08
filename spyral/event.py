@@ -8,9 +8,12 @@ import os
 import random
 import base64
 
-"""
-Event handler
-"""
+class EventDict(dict):
+    def __getattr__(self, attr):
+        return self[attr]
+        
+    def __setattr__(self, attr, value):
+        self[attr] = value
 
 _event_names = ['QUIT', 'ACTIVEEVENT', 'KEYDOWN', 'KEYUP', 'MOUSEMOTION',
                 'MOUSEBUTTONUP', 'JOYAXISMOTION', 'JOYBALLMOTION',
@@ -43,7 +46,7 @@ def init():
 
 def _event_to_dict(event):
     attrs = _type_to_attrs[event.type]
-    d = dict((attr, getattr(event, attr)) for attr in attrs)
+    d = EventDict((attr, getattr(event, attr)) for attr in attrs)
     d['type'] = _type_to_name[event.type]
     if d['type'] in ('KEYDOWN', 'KEYUP'):
         try:
