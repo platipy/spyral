@@ -173,7 +173,7 @@ class EventManager(object):
                 self._events = []
                 for event in events:
                     # Make sure we avoid futzing with things while iterating
-                    listeners = self._listeners[event.type]
+                    listeners = self._listeners[event.type][:]
                     for listener in listeners:
                         r = listener[0].handle_event(event)
                         if r is True:
@@ -195,7 +195,7 @@ class EventManager(object):
         """
         if not self._busy or immediate is True:
             # Make sure we avoid futzing with things while iterating
-            listeners = self._listeners[event.type]
+            listeners = self._listeners[event.type][:]
             for listener in listeners:
                 r = listener[0].handle_event(event)
                 if r is True:
