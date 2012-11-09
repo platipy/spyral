@@ -5,6 +5,15 @@ import math
 import operator
 import sys
 
+class _Blit(object):
+    __slots__ = ['surface', 'rect', 'layer', 'flags', 'static']
+    def __init__(self, surface, rect, layer, flags, static):
+        self.surface = surface
+        self.rect = rect
+        self.layer = layer
+        self.flags = flags
+        self.static = static
+        
 
 @spyral.memoize.SmartMemoize
 def _scale(s, factor):
@@ -155,10 +164,11 @@ class Camera(object):
         else:
             return
 
-        self._rs._blits.append((new_surface,
-                                r.topleft,
-                                layer,
-                                flags))
+        self._rs._blits.append(_Blit(new_surface,
+                                     r,
+                                     layer,
+                                     flags,
+                                     False))
 
     def _static_blit(self, sprite, surface, position, layer, flags):
         position = spyral.point.scale(position, self._scale)
@@ -188,10 +198,11 @@ class Camera(object):
         else:
             return
 
-        rs._static_blits[sprite] = (new_surface,
-                                    r,
-                                    layer,
-                                    flags)
+        rs._static_blits[sprite] = _Blit(new_surface,
+                                          r,
+                                          layer,
+                                          flags,
+                                          True)
         if redraw:
             rs._clear_this_frame.append(r2.union(r))
         else:
@@ -229,83 +240,79 @@ class Camera(object):
 
         # Now, we need to blit layers, while simultaneously re-blitting
         # any static blits which were obscured
-        s = self._static_blits.values()
-        blits = self._blits
+        static_blits = len(self._static_blits)
+        dynamic_blits = len(self._blits)
+        blits = self._blits + list(self._static_blits.values())
+        blits.sort(key=operator.attrgetter('layer'))
+        
+        # Clear this is a list of things which need to be cleared
+        # on this frame and marked dirty on the next
         clear_this = self._clear_this_frame
+        # Clear next is a list which will become clear_this on the next
+        # draw cycle. We use this for non-static blits to say to clear
+        # That spot on the next frame
         clear_next = self._clear_next_frame
+        # Soft clear is a list of things which need to be cleared on
+        # this frame, but unlike clear_this, they won't be cleared
+        # on future frames. We use soft_clear to make things static
+        # as they are drawn and then no longer cleared
         soft_clear = self._soft_clear
         self._soft_clear = []
-        update_this = []
         screen_rect = screen.get_rect()
-        s.sort(key=operator.itemgetter(2))
-        blits.sort(key=operator.itemgetter(2))
-        i = j = 0
         drawn_static = 0
         v = pygame.version.vernum
-        # Reminder: blits are (surf, pos, layer)
-        layers = list(set([x[2] for x in s] + [x[2] for x in blits]))
-        layers.sort()
-        for layer in layers:
-            if len(s) > 0:
-                while i < len(s) and s[i][2] == layer:
-                    surf, pos, layer, flags = list(s)[i]
-                    # Now, does this need to be redrawn
-                    b = False
-                    for rect in clear_this:
-                        if pos.colliderect(rect):
-                            if v < (1, 8):
-                                screen.blit(surf, pos)
-                            else:
-                                screen.blit(surf, pos, None, flags)
-                            clear_this.append(pos)
-                            self._soft_clear.append(pos)
-                            drawn_static += 1
-                            b = True
-                            break
-                    if b:
-                        i = i + 1
-                        continue
-                    for rect in soft_clear:
-                        if pos.colliderect(rect):
-                            if v < (1, 8):
-                                screen.blit(surf, pos)
-                            else:
-                                screen.blit(surf, pos, None, flags)
-                            soft_clear.append(pos)
-                            update_this.append(pos)
-                            drawn_static += 1
-                            break
-                    i = i + 1
-            if len(blits) > 0 and layer >= 0:
-                while j < len(blits) and blits[j][2] == layer:
-                    # These are moving blits, so we need to make sure that
-                    # they will be cleared on the next frame
-                    surf, pos, layer, flags = blits[j]
-                    blit_rect = pygame.Rect(pos, surf.get_size())
-                    if screen_rect.contains(blit_rect):
+        
+        for blit in blits:
+            # If a blit is entirely off screen, we can ignore it altogether
+            if not screen_rect.contains(blit.rect) and not screen_rect.colliderect(blit.rect):
+                continue
+            if blit.static:
+                skip_soft_clear = False
+                for rect in clear_this:
+                    if blit.rect.colliderect(rect):
                         if v < (1, 8):
-                            r = screen.blit(surf, pos)
+                            screen.blit(blit.surface, blit.rect)
                         else:
-                            r = screen.blit(surf, pos, None, flags)
-                        clear_next.append(r)
-                    elif screen_rect.colliderect(blit_rect):
-                        x = blit_rect.clip(screen_rect)
-                        y = x.move(-blit_rect.left, -blit_rect.top)
-                        b = surf.subsurface(y)
+                            screen.blit(blit.surface, blit.rect, None, blit.flags)
+                        skip_soft_clear = True
+                        clear_this.append(blit.rect)
+                        self._soft_clear.append(blit.rect)
+                        drawn_static += 1
+                        break
+                if skip_soft_clear:
+                    continue
+                for rect in soft_clear:
+                    if blit.rect.colliderect(rect):
                         if v < (1, 8):
-                            r = screen.blit(b, x)
+                            screen.blit(blit.surface, blit.rect)
                         else:
-                            r = screen.blit(b, x, None, flags)
-                        clear_next.append(r)
-                    j = j + 1
+                            screen.blit(blit.surface, blit.rect, None, blit.flags)
+                        clear_this.append(blit.rect)
+                        self._soft_clear.append(blit.rect)
+                        drawn_static += 1
+                        break
+            else:                
+                if screen_rect.contains(blit.rect):
+                    if v < (1, 8):
+                        r = screen.blit(blit.surface, blit.rect)
+                    else:
+                        r = screen.blit(blit.surface, blit.rect, None, blit.flags)
+                    clear_next.append(r)
+                elif screen_rect.colliderect(blit.rect):
+                    x = blit.rect.clip(screen_rect)
+                    y = x.move(-blit.rect.left, -blit.rect.top)
+                    b = blit.surf.subsurface(y)
+                    if v < (1, 8):
+                        r = screen.blit(b, x)
+                    else:
+                        r = screen.blit(b, x, None, blit.flags)
+                    clear_next.append(r)
 
         # print "%d / %d static drawn, %d dynamic" %
         #       (drawn_static, len(s), len(blits))
         pygame.display.set_caption("%d / %d static, %d dynamic. %d ups, %d fps" %
                                    (
-                                   drawn_static, len(
-                                   s), len(
-                                       blits), spyral.director.get_scene(
+                                   drawn_static, static_blits, dynamic_blits, spyral.director.get_scene(
                                        ).clock.ups,
                                    spyral.director.get_scene().clock.fps))
         # Do the display update
