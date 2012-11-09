@@ -24,7 +24,7 @@ class Image(object):
             raise ValueError("Must specify exactly one of size and filename.")
             
         if size is not None:
-            self._surf = pygame.Surface((int(size[0]), int(size[1])), pygame.SRCALPHA, 32)
+            self._surf = pygame.Surface((int(size[0]), int(size[1])), pygame.SRCALPHA, 32).convert_alpha()
             self._name = None
         else:
             self._surf = pygame.image.load(filename).convert_alpha()
