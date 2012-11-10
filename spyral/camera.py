@@ -214,7 +214,7 @@ class Camera(object):
             return
         try:
             x = self._static_blits.pop(sprite)
-            self._clear_this_frame.append(x[1])
+            self._clear_this_frame.append(x.rect)
         except:
             pass
 
