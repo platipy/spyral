@@ -548,9 +548,9 @@ class AggregateSprite(Sprite):
         
         for sprite in self._internal_group.sprites():
             if not sprite.visible:
-                return
+                continue
             if sprite._static:
-                return
+                continue
             if sprite._make_static or sprite._age > 4:
                 camera._static_blit(sprite,
                                     sprite._transform_image,
@@ -559,7 +559,7 @@ class AggregateSprite(Sprite):
                                     sprite._blend_flags)
                 sprite._make_static = False
                 sprite._static = True
-                return
+                continue
             camera._blit(sprite._transform_image,
                             sprite._pos - sprite._offset + offset,
                             sprite._layer,
