@@ -120,7 +120,7 @@ class Camera(object):
         """
         Returns a rect the virtual size of this camera's display
         """
-        return pygame.rect.Rect((0, 0), self._vsize)
+        return spyral.Rect((0, 0), self._vsize)
 
     def set_background(self, image):
         """
