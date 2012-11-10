@@ -287,8 +287,7 @@ class Camera(object):
                             screen.blit(blit.surface, blit.rect)
                         else:
                             screen.blit(blit.surface, blit.rect, None, blit.flags)
-                        clear_this.append(blit.rect)
-                        self._soft_clear.append(blit.rect)
+                        soft_clear.append(blit.rect)
                         drawn_static += 1
                         break
             else:                
