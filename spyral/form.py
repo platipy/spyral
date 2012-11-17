@@ -30,22 +30,14 @@ class TextInputWidget(spyral.AggregateSprite, spyral.FormWidget):
         self._text = spyral.Sprite()
         self.add_child(self._cursor)
         self.add_child(self._text)
-        
-    self.value = property(_get_value, _set_value)
-    
+            
     def _compute_letter_widths(self, text):
         self._letter_widths = [0]
         running_sum = 0
         for letter in self._value:
             running_sum+= self.font.size(letter)[0]
             self._letter_widths.append(running_sum)
-    
-    def _set_value(self, value):
-        self._cursor_pos = len(value)
-        self._value = value
-        self._compute_letter_widths()
-        self.render()
-        
+            
     def _insert_text(self, position, char):
         if position == len(self._value):
             new_width= self._letter_widths[len(self._value)] + self.font.size(char)[0]
@@ -70,6 +62,15 @@ class TextInputWidget(spyral.AggregateSprite, spyral.FormWidget):
     def _get_value(self, value):
         return self._value
         
+    def _set_value(self, value):
+        self._cursor_pos = len(value)
+        self._value = value
+        self._compute_letter_widths()
+        self.render()
+    
+    value = property(_get_value, _set_value)
+
+        
     def render(self):
         # if highlighting
         #   print first segment of non-highlight
@@ -80,7 +81,7 @@ class TextInputWidget(spyral.AggregateSprite, spyral.FormWidget):
         # crop it if it's too far
         self._text.image = self.font.render(self._value)
     
-    def handle_event(event):
+    def handle_event(self, event):
         if event.type == 'KEYDOWN':
             # if key is shift: self._shift_was_down = True
             # if key is up/down/left/right: move cursor_pos
