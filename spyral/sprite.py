@@ -542,7 +542,8 @@ class AggregateSprite(Sprite):
         if self._age == 0:
             for sprite in self._internal_group.sprites():
                 sprite._expire_static()
-        Sprite.draw(self, camera)
+        if self.image is not None:
+            Sprite.draw(self, camera)
         if not self.visible:
             return
         try:
