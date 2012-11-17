@@ -8,14 +8,13 @@ import operator
 import pygame
 
 
-class TextInputWidget(spyral.AggregateSprite, spyral.FormWidget):
+class TextInputWidget(spyral.AggregateSprite):
     class _MouseCursor(spyral.Sprite):
         def __init__(self):
             spyral.Sprite.__init__(self)
             
     def __init__(self, value = '', default_value = True, width = None, max_length = None, style = None, validator = None):
         spyral.AggregateSprite.__init__(self)
-        spyral.FormWidget.__init__(self)
         self._value = value
         self.default_value = default_value
         self.max_width = max_width
