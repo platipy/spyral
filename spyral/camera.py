@@ -141,16 +141,28 @@ class Camera(object):
                 "You cannot set the background on the root camera directly.")
             self._background = surface
             self._clear_this_frame.append(surface.get_rect())
+            
+    def _compute_layer(self, layer):
+        try:
+            s = layer.split(':')
+            layer = s[0]
+            offset = 0
+            if len(s) > 1:
+                mod = s[1]
+                if mod == 'above':
+                    offset = 0.5
+                if mod == 'below':
+                    offset = -0.5
+            layer = self._layers.index(layer) + offset
+        except ValueError:
+            layer = len(self._layers)
+        return layer
 
     def _blit(self, surface, position, layer, flags):
         position = spyral.point.scale(position, self._scale)
         position = (position[0] + self._offset[0],
                     position[1] + self._offset[1])
-        try:
-            layer = self._layers.index(layer)
-        except ValueError:
-            layer = len(self._layers)
-
+        layer = self._compute_layer(layer)
         new_surface = _scale(surface, self._scale)
         r = pygame.Rect(position, new_surface.get_size())
 
@@ -174,14 +186,7 @@ class Camera(object):
         position = spyral.point.scale(position, self._scale)
         position = (position[0] + self._offset[0],
                     position[1] + self._offset[1])
-        try:
-            layer = 0 + layer
-        except TypeError:
-            try:
-                layer = self._layers.index(layer)
-            except ValueError:
-                layer = len(self._layers)
-
+        layer = self._compute_layer(layer)
         rs = self._rs
         redraw = sprite in rs._static_blits
         if redraw:
