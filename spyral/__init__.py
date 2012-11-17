@@ -29,7 +29,7 @@ all_by_module = {
     'spyral.form' : ['TextInputWidget']
 }
 
-# modules that should be imported when accessed as attributes of werkzeug
+# modules that should be imported when accessed as attributes of Spyral
 attribute_modules = frozenset(['memoize', 'point', 'camera', 'animator', 'event', '_lib', 'color', 'font'])
 
 object_origins = {}

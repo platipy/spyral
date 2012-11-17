@@ -82,11 +82,15 @@ class TextInputWidget(spyral.AggregateSprite, spyral.FormWidget):
     
     def handle_event(event):
         if event.type == 'KEYDOWN':
-            # if key is shift: self._shift_was_down = True
-            # if key is up/down/left/right: move cursor_pos
-            # else:
-            #   self._insert_text(self._cursor_pos, key_pressed)
-            pass
+            shift_is_down= pygame.key.get_mods() & gui.KMOD_SHIFT
+            shift_clicked = not self._shift_was_down and shift_is_down
+            self._shift_was_down = shift_is_down
+            if key == key.left: 
+                self._cursor_pos-= 1
+            elif key == key.right:
+                self._cursor_pos+= 1
+            else:
+                self._insert_text(self._cursor_pos, event.key)
         elif event.type == 'KEYUP':
             # if keyup was shift then self._shift_was_down = False
             pass
