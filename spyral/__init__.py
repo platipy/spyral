@@ -25,7 +25,8 @@ all_by_module = {
     'spyral.font' : ['Font'],
     'spyral.camera' : ['Camera'],
     'spyral.clock' : ['GameClock'],
-    'spyral.event' : ['keys']
+    'spyral.event' : ['keys'],
+    'spyral.form' : ['TextInputWidget']
 }
 
 # modules that should be imported when accessed as attributes of werkzeug
