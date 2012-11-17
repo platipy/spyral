@@ -98,7 +98,7 @@ class TextInputWidget(spyral.AggregateSprite):
     
     def handle_event(self, event):
         if event.type == 'KEYDOWN':
-            shift_is_down= pygame.key.get_mods() & gui.KMOD_SHIFT
+            shift_is_down= pygame.key.get_mods() & pygame.KMOD_SHIFT
             shift_clicked = not self._shift_was_down and shift_is_down
             self._shift_was_down = shift_is_down
             if key == key.left: 
@@ -198,13 +198,13 @@ class FormStyle(object):
         # should probably fix the math instead, but it works for now
 
         topleft = surf.subsurface(pygame.Rect((0,0), ps))
-        top = surf.subsurface(pygame.Rect((0,pw), ps))
-        topright = surf.subsurface(pygame.Rect((0, 2*pw), ps))
-        left = surf.subsurface(pygame.Rect((ph, 0), ps))
-        mid = surf.subsurface(pygame.Rect((ph, pw), ps))
-        right = surf.subsurface(pygame.Rect((ph, 2*pw), ps))
-        bottomleft = surf.subsurface(pygame.Rect((2*ph, 0), ps))
-        bottom = surf.subsurface(pygame.Rect((2*ph, pw), ps))
+        left = surf.subsurface(pygame.Rect((0,ph), ps))
+        bottomleft = surf.subsurface(pygame.Rect((0, 2*pw), ps))
+        top = surf.subsurface(pygame.Rect((pw, 0), ps))
+        mid = surf.subsurface(pygame.Rect((pw, ph), ps))
+        bottom = surf.subsurface(pygame.Rect((pw, 2*ph), ps))
+        topright = surf.subsurface(pygame.Rect((2*pw, 0), ps))
+        right = surf.subsurface(pygame.Rect((2*ph, pw), ps))
         bottomright = surf.subsurface(pygame.Rect((2*ph, 2*pw), ps))
 
         # corners
