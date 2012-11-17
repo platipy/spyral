@@ -242,7 +242,8 @@ class Sprite(object):
     def _set_group(self, group):
         if self._group is not None:
             self._group.remove(self)
-        group.add(self)
+        if group is not None:
+            group.add(self)
         
     def _get_angle(self):
         return self._angle
