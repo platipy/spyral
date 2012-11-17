@@ -309,7 +309,7 @@ class Sprite(object):
             (self._pos[0] - self._offset[0], self._pos[1] - self._offset[1]),
             self.size)
 
-    def draw(self, camera):
+    def draw(self, camera, offset = spyral.Vec2D(0, 0)):
         """
         Draws this sprite to the camera specified. Called automatically in
         the render loop. This should only be overridden in extreme
@@ -322,16 +322,16 @@ class Sprite(object):
         if self._make_static or self._age > 4:
             camera._static_blit(self,
                                 self._transform_image,
-                                (self._pos[0] - self._offset[0],
-                                 self._pos[1] - self._offset[1]),
+                                (self._pos[0] - self._offset[0] + offset[0],
+                                 self._pos[1] - self._offset[1] + offset[1]),
                                 self._layer,
                                 self._blend_flags)
             self._make_static = False
             self._static = True
             return
         camera._blit(self._transform_image,
-                     (self._pos[0] - self._offset[0],
-                      self._pos[1] - self._offset[1]),
+                     (self._pos[0] - self._offset[0] + offset[0],
+                      self._pos[1] - self._offset[1] + offset[1]),
                      self._layer,
                      self._blend_flags)
         self._age += 1
@@ -534,7 +534,7 @@ class AggregateSprite(Sprite):
         """ Called once per update tick. """
         self._internal_group.update(dt, *args)
     
-    def draw(self, camera):
+    def draw(self, camera, offset = spyral.Vec2D(0,0)):
         """
         Draws this sprite and all children to the camera. Should be
         overridden only in extreme circumstances.
@@ -543,30 +543,14 @@ class AggregateSprite(Sprite):
             for sprite in self._internal_group.sprites():
                 sprite._expire_static()
         if self.image is not None:
-            Sprite.draw(self, camera)
+            Sprite.draw(self, camera, offset)
         if not self.visible:
             return
         try:
-            offset = getattr(self.get_rect(), self._child_anchor)
+            i_offset = getattr(self.get_rect(), self._child_anchor)
         except (TypeError, AttributeError):
-            offset = self.pos - self._offset
+            i_offset = self.pos - self._offset
         
+        print self._internal_group.sprites()
         for sprite in self._internal_group.sprites():
-            if not sprite.visible:
-                continue
-            if sprite._static:
-                continue
-            if sprite._make_static or sprite._age > 4:
-                camera._static_blit(sprite,
-                                    sprite._transform_image,
-                                    sprite._pos - sprite._offset + offset,
-                                    sprite._layer,
-                                    sprite._blend_flags)
-                sprite._make_static = False
-                sprite._static = True
-                continue
-            camera._blit(sprite._transform_image,
-                            sprite._pos - sprite._offset + offset,
-                            sprite._layer,
-                            sprite._blend_flags)
-            sprite._age += 1
+            sprite.draw(camera, offset + i_offset)
