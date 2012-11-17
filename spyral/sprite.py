@@ -489,7 +489,7 @@ class AggregateSprite(Sprite):
     Child sprites do not need to worry about being in a Group, the
     AggregateSprite will handle that for them.
     """
-    def __init__(self, group):
+    def __init__(self, group = None):
         Sprite.__init__(self, group)
         self._internal_group = Group(self.group.camera)
         self._child_anchor = spyral.Vec2D(0, 0)

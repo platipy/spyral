@@ -10,6 +10,10 @@ import random
 import base64
 from collections import defaultdict
 
+class Event(object):
+    def __init__(self, type):
+        self.type = type
+
 class EventDict(dict):
     def __getattr__(self, attr):
         return self[attr]
@@ -183,25 +187,30 @@ class EventManager(object):
            self._events.extend(events) 
         
         
-    def send_event(self, event, immediate = False):
+    def send_event(self, event): #, immediate = False):
         """
         Sends an event to the relevant listeners.
-        
-        If events are currently being processed by the manager, the
-        event is added to the list of events to be sent out, unless
-        immediate is set to True, in which case it is sent immediately.
-        Use immediate sparingly, as it may lead to a large stack if
-        events trigger more immediate calls.
         """
-        if not self._busy or immediate is True:
-            # Make sure we avoid futzing with things while iterating
-            listeners = self._listeners[event.type][:]
-            for listener in listeners:
-                r = listener[0].handle_event(event)
-                if r is True:
-                    break
-        else:
-            self._events.append(event)
+        self.send_events([event])
+        
+        # Old version with some potentially interesting things here
+        # """
+        # If events are currently being processed by the manager, the
+        # event is added to the list of events to be sent out, unless
+        # immediate is set to True, in which case it is sent immediately.
+        # Use immediate sparingly, as it may lead to a large stack if
+        # events trigger more immediate calls.
+        # """
+        # if not self._busy or immediate is True:
+        #     print event.type
+        #     # Make sure we avoid futzing with things while iterating
+        #     listeners = self._listeners[event.type][:]
+        #     for listener in listeners:
+        #         r = listener[0].handle_event(event)
+        #         if r is True:
+        #             break
+        # else:
+        #     self._events.append(event)
         
 class ReplayEventHandler(EventHandler):
     def __init__(self, input_file):
@@ -222,76 +231,6 @@ class ReplayEventHandler(EventHandler):
 
     def __del__(self):
         self._file.close()
-
-
-class AnnotationOverworld(spyral.scene.Scene):
-    def __init__(self, scene, annotation_file, annotation_sprites):
-        #####
-        ##### Warning, we currently hardcode the screen resolution at 1200, 900
-        #####
-        spyral.scene.Scene.__init__(self)
-        self.clock = scene.clock
-        self.scene = scene
-        self.camera = spyral.director.get_camera(
-        ).make_child(virtual_size=(1200, 900))
-
-        self.tick = 0
-
-        self.group = spyral.sprite.Group(self.camera)
-        f = open(annotation_file)
-        self.annotations = json.loads(f.read())
-        self.sprites = annotation_sprites
-        print self.annotations
-
-        self.pause = 0
-        self.paused = False
-
-    def pause_for(self, seconds):
-        self.pause = self.clock.ticks_per_second * seconds
-        print self.pause
-
-    def on_enter(self):
-        self.scene.on_enter()
-
-    def on_exit(self):
-        self.scene.on_exit()
-
-    def update(self, tick):
-        self.group.update()
-        if self.pause > 0:
-            self.pause -= 1
-            return
-        if self.paused:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
-                    self.paused = False
-            return
-
-        self.tick += 1
-        if str(self.tick) in self.annotations:
-            actions = self.annotations[str(self.tick)]
-            for a in actions:
-                print a
-                if a['action'] == 'skip_frames':
-                    skip_until = a['next_frame']
-                    while self.tick < skip_until:
-                        self.scene.update(self.tick)
-                        self.tick += 1
-                elif a['action'] == 'show_annotation':
-                    self.group.add(self.sprites[a['name']])
-                elif a['action'] == 'hide_annotation':
-                    self.group.remove(self.sprites[a['name']])
-                elif a['action'] == 'pause':
-                    self.pause_for(a['seconds'])
-                elif a['action'] == 'pause_until_space':
-                    self.paused = True
-
-        self.scene.update(self.tick)
-
-    def render(self):
-        self.group.draw()
-        self.scene.render()
-
 
 class Keys(object):
     def __init__(self):

@@ -112,6 +112,15 @@ class Vec2D(object):
         
     __rmul__ = __mul__
     __imul__ = __mul__
+    
+    def __div__(self, o):
+        try:
+            return Vec2D(self.x / o[0], self.y / o[1])
+        except (IndexError, TypeError):
+            pass
+        
+        if isinstance(o, (int, long, float)):
+            return Vec2D(self.x / o, self.y / o)
             
     def __neg__(self):
         return (-self.x, -self.y)
