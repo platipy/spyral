@@ -244,4 +244,14 @@ class Keys(object):
         self.rshift = pygame.KMOD_RSHIFT
         
 
+        #game key support for the XO        
+        self.xo_game_key_check = 257
+        self.xo_game_key_down = 258
+        self.xo_game_key_x = 259
+        self.xo_game_key_left = 260
+        self.xo_game_key_right = 262
+        self.xo_game_key_square = 263
+        self.xo_game_key_up = 264
+        self.xo_game_key_circle = 265
+
 keys = Keys()
