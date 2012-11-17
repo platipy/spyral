@@ -189,7 +189,6 @@ class FormStyle(object):
         bw = size[0]
         bh = size[1]
         ps = image.get_size() / 3
-        print ps
         pw = ps[0]
         ph = ps[1]
         surf = image._surf
@@ -361,7 +360,6 @@ class Form(spyral.AggregateSprite):
             return
         cur = self._tab_orders[self._current_focus]
         candidates = [(name, order) for (name, order) in self._tab_orders.iteritems() if order < cur]
-        print candidates
         if len(candidates) == 0:
             if not wrap:
                 return
