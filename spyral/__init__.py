@@ -25,8 +25,8 @@ all_by_module = {
     'spyral.font' : ['Font'],
     'spyral.camera' : ['Camera'],
     'spyral.clock' : ['GameClock'],
-    'spyral.event' : ['keys'],
-    'spyral.form' : ['TextInputWidget', 'Form']
+    'spyral.event' : ['keys', 'Event'],
+    'spyral.form' : ['TextInputWidget', 'Form', 'FormStyle']
 }
 
 attribute_modules = frozenset(['memoize', 'point', 'camera', 'animator', 'event', '_lib', 'color', 'font', 'form'])
