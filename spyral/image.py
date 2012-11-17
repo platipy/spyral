@@ -40,7 +40,7 @@ class Image(object):
         """
         Returns the (width, height) of the image.
         """
-        return self._surf.get_size()
+        return spyral.Vec2D(self._surf.get_size())
     
     def fill(self, color):
         """
