@@ -187,25 +187,30 @@ class EventManager(object):
            self._events.extend(events) 
         
         
-    def send_event(self, event, immediate = False):
+    def send_event(self, event): #, immediate = False):
         """
         Sends an event to the relevant listeners.
-        
-        If events are currently being processed by the manager, the
-        event is added to the list of events to be sent out, unless
-        immediate is set to True, in which case it is sent immediately.
-        Use immediate sparingly, as it may lead to a large stack if
-        events trigger more immediate calls.
         """
-        if not self._busy or immediate is True:
-            # Make sure we avoid futzing with things while iterating
-            listeners = self._listeners[event.type][:]
-            for listener in listeners:
-                r = listener[0].handle_event(event)
-                if r is True:
-                    break
-        else:
-            self._events.append(event)
+        self.send_events([event])
+        
+        # Old version with some potentially interesting things here
+        # """
+        # If events are currently being processed by the manager, the
+        # event is added to the list of events to be sent out, unless
+        # immediate is set to True, in which case it is sent immediately.
+        # Use immediate sparingly, as it may lead to a large stack if
+        # events trigger more immediate calls.
+        # """
+        # if not self._busy or immediate is True:
+        #     print event.type
+        #     # Make sure we avoid futzing with things while iterating
+        #     listeners = self._listeners[event.type][:]
+        #     for listener in listeners:
+        #         r = listener[0].handle_event(event)
+        #         if r is True:
+        #             break
+        # else:
+        #     self._events.append(event)
         
 class ReplayEventHandler(EventHandler):
     def __init__(self, input_file):
