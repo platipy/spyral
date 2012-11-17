@@ -90,9 +90,11 @@ class TextInputWidget(spyral.AggregateSprite):
         self.image = self.font.render(self._value)
         
     def _render_cursor(self):
-        self._cursor.image = spyral.Image(size=(2,self.font.get_linesize()))
-        self._cursor.x= self._letter_widths[self.cursor_pos]
-        self._cursor.y= 0
+        self._cursor.image = spyral.Image(size=(20,100))
+        self._cursor.image.fill((255, 255, 0))
+        # self.font.get_linesize()
+        self._cursor.x= 20 #self._letter_widths[self.cursor_pos]
+        self._cursor.y= 20
     
     def handle_event(self, event):
         if event.type == 'KEYDOWN':
