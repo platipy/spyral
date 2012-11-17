@@ -116,15 +116,15 @@ class TextInputWidget(spyral.AggregateSprite, spyral.FormWidget):
                 # set selected_pos to mouse_position
                 pass
 
-class ButtonWidget(spyral.Sprite, FormWidget):
+class ButtonWidget(spyral.Sprite):
     def __init__(self, text, style = None):
         pass
         
-class ToggleButtonWidget(spyral.Sprite, FormWidget):
+class ToggleButtonWidget(spyral.Sprite):
     def __init__(self, text, style = None):
         pass
 
-class CheckboxWidget(spyral.Sprite, FormWidget):
+class CheckboxWidget(spyral.Sprite):
     def __init__(self, text, style = None):
             pass
 
@@ -132,7 +132,7 @@ class RadioButton(spyral.Sprite):
     def __init__(self, value, style = None):
         pass
         
-class RadioGroup(FormWidget):
+class RadioGroup(object):
     def __init__(self, *buttons):
         pass
 

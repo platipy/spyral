@@ -239,9 +239,9 @@ class Keys(object):
         self.right = 275
         self.left = 276
         self.space = 32
-        self.shift = pygame.key.KMOD_SHIFT
-        self.lshift = pygame.key.KMOD_LSHIFT
-        self.rshift = pygame.key.KMOD_RSHIFT
+        self.shift = pygame.KMOD_SHIFT
+        self.lshift = pygame.KMOD_LSHIFT
+        self.rshift = pygame.KMOD_RSHIFT
         
 
 keys = Keys()

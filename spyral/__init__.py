@@ -29,8 +29,7 @@ all_by_module = {
     'spyral.form' : ['TextInputWidget', 'Form']
 }
 
-# modules that should be imported when accessed as attributes of Spyral
-attribute_modules = frozenset(['memoize', 'point', 'camera', 'animator', 'event', '_lib', 'color', 'font'])
+attribute_modules = frozenset(['memoize', 'point', 'camera', 'animator', 'event', '_lib', 'color', 'font', 'form'])
 
 object_origins = {}
 for module, items in all_by_module.iteritems():
