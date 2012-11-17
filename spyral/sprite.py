@@ -373,21 +373,24 @@ class Sprite(object):
 class Group(object):
     """ Behaves like sprite.Group in pygame. """
 
-    def __init__(self, camera, *sprites):
+    def __init__(self, camera = None):
         """
         Create a group and associate a camera with it. This is where all drawing
         will be sent.
         """
         self.camera = camera
-        self._sprites = list(sprites)
+        self._sprites = []
         self._animations = defaultdict(list)
         self._progress = {}
 
-    def draw(self):
+    def draw(self, camera = None):
         """ Draws all of its sprites to the group's camera. """
-        c = self.camera
+        if camera is None:
+            camera = self.camera
+        if camera is None:
+            raise Exception("You need a camera to draw things.")
         for x in self._sprites:
-            x.draw(c)
+            x.draw(camera)
 
     def update(self, dt, *args):
         """ Calls update on all of its Sprites. """
@@ -491,7 +494,7 @@ class AggregateSprite(Sprite):
     """
     def __init__(self, group = None):
         Sprite.__init__(self, group)
-        self._internal_group = Group(self.group.camera)
+        self._internal_group = Group()
         self._child_anchor = spyral.Vec2D(0, 0)
         self.group = group
         
