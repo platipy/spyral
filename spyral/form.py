@@ -14,10 +14,13 @@ class TextInputWidget(spyral.AggregateSprite):
         spyral.AggregateSprite.__init__(self)
         self._value = value
         self.default_value = default_value
-        self.max_width = max_width
+        self.box_width = width
         self.max_length = max_length
         self.style = style
-        self.font = self.style.text_input_form
+        if style is not None:
+            self.font = self.style.text_input_form
+        else:
+            self.font = spyral.Font(None, 32, (255,255,255))
         self.validator = validator
         
         self._cursor_pos = len(value)
@@ -33,16 +36,16 @@ class TextInputWidget(spyral.AggregateSprite):
         self.add_child(self._cursor)
         self.add_child(self._text)
             
-    def _compute_letter_widths(self, text):
+    def _compute_letter_widths(self):
         self._letter_widths = [0]
         running_sum = 0
         for letter in self._value:
-            running_sum+= self.font.size(letter)[0]
+            running_sum+= self.font.get_size(letter)[0]
             self._letter_widths.append(running_sum)
             
     def _insert_text(self, position, char):
         if position == len(self._value):
-            new_width= self._letter_widths[len(self._value)] + self.font.size(char)[0]
+            new_width= self._letter_widths[len(self._value)] + self.font.get_size(char)[0]
             self._letter_widths.append(new_width)
             self._value += char
         else:
