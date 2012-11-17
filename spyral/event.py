@@ -10,6 +10,10 @@ import random
 import base64
 from collections import defaultdict
 
+class Event(object):
+    def __init__(self, type):
+        self.type = type
+
 class EventDict(dict):
     def __getattr__(self, attr):
         return self[attr]
