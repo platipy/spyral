@@ -1,9 +1,6 @@
 from pygame import key, mouse
 import spyral
 from bisect import bisect_right
-import sys
-import os
-sys.path.insert(0, os.path.abspath('..'))
 import operator
 import pygame
 
