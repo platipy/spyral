@@ -216,16 +216,14 @@ class FormStyle(object):
         for y in range(ph, bh - ph - ph, ph):
             s.blit(left, (0, y))
             s.blit(right, (bw - pw, y))
-        if bh % ph != 0:
-            s.blit(left, (0, bh - ph - ph))
-            s.blit(right, (bw - pw, bh - ph - ph))
+        s.blit(left, (0, bh - ph - ph))
+        s.blit(right, (bw - pw, bh - ph - ph))
         # top and bottom border
         for x in range(pw, bw - pw - pw, pw):
             s.blit(top, (x, 0))
             s.blit(bottom, (x, bh - ph))
-        if bw % pw != 0:
-            s.blit(top, (bw - pw - pw, 0))
-            s.blit(bottom, (bw - pw - pw, bh - ph))
+        s.blit(top, (bw - pw - pw, 0))
+        s.blit(bottom, (bw - pw - pw, bh - ph))
             
         # center
         for x in range(pw, bw - pw - pw, pw):
