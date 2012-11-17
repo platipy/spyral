@@ -41,11 +41,15 @@ class Game(spyral.Scene):
         bg.fill(BG_COLOR)
         self.camera.set_background(bg)
         # More setup here
+        name_entry = spyral.TextInputWidget('Cory Bart')
+        name_entry.pos = (0,0)
         manager =spyral.event.EventManager()
         form = spyral.form.Form('Forms', 
                                 manager,
                                 self.group)
-        form.add_widget("name_entry", spyral.TextInputWidget('Cory Bart'))
+        form.add_widget("name_entry",
+                        name_entry)
+        manager.register_listener(form, ['KEYDOWN', 'KEYUP', 'MOUSEMOTION','MOUSEBUTTONUP', 'MOUSEBUTTONDOWN'])
                 
     def render(self):
         """
