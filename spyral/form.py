@@ -31,6 +31,7 @@ class TextInputWidget(spyral.AggregateSprite):
         
         self._shift_was_down = False
         self._mouse_is_down = False
+        self._selecting = False
             
     def _compute_letter_widths(self):
         self._letter_widths = [0]
@@ -90,24 +91,85 @@ class TextInputWidget(spyral.AggregateSprite):
         self.image = self.font.render(self._value)
         
     def _render_cursor(self):
-        self._cursor.image = spyral.Image(size=(20,100))
-        self._cursor.image.fill((255, 255, 0))
-        # self.font.get_linesize()
-        self._cursor.x= 20 #self._letter_widths[self.cursor_pos]
-        self._cursor.y= 20
+        self._cursor.image = spyral.Image(size=(2,self.font.get_linesize()))
+        self._cursor.image.fill((255, 255, 255))
+        self._cursor.x = self._letter_widths[self.cursor_pos]
+        self._cursor.y = 0
+        
+    _non_insertable_keys =(spyral.keys.up, spyral.keys.down, 
+                           spyral.keys.left, spyral.keys.right,
+                           spyral.keys.home, spyral.keys.end, 
+                           spyral.keys.pageup, spyral.keys.pagedown,
+                           spyral.keys.numlock, spyral.keys.capslock,
+                           spyral.keys.scrollock, spyral.keys.shift, 
+                           spyral.keys.rshift, spyral.keys.lshift,
+                           spyral.keys.crtl, spyral.keys.rcrtl,  
+                           spyral.keys.lcrtl, spyral.keys.alt,  
+                           spyral.keys.ralt, spyral.keys.lalt,
+                           spyral.keys.meta, spyral.keys.rmeta, 
+                           spyral.keys.lmeta, spyral.keys.lsuper, 
+                           spyral.keys.rsuper, spyral.keys.mode)
+    _non_skippable_keys = (' ', '.', '?', '!', '@', '#', '$',
+                           '%', '^', '&', '*', '(', ')', '+',
+                           '=', '{', '}', '[', ']', ';', ':',
+                           '<', '>', ',', '/', '\\', '|', '"',
+                           "'", '~', '`')
+    _non_printable_keys = ('\t', '')
+                           
+    def _find_next_word(self, text, start=0, end=None):
+        if end is None:
+            end = len(text)
+        for index, letter in enumerate(text[start:end]):
+            if letter in _non_skippable_keys:
+                return index+start
+        return end
+
+    def _find_previous_word(self, text, start=0, end=None):
+        if end is None:
+            end = len(text)
+        for index, letter in enumerate(reversed(text[start:end])):
+            if letter in _non_skippable_keys:
+                return index+end-1
+        return start
+    
+    def _move_cursor_left(self, by_word = False):
+        if by_word:
+            self.cursor_pos = self._find_previous_word(self.value, 0, self.cursor_pos)
+        else:
+            self.cursor_pos= max(self.cursor_pos-1, 0)
+    
+    def _move_cursor_right(self, by_word = False):
+        if by_word:
+            self.cursor_pos = self._find_next_word(self.value, self.cursor_pos, len(self.value))
+        else:
+            self.cursor_pos= min(self.cursor_pos+1, len(self.value))
     
     def handle_event(self, event):
         if event.type == 'KEYDOWN':
-            shift_is_down= pygame.key.get_mods() & pygame.KMOD_SHIFT
+            key = event.key
+            mods = pygame.key.get_mods()
+            shift_is_down= mods & spyral.mods.shift
             shift_clicked = not self._shift_was_down and shift_is_down
             self._shift_was_down = shift_is_down
-            if key == key.left: 
-                self.cursor_pos-= 1
-            elif key == key.right:
-                self.cursor_pos+= 1
+            
+            if shift_clicked or (shift_is_down and not 
+                                 self._selecting and 
+                                 key in TextInputWidget._non_insertable_keys):
+                self._selection_pos = self.cursor_pos
+                self._selecting = True
+                
+            if key == key.left:
+                self._move_cursor_left(mods & spyral.mods.crtl)
+            elif key == key.right: 
+                self._move_cursor_right(mods & spyral.mods.crtl)
+            elif key == key.home:
+                self.cursor_pos = 0
+            elif key == key.end:
+                self.cursor_pos = len(self.value)
             else:
-                self._insert_text(self.cursor_pos, event.key)
-                self.cursor_pos+= 1
+                if key not in TextInputWidget._non_printable_keys:
+                    self._insert_text(self.cursor_pos, key)
+                    self.cursor_pos+= 1
         elif event.type == 'KEYUP':
             # if keyup was shift then self._shift_was_down = False
             pass

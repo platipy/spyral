@@ -551,6 +551,5 @@ class AggregateSprite(Sprite):
         except (TypeError, AttributeError):
             i_offset = self.pos - self._offset
         
-        print self._internal_group.sprites()
         for sprite in self._internal_group.sprites():
             sprite.draw(camera, offset + i_offset)

@@ -239,9 +239,20 @@ class Keys(object):
         self.right = 275
         self.left = 276
         self.space = 32
-        self.shift = pygame.KMOD_SHIFT
-        self.lshift = pygame.KMOD_LSHIFT
-        self.rshift = pygame.KMOD_RSHIFT
         
+class Mods(object):
+    def __init__(self):
+        self.none = 0
+        self.lshift = 1
+        self.rshift = 2
+        self.shift = 4
+        self.caps = 8
+        self.ctrl = 32
+        self.lctrl = 64
+        self.rctrl = 128
+        self.lalt = 256
+        self.ralt = 512
+        self.alt = 1024
 
 keys = Keys()
+mods = Mods()
