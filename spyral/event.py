@@ -233,25 +233,19 @@ class ReplayEventHandler(EventHandler):
         self._file.close()
 
 class Keys(object):
-    def __init__(self):
-        self.up = 273
-        self.down = 274
-        self.right = 275
-        self.left = 276
-        self.space = 32
-        self.shift = pygame.KMOD_SHIFT
-        self.lshift = pygame.KMOD_LSHIFT
-        self.rshift = pygame.KMOD_RSHIFT
-        
+    def __init__(self):  
+      self.load_keys_from_file(spyral._get_spyral_path() + 'resources/default_key_mappings.txt')   
 
-        #game key support for the XO        
-        self.xo_game_key_check = 257
-        self.xo_game_key_down = 258
-        self.xo_game_key_x = 259
-        self.xo_game_key_left = 260
-        self.xo_game_key_right = 262
-        self.xo_game_key_square = 263
-        self.xo_game_key_up = 264
-        self.xo_game_key_circle = 265
+    def load_keys_from_file(self, filename):
+        fp = open(filename)
+        keys = fp.readlines()
+        fp.close()
+        for singleMapping in keys:
+            mapping = singleMapping[:-1].split(' ')
+            if len(mapping) == 2:
+                setattr(self, mapping[0], int(mapping[1],16))
 
+    def add_key_mapping(self, name, number):
+        setattr(self, name, number)
+            
 keys = Keys()
