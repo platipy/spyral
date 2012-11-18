@@ -278,7 +278,6 @@ class Keys(object):
         for singleMapping in keys:
             mapping = singleMapping[:-1].split(' ')
             if len(mapping) == 2:
-                print mapping[1][0:2]
                 if mapping[1][0:2] == '0x':
                     setattr(self, mapping[0], int(mapping[1],16))
                 else:
