@@ -34,17 +34,18 @@ class TextInputWidget(spyral.AggregateSprite):
         self._selecting = False
             
     def _compute_letter_widths(self):
-        self._letter_widths = [0]
+        self._letter_widths = []
         running_sum = 0
-        for letter in self._value:
-            running_sum+= self.font.get_size(letter)[0]
+        for index in range(len(self._value)+1):
+            running_sum= self.font.get_size(self._value[:index])[0]
             self._letter_widths.append(running_sum)
+        print self._letter_widths
             
     def _insert_text(self, position, char):
         if position == len(self._value):
-            new_width= self._letter_widths[len(self._value)] + self.font.get_size(char)[0]
-            self._letter_widths.append(new_width)
             self._value += char
+            new_width= self.font.get_size(self._value)[0]
+            self._letter_widths.append(new_width)
         else:
             self._value = self._value[:position] + char + self._value[position:]
             self._compute_letter_widths()
@@ -119,7 +120,7 @@ class TextInputWidget(spyral.AggregateSprite):
             end = len(text)
         for index, letter in enumerate(text[start:end]):
             if letter in self._non_skippable_keys:
-                return index+start+1
+                return start+(index+1)
         return end
 
     def _find_previous_word(self, text, start=0, end=None):
@@ -127,7 +128,7 @@ class TextInputWidget(spyral.AggregateSprite):
             end = len(text)
         for index, letter in enumerate(reversed(text[start:end])):
             if letter in self._non_skippable_keys:
-                return end-index-1
+                return end-(index+1)
         return start
     
     def _move_cursor_left(self, by_word = False):
@@ -140,6 +141,7 @@ class TextInputWidget(spyral.AggregateSprite):
         if by_word:
             self.cursor_pos = self._find_next_word(self.value, self.cursor_pos, len(self.value))
         else:
+            print self.cursor_pos
             self.cursor_pos= min(self.cursor_pos+1, len(self.value))
     
     def handle_event(self, event):
