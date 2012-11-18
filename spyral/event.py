@@ -144,6 +144,7 @@ class EventManager(object):
         self._listeners = defaultdict(lambda : [])
         self._events = []
         self._busy = False
+        self._debug = 0
         
     def register_listener(self, listener, event_types, priority = 5):
         # We may switch to bisect here at some point, but for now, we'll just resort
@@ -176,6 +177,10 @@ class EventManager(object):
                 events = self._events
                 self._events = []
                 for event in events:
+                    if self._debug == 1:
+                        print event.type
+                    elif self._debug:
+                        print event
                     # Make sure we avoid futzing with things while iterating
                     listeners = self._listeners[event.type][:]
                     for listener in listeners:
@@ -211,6 +216,20 @@ class EventManager(object):
         #             break
         # else:
         #     self._events.append(event)
+        
+    def set_debug(self, value):
+        """
+        Enables debugging output on the event manager of varying
+        verbosity.
+        
+        "off" prints no output whatsoever.
+        "on" prints only the event types as they are handled.
+        "verbose" prints all full events.
+        """
+        
+        if value not in ('off', 'on', 'verbose'):
+            raise ValueError("Invalid debug mode.")
+        self._debug = {'off' : 0, 'on' : 1, 'verbose' : 2}[value]
         
 class ReplayEventHandler(EventHandler):
     def __init__(self, input_file):
