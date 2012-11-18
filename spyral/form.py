@@ -238,7 +238,7 @@ class FormStyle(object):
         return image  
     
 class Form(spyral.AggregateSprite):
-    def __init__(self, name, manager, group, style = None):
+    def __init__(self, name, manager, style = None):
         """
         [INSERT DESCRIPTION HERE]
         
@@ -247,7 +247,7 @@ class Form(spyral.AggregateSprite):
         "%(form_name)s_%(field_name)_%(event_type)" where event_type is
         from [INSERT LINK TO DOCUMENTATION FOR FORM EVENTS].
         """
-        spyral.AggregateSprite.__init__(self, group)
+        spyral.AggregateSprite.__init__(self)
         class Fields(object):
             pass
         self.fields = Fields()
