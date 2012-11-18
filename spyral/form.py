@@ -260,8 +260,32 @@ class Form(spyral.AggregateSprite):
         
         self.image = spyral.Image(size=(1,1))
         
+        self._mouse_currently_over = None
+        
     def handle_event(self, event):
-        print event
+        if event.type == 'MOUSEMOTION':
+            now_hover = None
+            for name, widget in self._widgets.iteritems():
+                print widget.get_rect()
+                print event.pos
+                if widget.get_rect().collide_point(event.pos):
+                    now_hover = name
+            if now_hover != self._mouse_currently_over:
+                if self._mouse_currently_over is not None:
+                    e = spyral.Event("%s_%s" % (self._name, "on_mouse_out"))
+                    e.form = self
+                    e.widget = self._widgets[self._mouse_currently_over]
+                    e.widget_name = self._mouse_currently_over
+                    self._manager.send_event(e)
+                self._mouse_currently_over = now_hover
+                if now_hover is not None:
+                    e = spyral.Event("%s_%s" % (self._name, "on_mouse_over"))
+                    e.form = self
+                    e.widget = self._widgets[self._mouse_currently_over]
+                    e.widget_name = self._mouse_currently_over
+                    self._manager.send_event(e)
+        # if event.type == 'MOUSEBUTTONDOWN':
+            
 
     def add_widget(self, name, widget, tab_order = None):
         """
