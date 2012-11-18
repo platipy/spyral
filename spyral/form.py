@@ -101,12 +101,10 @@ class TextInputWidget(spyral.AggregateSprite):
                            spyral.keys.home, spyral.keys.end, 
                            spyral.keys.pageup, spyral.keys.pagedown,
                            spyral.keys.numlock, spyral.keys.capslock,
-                           spyral.keys.scrollock, spyral.keys.shift, 
+                           spyral.keys.scrollock, spyral.keys.rctrl,
                            spyral.keys.rshift, spyral.keys.lshift,
-                           spyral.keys.crtl, spyral.keys.rcrtl,  
-                           spyral.keys.lcrtl, spyral.keys.alt,  
+                           spyral.keys.lctrl, spyral.keys.rmeta,
                            spyral.keys.ralt, spyral.keys.lalt,
-                           spyral.keys.meta, spyral.keys.rmeta, 
                            spyral.keys.lmeta, spyral.keys.lsuper, 
                            spyral.keys.rsuper, spyral.keys.mode)
     _non_skippable_keys = (' ', '.', '?', '!', '@', '#', '$',
@@ -158,17 +156,17 @@ class TextInputWidget(spyral.AggregateSprite):
                 self._selection_pos = self.cursor_pos
                 self._selecting = True
                 
-            if key == key.left:
+            if key == spyral.keys.left:
                 self._move_cursor_left(mods & spyral.mods.crtl)
-            elif key == key.right: 
+            elif key == spyral.keys.right: 
                 self._move_cursor_right(mods & spyral.mods.crtl)
-            elif key == key.home:
+            elif key == spyral.keys.home:
                 self.cursor_pos = 0
-            elif key == key.end:
+            elif key == spyral.keys.end:
                 self.cursor_pos = len(self.value)
             else:
                 if key not in TextInputWidget._non_printable_keys:
-                    self._insert_text(self.cursor_pos, key)
+                    self._insert_text(self.cursor_pos, event.unicode)
                     self.cursor_pos+= 1
         elif event.type == 'KEYUP':
             # if keyup was shift then self._shift_was_down = False
@@ -328,8 +326,6 @@ class Form(spyral.AggregateSprite):
         if event.type == 'MOUSEMOTION':
             now_hover = None
             for name, widget in self._widgets.iteritems():
-                print widget.get_rect()
-                print event.pos
                 if widget.get_rect().collide_point(event.pos):
                     now_hover = name
             if now_hover != self._mouse_currently_over:
@@ -346,7 +342,11 @@ class Form(spyral.AggregateSprite):
                     e.widget = self._widgets[self._mouse_currently_over]
                     e.widget_name = self._mouse_currently_over
                     self._manager.send_event(e)
-        # if event.type == 'MOUSEBUTTONDOWN':
+        if event.type == 'KEYDOWN' or event.type == 'KEYUP':
+            if event.ascii == '\t' and event.type == 'KEYUP':
+                self.next()
+            if self._current_focus is not None:
+                self._widgets[self._current_focus].handle_event(event)
             
 
     def add_widget(self, name, widget, tab_order = None):
