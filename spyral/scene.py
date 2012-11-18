@@ -169,7 +169,7 @@ class Director(object):
                     if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
                         camera.redraw()
                         scene.redraw()
-                    scene.event_handler._tick()
+                    scene.event_handler.tick()
                     scene.update(dt)
                     self._tick += 1
                 clock.frame_callback = frame_callback

@@ -70,10 +70,12 @@ class EventHandler(object):
         self._events = []
         self._mouse_pos = (0, 0)
 
-    def _tick(self):
+    def tick(self):
         """
-        Should be called at the beginning of each tick. It will pre-select all
-        the relevant events.
+        Should be called at the beginning of update cycle. For the
+        event handler which is part of a scene, this function will be
+        called automatically. For any additional event handlers, you
+        must call this function manually.
         """
         pass
 
@@ -101,6 +103,20 @@ class EventHandler(object):
 
 class LiveEventHandler(EventHandler):
     def __init__(self, output_file=None):
+        """
+        An event handler which pulls events from the operating system.
+        
+        The optional output_file argument specifies the path to a file
+        where the event handler will save a custom json file that can
+        be used with the `ReplayEventHandler` to show replays of a
+        game in action, or be used for other clever purposes.
+        
+        .. note::
+            
+            If you use the output_file parameter, this function will
+            reseed the random number generator, save the seed used. It
+            will then be restored by the ReplayEventHandler.        
+        """
         EventHandler.__init__(self)
         self._save = output_file is not None
         if self._save:
@@ -110,7 +126,7 @@ class LiveEventHandler(EventHandler):
             random.seed(seed)
             self._file.write(json.dumps(info) + "\n")
 
-    def _tick(self):
+    def tick(self):
         mouse = pygame.mouse.get_pos()
         events = [_event_to_dict(e) for e in pygame.event.get()]
         self._mouse_pos = mouse
@@ -233,24 +249,40 @@ class EventManager(object):
         
 class ReplayEventHandler(EventHandler):
     def __init__(self, input_file):
+        """
+        An event handler which replays the events from a custom json
+        file saved by the `LiveEventHandler`.
+        """
         EventHandler.__init__(self)
         self._file = open(input_file)
         info = json.loads(self._file.readline())
         random.seed(base64.decodestring(info['random_seed']))
+        self.paused = False
+        
+    def pause(self):
+        """
+        Pauses the replay of the events, making tick() a noop until
+        resume is called.
+        """
+        self.paused = True
+        
+    def resume(self):
+        """
+        Resumes the replay of events.
+        """
+        self.paused = False
 
-    def _tick(self):
+    def tick(self):
+        if self.paused:
+            return
         try:
             d = json.loads(self._file.readline())
         except ValueError:
             spyral.director.pop()
         events = d['events']
-        events = [pygame.event.Event(e['type'], e) for e in events]
+        events = [EventDict(e) for e in events]
         self._mouse_pos = d['mouse']
-        self._events.extend(events)
-
-    def __del__(self):
-        self._file.close()
-        
+        self._events.extend(events)        
 
 class Mods(object):
     def __init__(self):
