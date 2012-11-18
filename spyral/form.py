@@ -20,8 +20,8 @@ class TextInputWidget(spyral.AggregateSprite):
         self.box_width = width
         self.max_length = max_length
         self.style = style
-        if style is not None:
-            self.font = self.style.text_input_form
+        if style is not None and style.text_input_font is not None:
+            self.font = style.text_input_font
         else:
             self.font = spyral.Font(None, 32, (255,255,255))
         self.validator = validator
@@ -61,7 +61,7 @@ class TextInputWidget(spyral.AggregateSprite):
             else:
                 return index
         
-    def _get_value(self, value):
+    def _get_value(self):
         return self._value
         
     def _set_value(self, value):
@@ -112,22 +112,22 @@ class TextInputWidget(spyral.AggregateSprite):
                            '=', '{', '}', '[', ']', ';', ':',
                            '<', '>', ',', '/', '\\', '|', '"',
                            "'", '~', '`')
-    _non_printable_keys = ('\t', '')
+    _non_printable_keys = ('\t', '')+_non_insertable_keys
                            
     def _find_next_word(self, text, start=0, end=None):
         if end is None:
             end = len(text)
         for index, letter in enumerate(text[start:end]):
-            if letter in _non_skippable_keys:
-                return index+start
+            if letter in self._non_skippable_keys:
+                return index+start+1
         return end
 
     def _find_previous_word(self, text, start=0, end=None):
         if end is None:
             end = len(text)
         for index, letter in enumerate(reversed(text[start:end])):
-            if letter in _non_skippable_keys:
-                return index+end-1
+            if letter in self._non_skippable_keys:
+                return end-index-1
         return start
     
     def _move_cursor_left(self, by_word = False):
@@ -157,9 +157,9 @@ class TextInputWidget(spyral.AggregateSprite):
                 self._selecting = True
                 
             if key == spyral.keys.left:
-                self._move_cursor_left(mods & spyral.mods.crtl)
+                self._move_cursor_left(mods & spyral.mods.ctrl)
             elif key == spyral.keys.right: 
-                self._move_cursor_right(mods & spyral.mods.crtl)
+                self._move_cursor_right(mods & spyral.mods.ctrl)
             elif key == spyral.keys.home:
                 self.cursor_pos = 0
             elif key == spyral.keys.end:

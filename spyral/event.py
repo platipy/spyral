@@ -286,17 +286,17 @@ class ReplayEventHandler(EventHandler):
 
 class Mods(object):
     def __init__(self):
-        self.none = 0
-        self.lshift = 1
-        self.rshift = 2
-        self.shift = 4
-        self.caps = 8
-        self.ctrl = 32
-        self.lctrl = 64
-        self.rctrl = 128
-        self.lalt = 256
-        self.ralt = 512
-        self.alt = 1024
+        self.none = pygame.KMOD_NONE
+        self.lshift = pygame.KMOD_LSHIFT
+        self.rshift = pygame.KMOD_RSHIFT
+        self.shift = pygame.KMOD_SHIFT
+        self.caps = pygame.KMOD_CAPS
+        self.ctrl = pygame.KMOD_CTRL
+        self.lctrl = pygame.KMOD_LCTRL
+        self.rctrl = pygame.KMOD_RCTRL
+        self.lalt = pygame.KMOD_LALT
+        self.ralt = pygame.KMOD_RALT
+        self.alt = pygame.KMOD_ALT
 
 class Keys(object):
         

@@ -40,14 +40,15 @@ class Game(spyral.Scene):
         bg.fill(BG_COLOR)
         self.camera.set_background(bg)
         # More setup here
-        name_entry = spyral.TextInputWidget('Cory Bart')
-        name_entry.pos = (0,0)
-        self.manager =spyral.event.EventManager()
+        name_entry = spyral.TextInputWidget('Cory Bart', style=spyral.FormStyle())
+        name_entry.pos = (30,30)
+        self.manager = spyral.event.EventManager()
         form = spyral.form.Form('Forms', 
-                                self.manager,
-                                self.group)
+                                self.manager)
         form.add_widget("name_entry",
                         name_entry)
+        form.focus()
+        self.group.add(form)
         self.manager.register_listener(form, ['KEYDOWN', 'KEYUP', 'MOUSEMOTION','MOUSEBUTTONUP', 'MOUSEBUTTONDOWN'])
                 
     def render(self):
@@ -64,8 +65,9 @@ class Game(spyral.Scene):
         Here is where group.update() should be called for the groups, where
         event handling should be taken care of, etc.
         """
-        self.manager.send_events(self.event_handler.get())
-        for event in self.event_handler.get():
+        events= self.event_handler.get()
+        self.manager.send_events(events)
+        for event in events:
             if event['type'] == 'QUIT':
                 spyral.quit()
                 sys.exit()
