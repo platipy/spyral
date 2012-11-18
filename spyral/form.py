@@ -251,7 +251,6 @@ class FormStyle(object):
         bw = size[0]
         bh = size[1]
         ps = image.get_size() / 3
-        print ps
         pw = ps[0]
         ph = ps[1]
         surf = image._surf
@@ -279,16 +278,14 @@ class FormStyle(object):
         for y in range(ph, bh - ph - ph, ph):
             s.blit(left, (0, y))
             s.blit(right, (bw - pw, y))
-        if bh % ph != 0:
-            s.blit(left, (0, bh - ph - ph))
-            s.blit(right, (bw - pw, bh - ph - ph))
+        s.blit(left, (0, bh - ph - ph))
+        s.blit(right, (bw - pw, bh - ph - ph))
         # top and bottom border
         for x in range(pw, bw - pw - pw, pw):
             s.blit(top, (x, 0))
             s.blit(bottom, (x, bh - ph))
-        if bw % pw != 0:
-            s.blit(top, (bw - pw - pw, 0))
-            s.blit(bottom, (bw - pw - pw, bh - ph))
+        s.blit(top, (bw - pw - pw, 0))
+        s.blit(bottom, (bw - pw - pw, bh - ph))
             
         # center
         for x in range(pw, bw - pw - pw, pw):
@@ -303,7 +300,7 @@ class FormStyle(object):
         return image  
     
 class Form(spyral.AggregateSprite):
-    def __init__(self, name, manager, group, style = None):
+    def __init__(self, name, manager, style = None):
         """
         [INSERT DESCRIPTION HERE]
         
@@ -312,7 +309,7 @@ class Form(spyral.AggregateSprite):
         "%(form_name)s_%(field_name)_%(event_type)" where event_type is
         from [INSERT LINK TO DOCUMENTATION FOR FORM EVENTS].
         """
-        spyral.AggregateSprite.__init__(self, group)
+        spyral.AggregateSprite.__init__(self)
         class Fields(object):
             pass
         self.fields = Fields()
@@ -325,8 +322,32 @@ class Form(spyral.AggregateSprite):
         
         self.image = spyral.Image(size=(1,1))
         
+        self._mouse_currently_over = None
+        
     def handle_event(self, event):
-        print event
+        if event.type == 'MOUSEMOTION':
+            now_hover = None
+            for name, widget in self._widgets.iteritems():
+                print widget.get_rect()
+                print event.pos
+                if widget.get_rect().collide_point(event.pos):
+                    now_hover = name
+            if now_hover != self._mouse_currently_over:
+                if self._mouse_currently_over is not None:
+                    e = spyral.Event("%s_%s" % (self._name, "on_mouse_out"))
+                    e.form = self
+                    e.widget = self._widgets[self._mouse_currently_over]
+                    e.widget_name = self._mouse_currently_over
+                    self._manager.send_event(e)
+                self._mouse_currently_over = now_hover
+                if now_hover is not None:
+                    e = spyral.Event("%s_%s" % (self._name, "on_mouse_over"))
+                    e.form = self
+                    e.widget = self._widgets[self._mouse_currently_over]
+                    e.widget_name = self._mouse_currently_over
+                    self._manager.send_event(e)
+        # if event.type == 'MOUSEBUTTONDOWN':
+            
 
     def add_widget(self, name, widget, tab_order = None):
         """
@@ -423,7 +444,6 @@ class Form(spyral.AggregateSprite):
             return
         cur = self._tab_orders[self._current_focus]
         candidates = [(name, order) for (name, order) in self._tab_orders.iteritems() if order < cur]
-        print candidates
         if len(candidates) == 0:
             if not wrap:
                 return

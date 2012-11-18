@@ -144,6 +144,7 @@ class EventManager(object):
         self._listeners = defaultdict(lambda : [])
         self._events = []
         self._busy = False
+        self._debug = 0
         
     def register_listener(self, listener, event_types, priority = 5):
         # We may switch to bisect here at some point, but for now, we'll just resort
@@ -176,6 +177,10 @@ class EventManager(object):
                 events = self._events
                 self._events = []
                 for event in events:
+                    if self._debug == 1:
+                        print event.type
+                    elif self._debug:
+                        print event
                     # Make sure we avoid futzing with things while iterating
                     listeners = self._listeners[event.type][:]
                     for listener in listeners:
@@ -212,6 +217,20 @@ class EventManager(object):
         # else:
         #     self._events.append(event)
         
+    def set_debug(self, value):
+        """
+        Enables debugging output on the event manager of varying
+        verbosity.
+        
+        "off" prints no output whatsoever.
+        "on" prints only the event types as they are handled.
+        "verbose" prints all full events.
+        """
+        
+        if value not in ('off', 'on', 'verbose'):
+            raise ValueError("Invalid debug mode.")
+        self._debug = {'off' : 0, 'on' : 1, 'verbose' : 2}[value]
+        
 class ReplayEventHandler(EventHandler):
     def __init__(self, input_file):
         EventHandler.__init__(self)
@@ -231,15 +250,8 @@ class ReplayEventHandler(EventHandler):
 
     def __del__(self):
         self._file.close()
-
-class Keys(object):
-    def __init__(self):
-        self.up = 273
-        self.down = 274
-        self.right = 275
-        self.left = 276
-        self.space = 32
         
+
 class Mods(object):
     def __init__(self):
         self.none = 0
@@ -254,5 +266,22 @@ class Mods(object):
         self.ralt = 512
         self.alt = 1024
 
+class Keys(object):
+        
+    def __init__(self):  
+      self.load_keys_from_file(spyral._get_spyral_path() + 'resources/default_key_mappings.txt')   
+
+    def load_keys_from_file(self, filename):
+        fp = open(filename)
+        keys = fp.readlines()
+        fp.close()
+        for singleMapping in keys:
+            mapping = singleMapping[:-1].split(' ')
+            if len(mapping) == 2:
+                setattr(self, mapping[0], int(mapping[1],16))
+
+    def add_key_mapping(self, name, number):
+        setattr(self, name, number)
+            
 keys = Keys()
 mods = Mods()
