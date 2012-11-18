@@ -6,6 +6,7 @@ space 32
 shift 3
 lshift 1
 rshift 2
+tab 9
 xo_game_key_check 257
 xo_game_key_down 258
 xo_game_key_x 259
