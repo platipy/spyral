@@ -25,7 +25,7 @@ all_by_module = {
     'spyral.font' : ['Font'],
     'spyral.camera' : ['Camera'],
     'spyral.clock' : ['GameClock'],
-    'spyral.event' : ['keys', 'Event'],
+    'spyral.event' : ['keys', 'mods', 'Event'],
     'spyral.form' : ['TextInputWidget', 'Form', 'FormStyle']
 }
 
