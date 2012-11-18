@@ -25,7 +25,7 @@ all_by_module = {
     'spyral.font' : ['Font'],
     'spyral.camera' : ['Camera'],
     'spyral.clock' : ['GameClock'],
-    'spyral.event' : ['keys', 'mods', 'Event', 'EventManager'],
+    'spyral.event' : ['keys', 'mods', 'Event', 'EventManager', 'EventHandler', 'LiveEventHandler', 'ReplayEventHandler'],
     'spyral.form' : ['TextInputWidget', 'Form', 'FormStyle', 'ButtonWidget'],
     'spyral.dev' : ['_get_spyral_path']
 }
