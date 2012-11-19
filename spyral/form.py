@@ -16,14 +16,14 @@ class TextInputWidget(spyral.AggregateSprite):
         self._cursor = spyral.Sprite()
         self.add_child(self._cursor)
         
-        self._selected_pos = 0
+        self._selection_pos = 0
         self._selecting = False
         self._shift_was_down = False
         self._mouse_is_down = False
         
         self.default_value = default_value
         if width is None:
-            width = 100
+            width = 200
         self._view_x = 0
         self.box_width = width
         self.max_length = max_length
@@ -32,6 +32,7 @@ class TextInputWidget(spyral.AggregateSprite):
             self.font = style.text_input_font
         else:
             self.font = spyral.Font(None, 32, (255,255,255))
+            self.style.text_input_highlight_color= (255, 0, 0)
         self._box_height = self.font.get_linesize()
         self.validator = validator
         self.value = value
@@ -204,6 +205,7 @@ class TextInputWidget(spyral.AggregateSprite):
     
     def handle_event(self, event):
         if event.type == 'KEYDOWN':
+            print self._selecting, (self._selection_pos, self._cursor_pos)
             key = event.key
             mods = event.mod
             shift_is_down= mods & spyral.mods.shift
@@ -232,9 +234,11 @@ class TextInputWidget(spyral.AggregateSprite):
                 if key not in TextInputWidget._non_printable_keys:
                     self._insert_char(self.cursor_pos, event.unicode)
                     self.cursor_pos+= 1
-        elif event.type == 'KEYUP':
-            if event.key in (spyral.keys.lshift, spyral.keys.rshift):
-                self._shift_was_down = False
+            if not shift_is_down or (shift_is_down and key not in TextInputWidget._non_insertable_keys):
+                self._selecting = False
+                self._render_text()
+            if self._selecting:
+                self._render_text()
         elif event.type == 'MOUSEBUTTONUP':
             self._mouse_is_down = False
             if self._shift_was_down:

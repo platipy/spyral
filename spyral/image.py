@@ -155,24 +155,8 @@ class Image(object):
         spyral.camera._scale.clear(self._surf)
         
     @classmethod
-    def from_sequence(self, images, orientation = None):
-        sequence = []
-        x, y = 0, 0
-        if orientation == 'right':
-            for image in images:
-                x+= image.get_width()
-                sequence.append((image, x, y))
-            return Image.from_conglomerate(sequence)
-        elif orientation == 'left':
-            for image in images:
-                y+= image.get_width()
-                sequence.append((image, x, y))
-            return Image.from_conglomerate(sequence)
-        elif orientation == 'left':
-            return Image.from_sequence(reversed(images), 'right')
-        elif orientation == 'up':
-            return Image.from_sequence(reversed(images), 'down')
-        elif orientation == 'square':
+    def from_sequence(self, images, orientation = None, padding=0):
+        if orientation == 'square':
             length = int(math.ceil(math.sqrt(len(images))))
             max_height = 0
             for index, image in enumerate(images):
@@ -183,16 +167,35 @@ class Image(object):
                 else:
                     x += image.get_width()
                     max_height = max(max_height, image.get_height())
-                sequence.append((image, x, y))
-            return Image.from_conglomerate(sequence)
+                sequence.append((image, (x, y)))
+        else:
+            if orientation in ('left', 'right'):
+                selector = spyral.Vec2D(1,0)
+            else:
+                selector = spyral.Vec2D(0,1)
+
+            if orientation in ('left', 'above'):
+                reversed(images)
+
+            if type(padding) in (float, int, long):
+                padding = [padding] * len(images)
+            else:
+                padding = list(padding)
+                padding.append(0)
+            base = spyral.Vec2D(0,0)
+            sequence = []
+            for image, padding in zip(images, padding):
+                sequence.append((image, base))
+                base = base + selector * (image.get_size() + (padding, padding))
+        return Image.from_conglomerate(sequence)
     @classmethod
     def from_conglomerate(self, sequence):
         width, height = 0, 0
-        for image, x, y in sequence:
+        for image, (x, y) in sequence:
             width = max(width, x+image.get_width())
             height = max(height, y+image.get_height())
         new = Image(size=(width, height))
-        for image, x, y in sequence:
+        for image, (x, y) in sequence:
             new.draw_image(image, (x,y))
         return new
     def rotate(self, angle):
