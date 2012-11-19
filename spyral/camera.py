@@ -15,7 +15,7 @@ class _Blit(object):
         self.static = static
         
 
-@spyral.memoize.SmartMemoize
+@spyral.memoize._ImageMemoize
 def _scale(s, factor):
     if factor == (1.0, 1.0):
         return s
