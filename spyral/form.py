@@ -44,7 +44,7 @@ class TextInputWidget(spyral.AggregateSprite):
             running_sum= self.font.get_size(self._value[:index])[0]
             self._letter_widths.append(running_sum)
             
-    def _insert_text(self, position, char):
+    def _insert_char(self, position, char):
         if position == len(self._value):
             self._value += char
             new_width= self.font.get_size(self._value)[0]
@@ -53,6 +53,18 @@ class TextInputWidget(spyral.AggregateSprite):
             self._value = self._value[:position] + char + self._value[position:]
             self._compute_letter_widths()
         self._render_text()
+        
+    def _remove_char(self, position):
+        if position == len(self._value): 
+            pass
+        elif position == len(self._value)-1:
+            self._value = self._value[:position]
+            self._letter_widths.pop()
+        else:
+            self._value = self._value[:position]+self._value[position+1:]
+            self._compute_letter_widths()
+        self._render_text()
+        self._render_cursor()
                 
             
     def _compute_cursor_pos(self, mouse_pos):
@@ -95,12 +107,15 @@ class TextInputWidget(spyral.AggregateSprite):
         
     def _move_rendered_text(self):
         width = self._letter_widths[self.cursor_pos]
+        max_width = self._letter_widths[len(self._value)]
         cursor_width = 2
         x = width - self._view_x
         if x < 0: 
             self._view_x += x
         if x+cursor_width > self.box_width:
             self._view_x += x + cursor_width - self.box_width
+        if self._view_x+self.box_width> max_width and max_width > self.box_width:
+            self._view_x = max_width - self.box_width
         image = self._rendered_text.copy()
         image.crop((self._view_x, 0), 
                    (self.box_width, self._box_height))
@@ -111,7 +126,6 @@ class TextInputWidget(spyral.AggregateSprite):
         #   print second segment of non-highlight
         # else:
         #   print regular text
-        # crop it if it's too far
         
     def _render_cursor(self):
         self._cursor.image = spyral.Image(size=(2,self._box_height))
@@ -168,7 +182,7 @@ class TextInputWidget(spyral.AggregateSprite):
     def handle_event(self, event):
         if event.type == 'KEYDOWN':
             key = event.key
-            mods = pygame.key.get_mods()
+            mods = event.mod
             shift_is_down= mods & spyral.mods.shift
             shift_clicked = not self._shift_was_down and shift_is_down
             self._shift_was_down = shift_is_down
@@ -187,9 +201,15 @@ class TextInputWidget(spyral.AggregateSprite):
                 self.cursor_pos = 0
             elif key == spyral.keys.end:
                 self.cursor_pos = len(self.value)
+            elif key == spyral.keys.delete:
+                self._remove_char(self.cursor_pos)
+            elif key == spyral.keys.backspace:
+                if self._cursor_pos:
+                    self._move_cursor_left(False)
+                    self._remove_char(self.cursor_pos)
             else:
                 if key not in TextInputWidget._non_printable_keys:
-                    self._insert_text(self.cursor_pos, event.unicode)
+                    self._insert_char(self.cursor_pos, event.unicode)
                     self.cursor_pos+= 1
         elif event.type == 'KEYUP':
             # if keyup was shift then self._shift_was_down = False
