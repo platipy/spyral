@@ -18,7 +18,6 @@ class Memoize(object):
             print("WARNING: Unhashable type passed to memoize. Reconsider using this decorator.")
             return self.func(*args)
 
-
 class SmartMemoize(object):
     """
     This is a decorator to allow memoization of function calls. Its cache
@@ -54,3 +53,7 @@ class SmartMemoize(object):
         except TypeError:
             print("WARNING: Unhashable type passed to SmartMemoize. Reconsider using this decorator")
             return self.func(*args)
+
+class _ImageMemoize(SmartMemoize):
+    def clear(self, clear_image):
+        self.cache = dict(((image, scale) for (image, scale) in self.cache.iteritems() if image is clear_image))

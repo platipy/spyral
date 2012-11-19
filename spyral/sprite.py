@@ -54,6 +54,7 @@ class Sprite(object):
         self._age = 0
         self._static = False
         self._image = None
+        self._image_version = None
         self._layer = '__default__'
         self._groups = []
         self._make_static = False
@@ -174,6 +175,7 @@ class Sprite(object):
         if self._image is image:
             return
         self._image = image
+        self._image_version = image._version
         self._recalculate_transforms()
         self._expire_static()
 
@@ -315,6 +317,10 @@ class Sprite(object):
         the render loop. This should only be overridden in extreme
         circumstances.
         """
+        if self._image_version != self._image._version:
+            self._image_version = self._image._version
+            self._recalculate_transforms()
+            self._expire_static()
         if not self.visible:
             return
         if self._static:

@@ -29,6 +29,7 @@ class Image(object):
         else:
             self._surf = pygame.image.load(filename).convert_alpha()
             self._name = filename
+        self._version = 1
     
     def get_width(self):
         return self._surf.get_width()
@@ -48,6 +49,8 @@ class Image(object):
         """
         color = spyral.color._determine(color)
         self._surf.fill(color)
+        self._version += 1
+        spyral.camera._scale.clear(self._surf)
         
     def draw_rect(self, color, position, size, border_width = 0, anchor= 'topleft'):
         """
@@ -63,6 +66,8 @@ class Image(object):
         color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor, size)
         pygame.draw.rect(self._surf, color, (position + offset, size), border_width)
+        self._version += 1
+        spyral.camera._scale.clear(self._surf)
         
     def draw_lines(self, color, points, width = 1, closed = False):
         """
@@ -74,7 +79,12 @@ class Image(object):
         If closed is True and width is 0, the shape will be filled.
         """
         color = spyral.color._determine(color)
-        pygame.draw.aalines(self._surf, color, closed, points)
+        if width == 1:
+            pygame.draw.aalines(self._surf, color, closed, points)
+        else:
+            pygame.draw.lines(self._surf, color, closed, points, width)
+        self._version += 1
+        spyral.camera._scale.clear(self._surf)
     
     def draw_circle(self, color, position, radius, width = 0, anchor= 'topleft'):
         """
@@ -86,6 +96,8 @@ class Image(object):
         color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor)
         pygame.draw.circle(self._surf, color, position + offset, radius, width)
+        self._version += 1
+        spyral.camera._scale.clear(self._surf)
         
     def draw_ellipse(self, color, position, size, border_width = 0, anchor= 'topleft'):
         """
@@ -101,6 +113,8 @@ class Image(object):
         color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor, size)
         pygame.draw.ellipse(self._surf, color, (position + offset, size), border_width)
+        self._version += 1
+        spyral.camera._scale.clear(self._surf)
     
     def draw_point(self, color, position, anchor= 'topleft'):
         """
@@ -111,6 +125,8 @@ class Image(object):
         color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor)
         self._surf.set_at(position + offset, color)
+        self._version += 1
+        spyral.camera._scale.clear(self._surf)
     
     def draw_arc(self, color, position, size, start_angle, end_angle, border_width = 0, anchor = 'topleft'):
         """
@@ -125,6 +141,8 @@ class Image(object):
         color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor, size)
         pygame.draw.arc(self._surf, color, (position + offset, size), start_angle, end_angle, border_width)
+        self._version += 1
+        spyral.camera._scale.clear(self._surf)
         
     def draw_image(self, image, position = (0, 0), anchor= 'topleft'):
         """
@@ -133,6 +151,8 @@ class Image(object):
         """
         offset = self._calculate_offset(anchor, image._surf.get_size())
         self._surf.blit(image._surf, position + offset)
+        self._version += 1
+        spyral.camera._scale.clear(self._surf)
         
     def rotate(self, angle):
         """
@@ -143,17 +163,20 @@ class Image(object):
         original if you plan to do many rotations.
         """
         self._surf = pygame.transform.rotate(self._surf, angle).convert_alpha()
+        self._version += 1
         
     def scale(self, size):
         """
         Scales the image to the destination size.
         """
         self._surf = pygame.transform.smoothscale(self._surf, size).convert_alpha()
+        self._version += 1
         
     def flip(self, xbool, ybool):
         """
         Flips the image horizontally, vertically, or both.
         """
+        self._version += 1
         self._surf = pygame.transform.flip(self._surf, xbool, ybool).convert_alpha()
         
     def copy(self):
@@ -173,6 +196,7 @@ class Image(object):
         new = pygame.Surface((int(size[0]), int(size[1])), pygame.SRCALPHA, 32)
         new.blit(self._surf, (0,0), (position, size))
         self._surf = new
+        self._version += 1
         
     def _calculate_offset(self, anchor_type, size = (0,0)):
         w, h = self._surf.get_size()

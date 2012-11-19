@@ -8,6 +8,7 @@ class _FontImage(spyral.Image):
     def __init__(self, surf):
         self._surf = surf
         self._name = None
+        self._version = 1
         
 class Font(object):
     """
