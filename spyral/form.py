@@ -10,13 +10,21 @@ class TextInputWidget(spyral.AggregateSprite):
         def __init__(self):
             spyral.Sprite.__init__(self)
             
-    def __init__(self, value = '', default_value = True, width = None, max_length = None, style = None, validator = None):
+    def __init__(self, value = '', width = None, default_value = True, max_length = None, style = None, validator = None):
         spyral.AggregateSprite.__init__(self)
     
         self._cursor = spyral.Sprite()
         self.add_child(self._cursor)
         
+        self._selected_pos = 0
+        self._selecting = False
+        self._shift_was_down = False
+        self._mouse_is_down = False
+        
         self.default_value = default_value
+        if width is None:
+            width = 100
+        self._view_x = 0
         self.box_width = width
         self.max_length = max_length
         self.style = style
@@ -24,14 +32,10 @@ class TextInputWidget(spyral.AggregateSprite):
             self.font = style.text_input_font
         else:
             self.font = spyral.Font(None, 32, (255,255,255))
+        self._box_height = self.font.get_linesize()
         self.validator = validator
         self.value = value
-      
-        self._selected_pos = 0
         
-        self._shift_was_down = False
-        self._mouse_is_down = False
-        self._selecting = False
             
     def _compute_letter_widths(self):
         self._letter_widths = []
@@ -39,7 +43,6 @@ class TextInputWidget(spyral.AggregateSprite):
         for index in range(len(self._value)+1):
             running_sum= self.font.get_size(self._value[:index])[0]
             self._letter_widths.append(running_sum)
-        print self._letter_widths
             
     def _insert_text(self, position, char):
         if position == len(self._value):
@@ -68,20 +71,40 @@ class TextInputWidget(spyral.AggregateSprite):
     def _set_value(self, value):
         self._value = value
         self._compute_letter_widths()
+        self._cursor_pos = 0#len(value)
         self._render_text()
-        self.cursor_pos = len(value)
+        self._render_cursor()
     
     def _get_cursor_pos(self):
         return self._cursor_pos
     
     def _set_cursor_pos(self, position):
         self._cursor_pos = position
+        self._move_rendered_text()
         self._render_cursor()
 
     value = property(_get_value, _set_value)
     cursor_pos = property(_get_cursor_pos, _set_cursor_pos)
         
     def _render_text(self):
+        if self._selecting:
+            self._rendered_text = self.font.render(self._value)
+        else:
+            self._rendered_text = self.font.render(self._value)
+        self._move_rendered_text()
+        
+    def _move_rendered_text(self):
+        width = self._letter_widths[self.cursor_pos]
+        cursor_width = 2
+        x = width - self._view_x
+        if x < 0: 
+            self._view_x += x
+        if x+cursor_width > self.box_width:
+            self._view_x += x + cursor_width - self.box_width
+        image = self._rendered_text.copy()
+        image.crop((self._view_x, 0), 
+                   (self.box_width, self._box_height))
+        self.image = image
         # if highlighting
         #   print first segment of non-highlight
         #   print highlight text
@@ -89,12 +112,11 @@ class TextInputWidget(spyral.AggregateSprite):
         # else:
         #   print regular text
         # crop it if it's too far
-        self.image = self.font.render(self._value)
         
     def _render_cursor(self):
-        self._cursor.image = spyral.Image(size=(2,self.font.get_linesize()))
+        self._cursor.image = spyral.Image(size=(2,self._box_height))
         self._cursor.image.fill((255, 255, 255))
-        self._cursor.x = self._letter_widths[self.cursor_pos]
+        self._cursor.x = min(max(self._letter_widths[self.cursor_pos] - self._view_x, 0), self.box_width)
         self._cursor.y = 0
         
     _non_insertable_keys =(spyral.keys.up, spyral.keys.down, 
@@ -141,7 +163,6 @@ class TextInputWidget(spyral.AggregateSprite):
         if by_word:
             self.cursor_pos = self._find_next_word(self.value, self.cursor_pos, len(self.value))
         else:
-            print self.cursor_pos
             self.cursor_pos= min(self.cursor_pos+1, len(self.value))
     
     def handle_event(self, event):
