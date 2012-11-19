@@ -98,8 +98,12 @@ class TextInputWidget(spyral.AggregateSprite):
     cursor_pos = property(_get_cursor_pos, _set_cursor_pos)
         
     def _render_text(self):
-        if self._selecting:
-            self._rendered_text = self.font.render(self._value)
+        if self._selecting and (self._cursor_pos != self._selection_pos):
+            start, end = sorted((self._cursor_pos, self._selection_pos))
+            pre = self.font.render(self._value[:start])
+            highlight = self.font.render(self._value[start:end], color=self.style.text_input_highlight_color)
+            post = self.font.render(self._value[end:])
+            self._rendered_text = spyral.Image.from_sequence((pre, highlight, post), 'right')
         else:
             self._rendered_text = self.font.render(self._value)
         self._move_rendered_text()
@@ -229,8 +233,8 @@ class TextInputWidget(spyral.AggregateSprite):
                     self._insert_char(self.cursor_pos, event.unicode)
                     self.cursor_pos+= 1
         elif event.type == 'KEYUP':
-            # if keyup was shift then self._shift_was_down = False
-            pass
+            if event.key in (spyral.keys.lshift, spyral.keys.rshift):
+                self._shift_was_down = False
         elif event.type == 'MOUSEBUTTONUP':
             self._mouse_is_down = False
             if self._shift_was_down:

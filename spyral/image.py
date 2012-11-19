@@ -24,7 +24,7 @@ class Image(object):
             raise ValueError("Must specify exactly one of size and filename.")
             
         if size is not None:
-            self._surf = pygame.Surface((int(size[0]), int(size[1])), pygame.SRCALPHA, 32).convert_alpha()
+            self._surf = Image._new_spyral_surface(size)
             self._name = None
         else:
             self._surf = pygame.image.load(filename).convert_alpha()
@@ -154,6 +154,47 @@ class Image(object):
         self._version += 1
         spyral.camera._scale.clear(self._surf)
         
+    @classmethod
+    def from_sequence(self, images, orientation = None):
+        sequence = []
+        x, y = 0, 0
+        if orientation == 'right':
+            for image in images:
+                x+= image.get_width()
+                sequence.append((image, x, y))
+            return Image.from_conglomerate(sequence)
+        elif orientation == 'left':
+            for image in images:
+                y+= image.get_width()
+                sequence.append((image, x, y))
+            return Image.from_conglomerate(sequence)
+        elif orientation == 'left':
+            return Image.from_sequence(reversed(images), 'right')
+        elif orientation == 'up':
+            return Image.from_sequence(reversed(images), 'down')
+        elif orientation == 'square':
+            length = int(math.ceil(math.sqrt(len(images))))
+            max_height = 0
+            for index, image in enumerate(images):
+                if index % length == 0:
+                    x = 0
+                    y += max_height
+                    max_height = 0
+                else:
+                    x += image.get_width()
+                    max_height = max(max_height, image.get_height())
+                sequence.append((image, x, y))
+            return Image.from_conglomerate(sequence)
+    @classmethod
+    def from_conglomerate(self, sequence):
+        width, height = 0, 0
+        for image, x, y in sequence:
+            width = max(width, x+image.get_width())
+            height = max(height, y+image.get_height())
+        new = Image(size=(width, height))
+        for image, x, y in sequence:
+            new.draw_image(image, (x,y))
+        return new
     def rotate(self, angle):
         """
         Rotates the image by *angle* degrees clockwise. This may change
@@ -187,13 +228,17 @@ class Image(object):
         new = copy.copy(self)
         new._surf = self._surf.copy()
         return new
+    
+    @classmethod
+    def _new_spyral_surface(self, size):
+        return pygame.Surface((int(size[0]), int(size[1])), pygame.SRCALPHA, 32).convert_alpha()
         
     def crop(self, position, size):
         """
         Removes the edges of an image, keeping the internal rectangle specified
         by position and size.
         """
-        new = pygame.Surface((int(size[0]), int(size[1])), pygame.SRCALPHA, 32)
+        new = Image._new_spyral_surface(size)
         new.blit(self._surf, (0,0), (position, size))
         self._surf = new
         self._version += 1
