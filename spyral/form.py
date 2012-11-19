@@ -54,14 +54,13 @@ class TextInputWidget(spyral.AggregateSprite):
             self._compute_letter_widths()
         self._render_text()
         
-    def _remove_char(self, position):
+    def _remove_char(self, position, end = None):
+        if end is None:
+            end = position+1
         if position == len(self._value): 
             pass
-        elif position == len(self._value)-1:
-            self._value = self._value[:position]
-            self._letter_widths.pop()
         else:
-            self._value = self._value[:position]+self._value[position+1:]
+            self._value = self._value[:position]+self._value[end:]
             self._compute_letter_widths()
         self._render_text()
         self._render_cursor()
@@ -166,6 +165,26 @@ class TextInputWidget(spyral.AggregateSprite):
             if letter in self._non_skippable_keys:
                 return end-(index+1)
         return start
+        
+    def _delete(self, by_word = False):
+        if by_word:
+            start = self.cursor_pos
+            end = self._find_next_word(self.value, self.cursor_pos, len(self._value))
+            self._remove_char(start, end)
+        else:
+            self._remove_char(self.cursor_pos)
+        
+    def _backspace(self, by_word = False):
+        if not self._cursor_pos:
+            pass
+        elif by_word:
+            start = self._find_previous_word(self.value, 0, self.cursor_pos-1)
+            end = self.cursor_pos
+            self.cursor_pos= start
+            self._remove_char(start, end)
+        elif self._cursor_pos:
+            self.cursor_pos-= 1
+            self._remove_char(self.cursor_pos)
     
     def _move_cursor_left(self, by_word = False):
         if by_word:
@@ -202,11 +221,9 @@ class TextInputWidget(spyral.AggregateSprite):
             elif key == spyral.keys.end:
                 self.cursor_pos = len(self.value)
             elif key == spyral.keys.delete:
-                self._remove_char(self.cursor_pos)
+                self._delete(mods & spyral.mods.ctrl)
             elif key == spyral.keys.backspace:
-                if self._cursor_pos:
-                    self._move_cursor_left(False)
-                    self._remove_char(self.cursor_pos)
+                self._backspace(mods & spyral.mods.ctrl)
             else:
                 if key not in TextInputWidget._non_printable_keys:
                     self._insert_char(self.cursor_pos, event.unicode)
