@@ -79,7 +79,10 @@ class Image(object):
         If closed is True and width is 0, the shape will be filled.
         """
         color = spyral.color._determine(color)
-        pygame.draw.aalines(self._surf, color, closed, points)
+        if width == 1:
+            pygame.draw.aalines(self._surf, color, closed, points)
+        else:
+            pygame.draw.lines(self._surf, color, closed, points, width)
         self._version += 1
         spyral.camera._scale.clear(self._surf)
     
