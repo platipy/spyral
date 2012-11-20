@@ -101,10 +101,19 @@ class TextInputWidget(spyral.AggregateSprite):
     def _render_text(self):
         if self._selecting and (self._cursor_pos != self._selection_pos):
             start, end = sorted((self._cursor_pos, self._selection_pos))
+            
             pre = self.font.render(self._value[:start])
             highlight = self.font.render(self._value[start:end], color=self.style.text_input_highlight_color)
             post = self.font.render(self._value[end:])
-            self._rendered_text = spyral.Image.from_sequence((pre, highlight, post), 'right')
+            
+            pre_missed = self.font.get_size(self._value[:end])[0] - pre.get_width() - highlight.get_width()
+            if self._value[:start]:
+                post_missed = self.font.get_size(self._value)[0] - post.get_width() - pre.get_width() - highlight.get_width()
+                self._rendered_text = spyral.Image.from_sequence((pre, highlight, post), 'right', [pre_missed, post_missed])
+            else:
+                post_missed = self.font.get_size(self._value)[0] - post.get_width() - highlight.get_width()
+                self._rendered_text = spyral.Image.from_sequence((highlight, post), 'right', [post_missed])
+
         else:
             self._rendered_text = self.font.render(self._value)
         self._move_rendered_text()
@@ -172,7 +181,11 @@ class TextInputWidget(spyral.AggregateSprite):
         return start
         
     def _delete(self, by_word = False):
-        if by_word:
+        if self._selecting:
+            start, end = sorted((self.cursor_pos, self._selection_pos))
+            self.cursor_pos = start
+            self._remove_char(start, end)
+        elif by_word:
             start = self.cursor_pos
             end = self._find_next_word(self.value, self.cursor_pos, len(self._value))
             self._remove_char(start, end)
@@ -180,7 +193,11 @@ class TextInputWidget(spyral.AggregateSprite):
             self._remove_char(self.cursor_pos)
         
     def _backspace(self, by_word = False):
-        if not self._cursor_pos:
+        if self._selecting:
+            start, end = sorted((self.cursor_pos, self._selection_pos))
+            self.cursor_pos = start
+            self._remove_char(start, end)
+        elif not self._cursor_pos:
             pass
         elif by_word:
             start = self._find_previous_word(self.value, 0, self.cursor_pos-1)
@@ -205,10 +222,9 @@ class TextInputWidget(spyral.AggregateSprite):
     
     def handle_event(self, event):
         if event.type == 'KEYDOWN':
-            print self._selecting, (self._selection_pos, self._cursor_pos)
             key = event.key
             mods = event.mod
-            shift_is_down= mods & spyral.mods.shift
+            shift_is_down= (mods & spyral.mods.shift) or (key in (spyral.keys.lshift, spyral.keys.rshift))
             shift_clicked = not self._shift_was_down and shift_is_down
             self._shift_was_down = shift_is_down
             
@@ -232,13 +248,18 @@ class TextInputWidget(spyral.AggregateSprite):
                 self._backspace(mods & spyral.mods.ctrl)
             else:
                 if key not in TextInputWidget._non_printable_keys:
+                    if self._selecting:
+                        self._delete()
                     self._insert_char(self.cursor_pos, event.unicode)
                     self.cursor_pos+= 1
+                    
             if not shift_is_down or (shift_is_down and key not in TextInputWidget._non_insertable_keys):
                 self._selecting = False
                 self._render_text()
+                print "RESET", shift_is_down
             if self._selecting:
                 self._render_text()
+                
         elif event.type == 'MOUSEBUTTONUP':
             self._mouse_is_down = False
             if self._shift_was_down:
