@@ -112,9 +112,9 @@ class TextInputWidget(spyral.AggregateSprite):
             highlight = self.font.render(self._value[start:end], color=self.style.text_input_highlight_color)
             post = self.font.render(self._value[end:])
             
-            pre_missed = self.font.get_size(self._value[:end])[0] - pre.get_width() - highlight.get_width()
+            pre_missed = self.font.get_size(self._value[:end])[0] - pre.get_width() - highlight.get_width() + 1
             if self._value[:start]:
-                post_missed = self.font.get_size(self._value)[0] - post.get_width() - pre.get_width() - highlight.get_width()
+                post_missed = self.font.get_size(self._value)[0] - post.get_width() - pre.get_width() - highlight.get_width() - 1
                 self._rendered_text = spyral.Image.from_sequence((pre, highlight, post), 'right', [pre_missed, post_missed])
             else:
                 post_missed = self.font.get_size(self._value)[0] - post.get_width() - highlight.get_width()
