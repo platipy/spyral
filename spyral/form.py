@@ -1,4 +1,3 @@
-from pygame import key, mouse
 import spyral
 from bisect import bisect_right
 import operator
