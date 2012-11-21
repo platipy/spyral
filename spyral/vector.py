@@ -1,3 +1,4 @@
+from __future__ import division
 import math
 
 class Vec2D(object):
@@ -121,6 +122,8 @@ class Vec2D(object):
         
         if isinstance(o, (int, long, float)):
             return Vec2D(self.x / o, self.y / o)
+            
+    __truediv__ = __div__
             
     def __neg__(self):
         return (-self.x, -self.y)
