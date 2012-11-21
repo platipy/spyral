@@ -1,4 +1,3 @@
-from pygame import key, mouse
 import spyral
 from bisect import bisect_right
 import operator
@@ -21,6 +20,9 @@ class TextInputWidget(spyral.AggregateSprite):
         self._shift_was_down = False
         self._mouse_is_down = False
         
+        self._cursor_blink_interval = 0.5
+        self._cursor_time = 0.
+        
         self.default_value = default_value
         if width is None:
             width = 200
@@ -34,6 +36,10 @@ class TextInputWidget(spyral.AggregateSprite):
             self.font = spyral.Font(None, 32, (255,255,255))
             self.style.text_input_highlight_color= (255, 0, 0)
         self._box_height = self.font.get_linesize()
+
+        self._cursor.image = spyral.Image(size=(2,self._box_height))
+        self._cursor.image.fill((255, 255, 255))
+
         self.validator = validator
         self.value = value
         
@@ -106,9 +112,9 @@ class TextInputWidget(spyral.AggregateSprite):
             highlight = self.font.render(self._value[start:end], color=self.style.text_input_highlight_color)
             post = self.font.render(self._value[end:])
             
-            pre_missed = self.font.get_size(self._value[:end])[0] - (pre.get_width() + highlight.get_width())
+            pre_missed = self.font.get_size(self._value[:end])[0] - pre.get_width() - highlight.get_width() + 1
             if self._value[:start]:
-                post_missed = self.font.get_size(self._value)[0] - (post.get_width() + pre.get_width() + highlight.get_width())
+                post_missed = self.font.get_size(self._value)[0] - post.get_width() - pre.get_width() - highlight.get_width() - 1
                 self._rendered_text = spyral.Image.from_sequence((pre, highlight, post), 'right', [pre_missed, post_missed])
             else:
                 post_missed = self.font.get_size(self._value)[0] - (post.get_width() + highlight.get_width())
@@ -135,8 +141,6 @@ class TextInputWidget(spyral.AggregateSprite):
         self.image = image
         
     def _render_cursor(self):
-        self._cursor.image = spyral.Image(size=(2,self._box_height))
-        self._cursor.image.fill((255, 255, 255))
         self._cursor.x = min(max(self._letter_widths[self.cursor_pos] - self._view_x, 0), self.box_width)
         self._cursor.y = 0
         
@@ -213,6 +217,12 @@ class TextInputWidget(spyral.AggregateSprite):
             self.cursor_pos = self._find_next_word(self.value, self.cursor_pos, len(self.value))
         else:
             self.cursor_pos= min(self.cursor_pos+1, len(self.value))
+            
+    def update(self, dt):
+        self._cursor_time += dt
+        if self._cursor_time > self._cursor_blink_interval:
+            self._cursor_time -= self._cursor_blink_interval
+            self._cursor.visible = not self._cursor.visible
     
     def handle_event(self, event):
         if event.type == 'KEYDOWN':
