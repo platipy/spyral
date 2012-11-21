@@ -15,6 +15,8 @@ class TextInputWidget(spyral.AggregateSprite):
         self._cursor = spyral.Sprite()
         self.add_child(self._cursor)
         
+        self._focused = False
+        self._cursor.visible = False
         self._selection_pos = 0
         self._selecting = False
         self._shift_was_down = False
@@ -225,10 +227,11 @@ class TextInputWidget(spyral.AggregateSprite):
             self.cursor_pos= min(self.cursor_pos+1, len(self.value))
             
     def update(self, dt):
-        self._cursor_time += dt
-        if self._cursor_time > self._cursor_blink_interval:
-            self._cursor_time -= self._cursor_blink_interval
-            self._cursor.visible = not self._cursor.visible
+        if self._focused:
+            self._cursor_time += dt
+            if self._cursor_time > self._cursor_blink_interval:
+                self._cursor_time -= self._cursor_blink_interval
+                self._cursor.visible = not self._cursor.visible
     
     def handle_event(self, event):
         if event.type == 'KEYDOWN':
@@ -284,9 +287,27 @@ class TextInputWidget(spyral.AggregateSprite):
             if self._mouse_is_down:
                 # set selected_pos to mouse_position
                 pass
+        elif event.type == 'focused':
+            self._focused = True
+        elif event.type == 'blurred':
+            self._focused = False
+            self._cursor.visible = False
+
 
 class ButtonWidget(spyral.Sprite):
-    def __init__(self, text, style = None):
+    def __init__(self, text, width = None, style = None):
+        spyral.Sprite.__init__(self)
+        style = spyral.FormStyle()
+        
+        style.button = spyral.Image("game/res/input.normal.png")
+        style.button_selected = style.button
+        
+        
+        self.image = style.render_button((200, 48))
+
+        pass
+    
+    def handle_event(self, event):
         pass
         
 class ToggleButtonWidget(spyral.Sprite):
@@ -499,7 +520,8 @@ class Form(spyral.AggregateSprite):
         return dict((name, widget.value) for (name, widget) in self._widgets.iteritems())
         
     def _blur(self, name):
-        self._widgets[name].focused = None
+        e = spyral.Event("blurred")
+        self._widgets[name].handle_event(e)
         e = spyral.Event("%s_%s_%s" % (self._name, name, "on_blur"))
         e.widget = self._widgets[name]
         e.form = self
@@ -517,7 +539,8 @@ class Form(spyral.AggregateSprite):
         if self._current_focus is not None:
             self._blur(self._current_focus)
         self._current_focus = name
-        self._widgets[name].focused = True
+        e = spyral.Event("focused")
+        self._widgets[name].handle_event(e)
         e = spyral.Event("%s_%s_%s" % (self._name, name, "on_focus"))
         e.widget = self._widgets[name]
         e.form = self
