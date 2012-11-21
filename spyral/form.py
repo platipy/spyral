@@ -415,14 +415,31 @@ class Form(spyral.AggregateSprite):
         self._labels = {}
         self._current_focus = None
         self._name = name
-        self._manager = manager
-        
-        self.image = spyral.Image(size=(1,1))
-        
+        self._manager = manager        
         self._mouse_currently_over = None
+        self._mouse_down_on = None
         
     def handle_event(self, event):
+        if event.type == 'MOUSEBUTTONDOWN':
+            for name, widget in self._widgets.iteritems():
+                print widget.group.camera.world_to_local(event.pos)
+                print widget.get_rect()
+                if widget.get_rect().collide_point(widget.group.camera.world_to_local(event.pos)):
+                    print widget.get_rect()
+                    print event.pos
+                    self.focus(name)
+                    self._mouse_down_on = name
+                    widget.handle_event(event)
+                    return True
+            return False
+        if event.type == 'MOUSEBUTTONUP':
+            if self._mouse_down_on is None:
+                return False
+            self._widgets[self._mouse_down_on].handle_event(event)
+            self._mouse_down_on = None
         if event.type == 'MOUSEMOTION':
+            if self._mouse_down_on is not None:
+                self._widgets[self._mouse_down_on].handle_event(event)
             now_hover = None
             for name, widget in self._widgets.iteritems():
                 if widget.get_rect().collide_point(event.pos):
@@ -441,9 +458,18 @@ class Form(spyral.AggregateSprite):
                     e.widget = self._widgets[self._mouse_currently_over]
                     e.widget_name = self._mouse_currently_over
                     self._manager.send_event(e)
+            return
         if event.type == 'KEYDOWN' or event.type == 'KEYUP':
-            if event.ascii == '\t' and event.type == 'KEYUP':
+            if self._current_focus is None:
+                return
+            if event.ascii == '\t':
+                if event.type == 'KEYDOWN':
+                    return True
+                if event.mod & spyral.mods.shift:
+                    self.previous()
+                    return True
                 self.next()
+                return True
             if self._current_focus is not None:
                 self._widgets[self._current_focus].handle_event(event)
             
