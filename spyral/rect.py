@@ -154,6 +154,17 @@ class Rect(object):
         self.size = (self._w + width, self._h + height)
         self.center = c
         
+    def union(self, other):
+        """
+        Returns a new rect which represents the union of this rect
+        with other.
+        """
+        top = min(self.top, other.top)
+        left = min(self.left, other.left)
+        bottom = max(self.bottom, other.bottom)
+        right = max(self.right, other.right)
+        return Rect((left, top), (right - left, bottom - top))
+
     def clip(self, r):
         """
         Returns a Rect which is cropped to be completely inside of r.
