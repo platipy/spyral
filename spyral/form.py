@@ -106,12 +106,12 @@ class TextInputWidget(spyral.AggregateSprite):
             highlight = self.font.render(self._value[start:end], color=self.style.text_input_highlight_color)
             post = self.font.render(self._value[end:])
             
-            pre_missed = self.font.get_size(self._value[:end])[0] - pre.get_width() - highlight.get_width()
+            pre_missed = self.font.get_size(self._value[:end])[0] - (pre.get_width() + highlight.get_width())
             if self._value[:start]:
-                post_missed = self.font.get_size(self._value)[0] - post.get_width() - pre.get_width() - highlight.get_width()
+                post_missed = self.font.get_size(self._value)[0] - (post.get_width() + pre.get_width() + highlight.get_width())
                 self._rendered_text = spyral.Image.from_sequence((pre, highlight, post), 'right', [pre_missed, post_missed])
             else:
-                post_missed = self.font.get_size(self._value)[0] - post.get_width() - highlight.get_width()
+                post_missed = self.font.get_size(self._value)[0] - (post.get_width() + highlight.get_width())
                 self._rendered_text = spyral.Image.from_sequence((highlight, post), 'right', [post_missed])
 
         else:
@@ -133,12 +133,6 @@ class TextInputWidget(spyral.AggregateSprite):
         image.crop((self._view_x, 0), 
                    (self.box_width, self._box_height))
         self.image = image
-        # if highlighting
-        #   print first segment of non-highlight
-        #   print highlight text
-        #   print second segment of non-highlight
-        # else:
-        #   print regular text
         
     def _render_cursor(self):
         self._cursor.image = spyral.Image(size=(2,self._box_height))
@@ -271,6 +265,7 @@ class TextInputWidget(spyral.AggregateSprite):
                 self.default_value = False
             self._mouse_is_down = True
         elif event.type == 'MOUSEMOTION':
+            print "HELP"
             if self._mouse_is_down:
                 # set selected_pos to mouse_position
                 pass

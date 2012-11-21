@@ -156,6 +156,9 @@ class Image(object):
         
     @classmethod
     def from_sequence(self, images, orientation = None, padding=0):
+        """
+        Static class method that returns a new Image from a list of *images* by placing them next to each other. *orientation* can be either 'left', 'right', 'above', 'below', or 'square' (square images will be placed in a grid shape, like a chess board). Optionally, the parameter *padding* can be specified as a number (for constant padding between all images) or a list (for different paddings between each image).
+        """
         if orientation == 'square':
             length = int(math.ceil(math.sqrt(len(images))))
             max_height = 0
@@ -190,6 +193,9 @@ class Image(object):
         return Image.from_conglomerate(sequence)
     @classmethod
     def from_conglomerate(self, sequence):
+        """
+        Generates a new image from a *sequence* of (image, position) pairs. These images will be placed onto a singe image large enough to hold all of them.
+        """
         width, height = 0, 0
         for image, (x, y) in sequence:
             width = max(width, x+image.get_width())

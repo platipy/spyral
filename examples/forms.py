@@ -40,7 +40,7 @@ class Game(spyral.Scene):
         bg.fill(BG_COLOR)
         self.camera.set_background(bg)
         # More setup here
-        name_entry = spyral.TextInputWidget('is so awesome', style=spyral.FormStyle())
+        name_entry = spyral.TextInputWidget('isisisisisis', style=spyral.FormStyle())
         name_entry.pos = (30,30)
         self.manager = spyral.event.EventManager()
         form = spyral.form.Form('Forms', 
