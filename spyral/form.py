@@ -422,11 +422,7 @@ class Form(spyral.AggregateSprite):
     def handle_event(self, event):
         if event.type == 'MOUSEBUTTONDOWN':
             for name, widget in self._widgets.iteritems():
-                print widget.group.camera.world_to_local(event.pos)
-                print widget.get_rect()
                 if widget.get_rect().collide_point(widget.group.camera.world_to_local(event.pos)):
-                    print widget.get_rect()
-                    print event.pos
                     self.focus(name)
                     self._mouse_down_on = name
                     widget.handle_event(event)
