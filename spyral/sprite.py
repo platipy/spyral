@@ -419,7 +419,7 @@ class Group(object):
         for sprite in sprites:
             if sprite not in self._sprites:
                 self._sprites.append(sprite)
-                sprite._group = self
+                sprite.group = self
 
     def has(self, *sprites):
         """
@@ -505,6 +505,19 @@ class AggregateSprite(Sprite):
         self._child_anchor = spyral.Vec2D(0, 0)
         self.group = group
         
+    def _get_group(self):
+        return self._group
+        
+    def _set_group(self, group):
+        if self._group is not None:
+            self._group.remove(self)
+        if group is not None:
+            self._group = group
+            group.add(self)
+            self._internal_group.camera = group.camera
+        
+    group = property(_get_group, _set_group)
+        
     def _get_child_anchor(self):
         return self._child_anchor
         
@@ -539,6 +552,23 @@ class AggregateSprite(Sprite):
     def update(self, dt, *args):
         """ Called once per update tick. """
         self._internal_group.update(dt, *args)
+        
+    def get_rect(self):
+        """
+        Return a rect which is the union of all the child rects.
+        """
+        # This may potentially be a performance trap
+        # Down the line we may have to mess with getting cached
+        # versions of rects if we know the children haven't changed
+        sprites = self._internal_group.sprites() 
+        r = Sprite.get_rect(self)
+        try:
+            i_offset = getattr(Sprite.get_rect(self), self._child_anchor)
+        except (AttributeError, TypeError):
+            i_offset = self.pos
+        for s in sprites:
+            r = r.union(s.get_rect().move(*i_offset))
+        return r       
     
     def draw(self, camera, offset = spyral.Vec2D(0,0)):
         """
@@ -553,7 +583,7 @@ class AggregateSprite(Sprite):
         if not self.visible:
             return
         try:
-            i_offset = getattr(self.get_rect(), self._child_anchor)
+            i_offset = getattr(Sprite.get_rect(self), self._child_anchor)
         except (TypeError, AttributeError):
             i_offset = self.pos - self._offset
         
