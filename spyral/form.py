@@ -74,7 +74,7 @@ class TextInputWidget(spyral.AggregateSprite):
                 
             
     def _compute_cursor_pos(self, mouse_pos):
-        x = mouse_pos[0]
+        x = mouse_pos[0] + self._view_x
         index = bisect_right(self._letter_widths, x)
         if index:
             diff = self._letter_widths[index] - self._letter_widths[index-1]
@@ -275,7 +275,7 @@ class TextInputWidget(spyral.AggregateSprite):
                 self.default_value = False
             self._mouse_is_down = True
         elif event.type == 'MOUSEMOTION':
-            print "HELP"
+            print event
             if self._mouse_is_down:
                 # set selected_pos to mouse_position
                 pass
