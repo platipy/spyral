@@ -100,11 +100,9 @@ class Camera(object):
             real_size = self.get_size()
         y = spyral.camera.Camera(virtual_size, real_size, offset, layers, 0)
         y._parent = self
-        offset = spyral.point.scale(offset, self._scale)
-        y._offset = (offset[0] + self._offset[0],
-                     offset[1] + self._offset[1])
-        y._scale = (self._scale[0] * y._scale[0],
-                    self._scale[1] * y._scale[1])
+        offset = spyral.Vec2D(offset) * self._scale
+        y._offset = offset + self._offset
+        y._scale = spyral.Vec2D(self._scale) * y._scale
         y._rect = pygame.Rect(y._offset,
                               spyral.point.scale(real_size, self._scale))
         y._rs = self._rs
@@ -351,9 +349,10 @@ class Camera(object):
         Converts coordinates from the display to coordinates in this camera's
         space. If the coordinate is outside, then it returns None.
         """
+        pos = spyral.Vec2D(pos)
         if self._rect.collidepoint(pos):
-            pos = spyral.point.sub(pos, self._offset)
-            pos = spyral.point.unscale(pos, self._scale)
+            pos -= self._offset
+            pos = pos / self._scale
             return pos
         return None
 

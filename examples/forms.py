@@ -42,11 +42,15 @@ class Game(spyral.Scene):
         # More setup here
         name_entry = spyral.TextInputWidget('isisisisisis', style=spyral.FormStyle())
         name_entry.pos = (30,30)
+        email_entry = spyral.TextInputWidget('acbart@vt.edu', style=spyral.FormStyle())
+        email_entry.pos = (30, 60)
         self.manager = spyral.event.EventManager()
         form = spyral.form.Form('Forms', 
                                 self.manager)
         form.add_widget("name_entry",
                         name_entry)
+        form.add_widget("email_entry",
+                        email_entry)
         form.focus()
         self.group.add(form)
         self.manager.register_listener(form, ['KEYDOWN', 'KEYUP', 'MOUSEMOTION','MOUSEBUTTONUP', 'MOUSEBUTTONDOWN'])
