@@ -42,7 +42,7 @@ class Game(spyral.Scene):
         # More setup here
         name_entry = spyral.TextInputWidget(500, 'is so awesome', default_value=False)
         name_entry.pos = (30,30)
-        email_entry = spyral.TextInputWidget(200, 'acbart@vt.edu', default_value=False)
+        email_entry = spyral.TextInputWidget(200, 'acbart', default_value=False, max_length = 10)
         email_entry.pos = (30, 100)
         self.manager = spyral.event.EventManager()
         form = spyral.form.Form('Forms', 

@@ -3,6 +3,7 @@ from bisect import bisect_right
 import operator
 import pygame
 import math
+import string
 from ConfigParser import SafeConfigParser
 _style = None
 
@@ -55,7 +56,13 @@ class TextInputWidget(spyral.AggregateSprite):
         self._cursor.image = spyral.Image(size=(2,self._box_height))
         self._cursor.image.fill(style.get("TextInput", "font_color"))
 
-        self.validator = validator
+        if validator is None:
+            self.validator = string.printable
+        else:
+            self.validator = validator
+        
+        if max_length is not None and len(value) < max_length:
+            value = value[:max_length]
         self.value = value
         
         self._image_plain = style.render_nine_slice((width, self._box_height + 2*padding), style.get_image("TextInput", "background"))
@@ -128,6 +135,11 @@ class TextInputWidget(spyral.AggregateSprite):
         self._cursor_pos = position
         self._move_rendered_text()
         self._render_cursor()
+        
+    def validate(self, char):
+        valid_length = self.max_length is None or (self.max_length is not None and len(self._value) < self.max_length)
+        valid_char = str(char) in self.validator
+        return valid_length and valid_char
 
     value = property(_get_value, _set_value)
     cursor_pos = property(_get_cursor_pos, _set_cursor_pos)
@@ -289,13 +301,13 @@ class TextInputWidget(spyral.AggregateSprite):
                 if key not in TextInputWidget._non_printable_keys:
                     if self._selecting:
                         self._delete()
-                    self._insert_char(self.cursor_pos, event.unicode)
-                    self.cursor_pos+= 1
+                    if self.validate(event.unicode):
+                        self._insert_char(self.cursor_pos, event.unicode)
+                        self.cursor_pos+= 1
                     
             if not shift_is_down or (shift_is_down and key not in TextInputWidget._non_insertable_keys):
                 self._selecting = False
                 self._render_text()
-                print "RESET", shift_is_down
             if self._selecting:
                 self._render_text()
                 
