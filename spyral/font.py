@@ -33,6 +33,8 @@ class Font(object):
         """
         if color is None:
             color = self.default_color
+        else:
+            color = spyral.color._determine(color)
         self.font.set_underline(underline)
         self.font.set_bold(bold)
         self.font.set_italic(italic)
