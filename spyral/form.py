@@ -2,18 +2,32 @@ import spyral
 from bisect import bisect_right
 import operator
 import pygame
+import math
+from ConfigParser import SafeConfigParser
+_style = None
 
+def get_default_style():
+    global _style
+    if _style is None:
+        _style = FormStyle(None)
+    return _style
 
-class TextInputWidget(spyral.AggregateSprite):
-    class _MouseCursor(spyral.Sprite):
-        def __init__(self):
-            spyral.Sprite.__init__(self)
-            
-    def __init__(self, value = '', width = None, default_value = True, max_length = None, style = None, validator = None):
+class TextInputWidget(spyral.AggregateSprite):            
+    def __init__(self, width, value = '', default_value = True, max_length = None, style = None, validator = None):
         spyral.AggregateSprite.__init__(self)
+        
+        if style is None:
+            style = get_default_style()
+        self._style = style
     
+        padding = int(style.get("TextInput", "padding"))
+        self.child_anchor = (padding, padding)
         self._cursor = spyral.Sprite()
+        self._cursor.anchor = (padding, padding)
+        self._text = spyral.Sprite()
+        self._text.pos = (padding, padding)
         self.add_child(self._cursor)
+        self.add_child(self._text)
         
         self._focused = False
         self._cursor.visible = False
@@ -22,28 +36,31 @@ class TextInputWidget(spyral.AggregateSprite):
         self._shift_was_down = False
         self._mouse_is_down = False
         
-        self._cursor_blink_interval = 0.5
         self._cursor_time = 0.
+        self._cursor_blink_interval = float(self._style.get("TextInput", "cursor_blink_interval"))
         
         self.default_value = default_value
-        if width is None:
-            width = 200
+
         self._view_x = 0
-        self.box_width = width
+        self.box_width = width - 2*padding
         self.max_length = max_length
         self.style = style
-        if style is not None and style.text_input_font is not None:
-            self.font = style.text_input_font
-        else:
-            self.font = spyral.Font(None, 32, (255,255,255))
-            self.style.text_input_highlight_color= (255, 0, 0)
-        self._box_height = self.font.get_linesize()
+        
+        self.font = spyral.Font(style.get("TextInput", "font"),
+                                int(style.get("TextInput", "font_size")),
+                                style.get("TextInput", "font_color"))
+
+        self._box_height = int(math.ceil(self.font.get_linesize()))
 
         self._cursor.image = spyral.Image(size=(2,self._box_height))
-        self._cursor.image.fill((255, 255, 255))
+        self._cursor.image.fill(style.get("TextInput", "font_color"))
 
         self.validator = validator
         self.value = value
+        
+        self._image_plain = style.render_nine_slice((width, self._box_height + 2*padding), style.get_image("TextInput", "background"))
+        self._image_focused = style.render_nine_slice((width, self._box_height + 2*padding), style.get_image("TextInput", "background_focused"))
+        self.image = self._image_plain
         
             
     def _compute_letter_widths(self):
@@ -111,7 +128,7 @@ class TextInputWidget(spyral.AggregateSprite):
             start, end = sorted((self._cursor_pos, self._selection_pos))
             
             pre = self.font.render(self._value[:start])
-            highlight = self.font.render(self._value[start:end], color=self.style.text_input_highlight_color)
+            highlight = self.font.render(self._value[start:end], color=self._style.get("TextInput", "font_color_highlight"))
             post = self.font.render(self._value[end:])
             
             pre_missed = self.font.get_size(self._value[:end])[0] - pre.get_width() - highlight.get_width() + 1
@@ -140,7 +157,7 @@ class TextInputWidget(spyral.AggregateSprite):
         image = self._rendered_text.copy()
         image.crop((self._view_x, 0), 
                    (self.box_width, self._box_height))
-        self.image = image
+        self._text.image = image
         # if highlighting
         #   print first segment of non-highlight
         #   print highlight text
@@ -289,7 +306,9 @@ class TextInputWidget(spyral.AggregateSprite):
                 pass
         elif event.type == 'focused':
             self._focused = True
+            self.image = self._image_focused
         elif event.type == 'blurred':
+            self.image = self._image_plain
             self._focused = False
             self._cursor.visible = False
 
@@ -327,50 +346,44 @@ class RadioGroup(object):
         pass
 
 class FormStyle(object):
-    def __init__(self):    
-        self.text_input_font = None
-        self.text_input_padding = None
+    def __init__(self, filename, defaults = None):
+        _defaults = {'spyral_path' : spyral._get_spyral_path()}
+        if defaults is not None:
+            _defaults.update(defaults)
+        config = SafeConfigParser(_defaults)
+        config.readfp(open(spyral._get_spyral_path() + 'resources/theme.cfg'))
+        if filename is not None:
+            config.read(filename)
+        self.config = config
+        self._images = {}
         
-        self.text_input_font_color = None
-        self.text_input_highlight_color = None
-        self.text_input_highlight_background_color = None
+    def get(self, section, value):
+        return self.config.get(section, value)
         
-        self.button_font = None
-        self.button_padding = None
-        self.button_font_color = None
-        
-        self.text_input = None
-        self.text_input_selected = None
-        
-        self.button = None
-        self.button_selected = None
-        self.button_hover = None
-        
-        self.radio = None
-        self.radio_selected = None
-        self.radio_hover = None
-        
-        self.checkbox = None
-        self.checkbox_selected = None
-        self.checkbox_hover = None
+    def get_image(self, section, value):
+        if (section, value) in self._images:
+            return self._images[(section, value)]
+        i = spyral.Image(self.config.get(section, value))
+        self._images[(section, value)] = i
+        return i
     
     def render_button(self, size, style = 'plain'):
         if style == 'plain':
-            image = self.button
+            image = self._getattr('button')
         elif style == 'selected':
-            image = self.button_selected
+            image = self._getattr('button_selected')
         elif style == 'hover':
-            image = self.button_hover
+            image = self._getattr('button_hover')
             
         return self._render_nine_slice(size, image)
             
-    def _render_nine_slice(self, size, image):
+    def render_nine_slice(self, size, image):
         bs = spyral.Vec2D(size)
         bw = size[0]
         bh = size[1]
         ps = image.get_size() / 3
-        pw = ps[0]
-        ph = ps[1]
+        pw = int(ps[0])
+        ph = int(ps[1])
         surf = image._surf
         image = spyral.Image(size=bs + (1,1)) # Hack: If we don't make it one px large things get cut
         s = image._surf
