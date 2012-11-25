@@ -48,7 +48,10 @@ def _determine(color):
     Internal to figure out what color representation was passed in.
     """
     if isinstance(color, str):
-        return get_color(name)
+        pieces = color.strip(" ()").split(",")
+        if len(pieces) in (3, 4):
+            return [int(c) for c in pieces]
+        else:
+            return get_color(name)
     else:
         return color
-    
