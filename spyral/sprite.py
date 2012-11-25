@@ -117,7 +117,7 @@ class Sprite(object):
         elif a == 'center':
             offset = (w / 2., h / 2.)
         else:
-            offset = a
+            offset = a * spyral.Vec2D(-1, -1)
         self._offset = spyral.Vec2D(offset) - self._transform_offset
             
     def _recalculate_transforms(self):
