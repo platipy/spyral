@@ -41,6 +41,7 @@ class TextInputWidget(spyral.AggregateSprite):
         self._cursor_blink_interval = float(self._style.get("TextInput", "cursor_blink_interval"))
         
         self.default_value = default_value
+        self._default_value_permanant = default_value
 
         self._view_x = 0
         self.box_width = width - 2*padding
@@ -337,10 +338,18 @@ class TextInputWidget(spyral.AggregateSprite):
         elif event.type == 'focused':
             self._focused = True
             self.image = self._image_focused
+            if self.default_value:
+                self._selecting = True
+                self._selection_pos = 0
+            else:
+                self._selecting = False
+            self.cursor_pos= len(self._value)
+            self._render_text()
         elif event.type == 'blurred':
             self.image = self._image_plain
             self._focused = False
             self._cursor.visible = False
+            self.default_value = self._default_value_permanant
 
 
 class ButtonWidget(spyral.Sprite):
