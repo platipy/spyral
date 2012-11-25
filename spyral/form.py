@@ -93,14 +93,23 @@ class TextInputWidget(spyral.AggregateSprite):
                 
             
     def _compute_cursor_pos(self, mouse_pos):
-        x = mouse_pos[0]
+        mouse_pos = self.group.camera.world_to_local(mouse_pos)
+        x = mouse_pos[0] + self._view_x - self.x
         index = bisect_right(self._letter_widths, x)
-        if index:
+        if index >= len(self._value):
+            return len(self._value)
+        elif index:
             diff = self._letter_widths[index] - self._letter_widths[index-1]
-            if diff < x*2:
+            x -= self._letter_widths[index-1]
+            if diff > x*2:
                 return index-1
             else:
                 return index
+        else:
+            return 0
+    def _stop_blinking(self):
+        self._cursor_time = 0
+        self._cursor.visible = True
         
     def _get_value(self):
         return self._value
@@ -291,19 +300,28 @@ class TextInputWidget(spyral.AggregateSprite):
                 self._render_text()
                 
         elif event.type == 'MOUSEBUTTONUP':
-            self._mouse_is_down = False
-            if self._shift_was_down:
-                pass
+            self.cursor_pos = self._compute_cursor_pos(event.pos)
         elif event.type == 'MOUSEBUTTONDOWN':
+            if not self._selecting:
+                if pygame.key.get_mods() & pygame.KMOD_SHIFT:
+                    self._selection_pos = self.cursor_pos
+                    self._selecting = True
+            elif not (pygame.key.get_mods() & pygame.KMOD_SHIFT):
+                self._selecting = False
+            self.cursor_pos = self._compute_cursor_pos(event.pos)
             # set cursor position to mouse position
             if self.default_value: 
                 self.value = ''
                 self.default_value = False
-            self._mouse_is_down = True
+            self._render_text()
+            self._stop_blinking()
         elif event.type == 'MOUSEMOTION':
-            if self._mouse_is_down:
-                # set selected_pos to mouse_position
-                pass
+            if not self._selecting:
+                self._selecting = True
+                self._selection_pos = self.cursor_pos
+            self.cursor_pos = self._compute_cursor_pos(event.pos)
+            self._render_text()
+            self._stop_blinking()
         elif event.type == 'focused':
             self._focused = True
             self.image = self._image_focused
