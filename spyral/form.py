@@ -20,7 +20,7 @@ class TextInputWidget(spyral.AggregateSprite):
             style = get_default_style()
         self._style = style
     
-        padding = int(style.get("TextInput", "padding"))
+        self._padding = padding = int(style.get("TextInput", "padding"))
         self.child_anchor = (padding, padding)
         self._cursor = spyral.Sprite()
         self._cursor.anchor = (padding, padding)
@@ -94,7 +94,7 @@ class TextInputWidget(spyral.AggregateSprite):
             
     def _compute_cursor_pos(self, mouse_pos):
         mouse_pos = self.group.camera.world_to_local(mouse_pos)
-        x = mouse_pos[0] + self._view_x - self.x
+        x = mouse_pos[0] + self._view_x - self.x - self._padding
         index = bisect_right(self._letter_widths, x)
         if index >= len(self._value):
             return len(self._value)
