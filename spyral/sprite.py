@@ -76,6 +76,7 @@ class Sprite(object):
 
         if group is not None:
             group.add(self)
+            self.group = group
 
     def _set_static(self):
         self._make_static = True
