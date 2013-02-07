@@ -15,7 +15,7 @@ import pygame
 # import mapping to objects in other modules
 all_by_module = {
     'spyral.sprite' : ['Sprite', 'Group', 'AggregateSprite'],
-    'spyral.scene' : ['Scene', 'director'],
+    'spyral.scene' : ['Scene'],
     'spyral.image' : ['Image'],
     'spyral.vector' : ['Vec2D'],
     'spyral.signal' : ['Signal'],
@@ -30,7 +30,7 @@ all_by_module = {
     'spyral.dev' : ['_get_spyral_path']
 }
 
-attribute_modules = frozenset(['memoize', 'point', 'camera', 'animator', 'event', '_lib', 'color', 'font', 'form'])
+attribute_modules = frozenset(['memoize', 'point', 'camera', 'animator', 'event', '_lib', 'color', 'font', 'form', 'director'])
 
 object_origins = {}
 for module, items in all_by_module.iteritems():

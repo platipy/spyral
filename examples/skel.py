@@ -50,17 +50,17 @@ class Game(spyral.Scene):
         """
         self.group.draw()
         
+    def quit(self):
+        spyral.quit()
+        sys.exit()
+        
     def update(self, dt):
         """
         The update function should contain or call out to all the logic.
-        Here is where group.update() should be called for the groups, where
-        event handling should be taken care of, etc.
+        Here is where group.update() should be called for the groups, ...
+        [FILL IN SOME STUFF HERE]
         """
-        for event in self.event_handler.get():
-            if event['type'] == 'QUIT':
-                spyral.quit()
-                sys.exit()
-                    
+
         self.group.update(dt)
 
 if __name__ == "__main__":
