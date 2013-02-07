@@ -6,7 +6,7 @@ import spyral
 import sys
 
 SIZE = (640, 480)
-BG_COLOR = (0, 0, 0)
+BG_COLOR = (255, 255, 255)
 
 class Game(spyral.Scene):
     """
@@ -44,13 +44,13 @@ class Game(spyral.Scene):
         name_entry.pos = (30,30)
         email_entry = spyral.TextInputWidget(200, 'acbart', default_value=True, max_length = 10)
         email_entry.pos = (30, 100)
+        button = spyral.ButtonWidget(400, "Testing Button")
+        button.pos = (30, 200)
         self.manager = spyral.event.EventManager()
-        form = spyral.form.Form('Forms', 
-                                self.manager)
-        form.add_widget("name_entry",
-                        name_entry)
-        form.add_widget("email_entry",
-                        email_entry)
+        form = spyral.form.Form('Forms', self.manager)
+        form.add_widget("name_entry", name_entry)
+        form.add_widget("email_entry", email_entry)
+        form.add_widget("button", button)
         form.focus()
         self.group.add(form)
         self.manager.register_listener(form, ['KEYDOWN', 'KEYUP', 'MOUSEMOTION','MOUSEBUTTONUP', 'MOUSEBUTTONDOWN'])

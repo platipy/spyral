@@ -66,8 +66,9 @@ class TextInputWidget(spyral.AggregateSprite):
             value = value[:max_length]
         self.value = value
         
-        self._image_plain = style.render_nine_slice((width, self._box_height + 2*padding), style.get_image("TextInput", "background"))
-        self._image_focused = style.render_nine_slice((width, self._box_height + 2*padding), style.get_image("TextInput", "background_focused"))
+        size = (width, self._box_height + 2*padding)
+        self._image_plain = style.get_image_at_size("TextInput", "background", size)
+        self._image_focused = style.get_image_at_size("TextInput", "background_focused", size)
         self.image = self._image_plain
         
             
@@ -349,22 +350,39 @@ class TextInputWidget(spyral.AggregateSprite):
             self.image = self._image_plain
             self._focused = False
             self._cursor.visible = False
+            self._selecting = False
             self.default_value = self._default_value_permanant
+            self.cursor_pos= len(self._value)
+            self._render_text()
 
 
-class ButtonWidget(spyral.Sprite):
-    def __init__(self, text, width = None, style = None):
-        spyral.Sprite.__init__(self)
-        style = spyral.FormStyle()
-        
-        style.button = spyral.Image("game/res/input.normal.png")
-        style.button_selected = style.button
-        
-        
-        self.image = style.render_button((200, 48))
-
-        pass
+class ButtonWidget(spyral.AggregateSprite):
+    def __init__(self, width, text, style = None):
+        spyral.AggregateSprite.__init__(self)
+        if style is None:
+            style = get_default_style()
+        self._style = style
     
+        self._padding = padding = int(style.get("Button", "padding"))
+        self._text = spyral.Sprite()
+        self.add_child(self._text)
+        
+        self.font = spyral.Font(style.get("Button", "font"),
+                                int(style.get("Button", "font_size")),
+                                style.get("Button", "font_color"))
+        
+        self._text.image = self.font.render(text)
+
+        self._box_height = math.ceil(self.font.get_linesize())
+
+        size = (width, self._box_height + 2*padding)
+        
+        self._image_plain = style.get_image_at_size("Button", "background", size)
+        # self._image_focused = style.get_image_at_size("Button", "background_focused", size)
+        # self._image_hover = style.get_image_at_size("Button", "background_hover", size)
+        self._image_down = style.get_image_at_size("Button", "background_down", size)
+        self.image = self._image_plain
+
     def handle_event(self, event):
         pass
         
@@ -405,21 +423,26 @@ class FormStyle(object):
         i = spyral.Image(self.config.get(section, value))
         self._images[(section, value)] = i
         return i
-    
-    def render_button(self, size, style = 'plain'):
-        if style == 'plain':
-            image = self._getattr('button')
-        elif style == 'selected':
-            image = self._getattr('button_selected')
-        elif style == 'hover':
-            image = self._getattr('button_hover')
-            
-        return self._render_nine_slice(size, image)
+        
+    def get_image_at_size(self, section, value, size):
+        """
+        Uses the nine_slice and scale options from the same section to
+        determine how to modify the image
+        """
+        i = self.get_image(section, value)
+        if self.get(section, "nine_slice") == 'True':
+            return self.render_nine_slice(size, i)
+        elif self.get(section, "scale") == 'True':
+            i = i.copy()
+            i.scale(size)
+            return i
+        else:
+            return i
             
     def render_nine_slice(self, size, image):
         bs = spyral.Vec2D(size)
-        bw = size[0]
-        bh = size[1]
+        bw = int(size[0])
+        bh = int(size[1])
         ps = image.get_size() / 3
         pw = int(ps[0])
         ph = int(ps[1])
@@ -467,7 +490,7 @@ class FormStyle(object):
         for y in range(ph, bh - ph - ph, ph):
                 s.blit(mid, (bw - pw - pw, y))
         s.blit(mid, (bw - pw - pw, bh - ph - ph))
-        return image  
+        return image
     
 class Form(spyral.AggregateSprite):
     def __init__(self, name, manager, style = None):
