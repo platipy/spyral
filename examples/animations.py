@@ -96,8 +96,7 @@ class AnimationExamples(Scene):
         self.set_animation()
     
     def render(self):
-        for sprite in self.camera.sprites():
-            sprite.draw()
+        self.camera.draw()
         
     def update(self, dt):
         for event in self.event_handler.get():

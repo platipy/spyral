@@ -382,6 +382,9 @@ class Camera(object):
         self._run_animations(dt)
         for sprite in self._sprites:
             sprite.update(dt, *args)
+    def draw(self):
+        for sprite in self.sprites():
+            sprite.draw()
         
     def _add_animation(self, animation, sprite):
         for a in self._animations[sprite]:

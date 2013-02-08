@@ -58,8 +58,7 @@ class Game(spyral.Scene):
         self.manager.register_listener(form, ['KEYDOWN', 'KEYUP', 'MOUSEMOTION','MOUSEBUTTONUP', 'MOUSEBUTTONDOWN'])
         
     def render(self):
-        for sprite in self.camera.sprites():
-            sprite.draw()
+        self.camera.draw()
         
     def update(self, dt):
         """
