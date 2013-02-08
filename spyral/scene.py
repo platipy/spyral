@@ -1,6 +1,7 @@
 import pygame
 import spyral
 import time
+import yaml
 
 
 class Director(object):
@@ -205,6 +206,15 @@ class Scene(object):
 
         self.event_handler = event_handler
         self.parent_camera = parent_camera
+        
+    def load_style(self, filename):
+        style = yaml.load(open(filename, 'r'))
+        for k, v in style.items():
+            try:
+                value = eval(v)
+                print k, value
+            except Exception, e:
+                print k, v
 
     def on_exit(self):
         """
