@@ -31,6 +31,8 @@ class Game(spyral.Scene):
         self.group = spyral.Group(self.camera)
         self.initialized = False
         
+        self.register("system.quit", sys.exit)
+        
     def on_enter(self):
         # Some things you may wish to do every time you enter the scene
         if self.initialized:
@@ -60,7 +62,6 @@ class Game(spyral.Scene):
         Here is where group.update() should be called for the groups, ...
         [FILL IN SOME STUFF HERE]
         """
-
         self.group.update(dt)
 
 if __name__ == "__main__":

@@ -168,6 +168,11 @@ def run(sugar=False, profiling=False):
                 if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
                     camera.redraw()
                     scene.redraw()
+                scene._event_source.tick()
+                events = scene._event_source.get()
+                for event in events:
+                    scene._queue_event(*spyral.event._pygame_to_spyral(event))
+                scene._handle_events()
                 scene.update(dt)
                 _tick += 1
             clock.frame_callback = frame_callback
