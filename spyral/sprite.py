@@ -393,6 +393,7 @@ class AggregateSprite(Sprite):
         """
         Adds a child to this AggregateSprite.
         """
+        sprite.camera.remove(sprite)
         self._internal_group.add(sprite)
         
     def remove_child(self, sprite):
