@@ -14,8 +14,8 @@ import pygame
 
 # import mapping to objects in other modules
 all_by_module = {
-    'spyral.sprite' : ['Sprite', 'AggregateSprite'],
-    'spyral.scene' : ['Scene', 'director'],
+    'spyral.sprite' : ['Sprite', 'Group', 'AggregateSprite'],
+    'spyral.scene' : ['Scene'],
     'spyral.image' : ['Image'],
     'spyral.vector' : ['Vec2D'],
     'spyral.signal' : ['Signal'],
@@ -25,12 +25,12 @@ all_by_module = {
     'spyral.font' : ['Font'],
     'spyral.camera' : ['Camera'],
     'spyral.clock' : ['GameClock'],
-    'spyral.event' : ['keys', 'mods', 'Event', 'EventManager', 'EventHandler', 'LiveEventHandler', 'ReplayEventHandler'],
-    'spyral.form' : ['TextInputWidget', 'Form', 'FormStyle', 'ButtonWidget', 'ToggleButtonWidget'],
+    'spyral.event' : ['keys', 'mods', 'queue', 'Event', 'EventHandler', 'LiveEventHandler'],
+    'spyral.form' : ['TextInputWidget', 'Form', 'FormStyle', 'ButtonWidget'],
     'spyral.dev' : ['_get_spyral_path']
 }
 
-attribute_modules = frozenset(['memoize', 'point', 'camera', 'animator', 'event', '_lib', 'color', 'font', 'form'])
+attribute_modules = frozenset(['memoize', 'point', 'camera', 'animator', 'event', '_lib', 'color', 'font', 'form', 'director'])
 
 object_origins = {}
 for module, items in all_by_module.iteritems():

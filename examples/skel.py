@@ -29,6 +29,8 @@ class Game(spyral.Scene):
         self.camera = self.parent_camera.make_child(SIZE)
         self.initialized = False
         
+        self.register("system.quit", sys.exit)
+        
     def on_enter(self):
         # Some things you may wish to do every time you enter the scene
         if self.initialized:
@@ -48,18 +50,17 @@ class Game(spyral.Scene):
         """
         self.camera.draw()
         
+    def quit(self):
+        spyral.quit()
+        sys.exit()
+        
     def update(self, dt):
         """
         The update function should contain or call out to all the logic.
-        Here is where camera.update() should be called for the cameras, where
-        event handling should be taken care of, etc.
+        Here is where group.update() should be called for the groups, ...
+        [FILL IN SOME STUFF HERE]
         """
-        for event in self.event_handler.get():
-            if event['type'] == 'QUIT':
-                spyral.quit()
-                sys.exit()
-                    
-        self.camera.update(dt)
+        self.group.update(dt)
 
 if __name__ == "__main__":
     spyral.init() # Always call spyral.init() first

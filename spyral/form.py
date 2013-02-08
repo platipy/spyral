@@ -32,15 +32,40 @@ class ButtonWidget(spyral.Sprite):
             width = self.font.get_size(text)[0] + 2*padding
         height = int(math.ceil(self.font.get_linesize())) + 2*padding
         size = width, height
-            
+
+        self._size = size
+        
         self.value = text
         self._down_delay = 0
         self._pressed = False
         
         self.image = self.render_button(size)
         text = self.font.render(text)
-        self.image.draw_image(text, (0,0), anchor = 'center')
+        
+                
+        self._image_normal = self.image
+        self._image_down = None
+        self._image_hover = None
+        self._image_focused = None
+        
 
+        self.image.draw_image(text, (0,0), anchor = 'center')
+        
+    def update_text(self, text, width = None, style = None):
+
+        padding = self._padding
+        if width is None:
+            width = self.font.get_size(text)[0] + 2*padding
+        height = int(math.ceil(self.font.get_linesize())) + 2*padding
+        size = width, height
+        self._size = size    
+        self.value = text
+        
+        self.image = self.render_button(size)
+        text = self.font.render(text)
+        self.image.draw_image(text, (0,0), anchor = 'center')
+        
+        
     def render_button(self, size, style = 'plain'):
         if style == 'plain':
             image = self._style.get_image('Button', 'background')
@@ -48,7 +73,8 @@ class ButtonWidget(spyral.Sprite):
             image = self._style.get_image('Button', 'background_selected')
         elif style == 'hover':
             image = self._style.get_image('Button', 'background_hovered')
-        
+        elif style == 'focused':
+            image = self._style.get_image('Button', 'background_focused')
         if self._style.get('Button', 'nine_slice'):
             return self._style.render_nine_slice(size, image)
         else:
@@ -56,6 +82,8 @@ class ButtonWidget(spyral.Sprite):
     
     def handle_event(self, event):
         if event.type == 'MOUSEBUTTONDOWN':
+            if self._image_down == None:
+                self._image_down = self.render_button(self._size, "selected")
             self.image = self._image_down
             self._pressed = True
         elif event.type == 'MOUSEBUTTONUP':
@@ -63,8 +91,12 @@ class ButtonWidget(spyral.Sprite):
             self.image = self._image_normal
         elif event.type == 'MOUSEMOTION':
             if not self._pressed:
+                if self._image_hover == None:
+                    self._image_hover = self.render_button(self._size, "hover")
                 self.image = self._image_hover
         elif event.type == 'focused':
+            if self._image_focused == None:
+                    self._image_focused = self.render_button(self._size, "focused")
             self._focused = True
             self.image = self._image_focused
         elif event.type == 'blurred':
