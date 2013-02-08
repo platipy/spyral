@@ -45,15 +45,14 @@ class Game(spyral.Scene):
         email_entry.pos = (30, 100)
         a_button = spyral.ButtonWidget(self.camera, "Click Me")
         a_button.pos = (30, 140)
+        #checkbox = spyral.CheckboxWidget(self.camera)
+        #checkbox.pos = (200, 140)
         self.manager = spyral.event.EventManager()
         form = spyral.form.Form(self.camera, 'Forms', 
                                 self.manager)
-        form.add_widget("name_entry",
-                        name_entry)
-        form.add_widget("email_entry",
-                        email_entry)
-        form.add_widget("a_button",
-                        a_button)
+        form.add_widget("name_entry",name_entry)
+        form.add_widget("email_entry",email_entry)
+        form.add_widget("a_button",a_button)
         form.focus()
         self.manager.register_listener(form, ['KEYDOWN', 'KEYUP', 'MOUSEMOTION','MOUSEBUTTONUP', 'MOUSEBUTTONDOWN'])
         

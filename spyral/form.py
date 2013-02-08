@@ -37,13 +37,9 @@ class ButtonWidget(spyral.Sprite):
         self._down_delay = 0
         self._pressed = False
         
-        self.image = self._image_normal = self.render_button(size, 'plain')
-        self._image_down = self.render_button(size, 'selected')
-        self._image_hover = self.render_button(size, 'hover')
+        self.image = self.render_button(size)
         text = self.font.render(text)
-        self._image_normal.draw_image(text, (0,0), anchor = 'center')
-        self._image_down.draw_image(text, (1,1), anchor = 'center')
-        self._image_hover.draw_image(text, (0,0), anchor = 'center')
+        self.image.draw_image(text, (0,0), anchor = 'center')
 
     def render_button(self, size, style = 'plain'):
         if style == 'plain':
@@ -70,7 +66,7 @@ class ButtonWidget(spyral.Sprite):
                 self.image = self._image_hover
         elif event.type == 'focused':
             self._focused = True
-            self.image = self._image_hover
+            self.image = self._image_focused
         elif event.type == 'blurred':
             self.image = self._image_normal
             self._focused = False
