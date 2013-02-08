@@ -6,7 +6,7 @@ import spyral
 import sys
 
 SIZE = (640, 480)
-BG_COLOR = (0, 0, 0)
+BG_COLOR = (255, 255, 255)
 
 class Game(spyral.Scene):
     """
@@ -27,7 +27,6 @@ class Game(spyral.Scene):
         # case we'll use the same as the window size, but this doesn't have to be
         # the case
         self.camera = self.parent_camera.make_child(SIZE)
-        self.group = spyral.Group(self.camera)
         self.initialized = False
         
     def on_enter(self):
@@ -40,28 +39,27 @@ class Game(spyral.Scene):
         bg.fill(BG_COLOR)
         self.camera.set_background(bg)
         # More setup here
-        name_entry = spyral.TextInputWidget(500, 'is so awesome', default_value=False)
+        name_entry = spyral.TextInputWidget(self.camera, 500, 'is so awesome', default_value=False)
         name_entry.pos = (30,30)
-        email_entry = spyral.TextInputWidget(200, 'acbart', default_value=True, max_length = 10)
+        email_entry = spyral.TextInputWidget(self.camera, 200, 'acbart', default_value=True, max_length = 10)
         email_entry.pos = (30, 100)
+        a_button = spyral.ButtonWidget(self.camera, "Click Me")
+        a_button.pos = (30, 140)
+        #checkbox = spyral.CheckboxWidget(self.camera)
+        #checkbox.pos = (200, 140)
         self.manager = spyral.event.EventManager()
-        form = spyral.form.Form('Forms', 
+        form = spyral.form.Form(self.camera, 'Forms', 
                                 self.manager)
-        form.add_widget("name_entry",
-                        name_entry)
-        form.add_widget("email_entry",
-                        email_entry)
+
+        
+        form.add_widget("name_entry",name_entry)
+        form.add_widget("email_entry",email_entry)
+        form.add_widget("a_button",a_button)
         form.focus()
-        self.group.add(form)
         self.manager.register_listener(form, ['KEYDOWN', 'KEYUP', 'MOUSEMOTION','MOUSEBUTTONUP', 'MOUSEBUTTONDOWN'])
-                
+        
     def render(self):
-        """
-        The render function should call .draw() on the scene's group(s).
-        Unless your game logic should be bound by framerate,
-        logic should go elsewhere.
-        """
-        self.group.draw()
+        self.camera.draw()
         
     def update(self, dt):
         """
@@ -75,8 +73,9 @@ class Game(spyral.Scene):
             if event['type'] == 'QUIT':
                 spyral.quit()
                 sys.exit()
-                    
-        self.group.update(dt)
+
+ 
+        self.camera.update(dt)
 
 if __name__ == "__main__":
     spyral.init() # Always call spyral.init() first

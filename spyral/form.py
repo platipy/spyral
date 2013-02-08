@@ -13,9 +13,373 @@ def get_default_style():
         _style = FormStyle(None)
     return _style
 
+class ButtonWidget(spyral.Sprite):
+    def __init__(self, camera, text, width = None, style = None):
+        spyral.Sprite.__init__(self, camera)
+        if style is None:
+            style = get_default_style()
+        self._style = style
+        
+        self._padding = padding = int(style.get("Button", "padding"))
+        
+        self._focused = False
+        
+        self.font = spyral.Font(style.get("Button", "font"),
+                                int(style.get("Button", "font_size")),
+                                style.get("Button", "font_color"))
+
+        if width is None:
+            width = self.font.get_size(text)[0] + 2*padding
+        height = int(math.ceil(self.font.get_linesize())) + 2*padding
+        size = width, height
+
+        self._size = size
+        
+        self.value = text
+        self._down_delay = 0
+        self._pressed = False
+        
+        self.image = self.render_button(size)
+        text = self.font.render(text)
+        
+                
+        self._image_normal = self.image
+        self._image_down = None
+        self._image_hover = None
+        self._image_focused = None
+        
+
+        self.image.draw_image(text, (0,0), anchor = 'center')
+        
+    def update_text(self, text, width = None, style = None):
+
+        padding = self._padding
+        if width is None:
+            width = self.font.get_size(text)[0] + 2*padding
+        height = int(math.ceil(self.font.get_linesize())) + 2*padding
+        size = width, height
+        self._size = size    
+        self.value = text
+        
+        self.image = self.render_button(size)
+        text = self.font.render(text)
+        self.image.draw_image(text, (0,0), anchor = 'center')
+        
+        
+    def render_button(self, size, style = 'plain'):
+        if style == 'plain':
+            image = self._style.get_image('Button', 'background')
+        elif style == 'selected':
+            image = self._style.get_image('Button', 'background_selected')
+        elif style == 'hover':
+            image = self._style.get_image('Button', 'background_hovered')
+        elif style == 'focused':
+            image = self._style.get_image('Button', 'background_focused')
+        if self._style.get('Button', 'nine_slice'):
+            return self._style.render_nine_slice(size, image)
+        else:
+            return image
+    
+    def handle_event(self, event):
+        if event.type == 'MOUSEBUTTONDOWN':
+            if self._image_down == None:
+                self._image_down = self.render_button(self._size, "selected")
+            self.image = self._image_down
+            self._pressed = True
+        elif event.type == 'MOUSEBUTTONUP':
+            self._pressed = False
+            self.image = self._image_normal
+        elif event.type == 'MOUSEMOTION':
+            if not self._pressed:
+                if self._image_hover == None:
+                    self._image_hover = self.render_button(self._size, "hover")
+                self.image = self._image_hover
+        elif event.type == 'focused':
+            if self._image_focused == None:
+                    self._image_focused = self.render_button(self._size, "focused")
+            self._focused = True
+            self.image = self._image_focused
+        elif event.type == 'blurred':
+            self.image = self._image_normal
+            self._focused = False
+        
+class ToggleButtonWidget(spyral.Sprite):
+    def __init__(self, camera, text, style = None):
+        spyral.Sprite.__init__(self, camera)
+
+class CheckboxWidget(spyral.Sprite):
+    def __init__(self, camera, text, style = None):
+        spyral.Sprite.__init__(self, camera)
+
+class RadioButton(spyral.Sprite):
+    def __init__(self, camera, value, style = None):
+        spyral.Sprite.__init__(self, camera)
+        
+class RadioGroup(object):
+    def __init__(self, camera, *buttons):
+        spyral.Sprite.__init__(self, camera)
+
+class FormStyle(object):
+    def __init__(self, filename, defaults = None):
+        _defaults = {'spyral_path' : spyral._get_spyral_path()}
+        if defaults is not None:
+            _defaults.update(defaults)
+        config = SafeConfigParser(_defaults)
+        config.readfp(open(spyral._get_spyral_path() + 'resources/theme.cfg'))
+        if filename is not None:
+            config.read(filename)
+        self.config = config
+        self._images = {}
+        
+    def get(self, section, value):
+        return self.config.get(section, value)
+        
+    def get_image(self, section, value):
+        if (section, value) in self._images:
+            return self._images[(section, value)]
+        i = spyral.Image(self.config.get(section, value))
+        self._images[(section, value)] = i
+        return i
+            
+    def render_nine_slice(self, size, image):
+        bs = spyral.Vec2D(size)
+        bw = size[0]
+        bh = size[1]
+        ps = image.get_size() / 3
+        pw = int(ps[0])
+        ph = int(ps[1])
+        surf = image._surf
+        image = spyral.Image(size=bs + (1,1)) # Hack: If we don't make it one px large things get cut
+        s = image._surf
+        # should probably fix the math instead, but it works for now
+
+        topleft = surf.subsurface(pygame.Rect((0,0), ps))
+        left = surf.subsurface(pygame.Rect((0,ph), ps))
+        bottomleft = surf.subsurface(pygame.Rect((0, 2*pw), ps))
+        top = surf.subsurface(pygame.Rect((pw, 0), ps))
+        mid = surf.subsurface(pygame.Rect((pw, ph), ps))
+        bottom = surf.subsurface(pygame.Rect((pw, 2*ph), ps))
+        topright = surf.subsurface(pygame.Rect((2*pw, 0), ps))
+        right = surf.subsurface(pygame.Rect((2*ph, pw), ps))
+        bottomright = surf.subsurface(pygame.Rect((2*ph, 2*pw), ps))
+
+        # corners
+        s.blit(topleft, (0,0))
+        s.blit(topright, (bw - pw, 0))
+        s.blit(bottomleft, (0, bh - ph))
+        s.blit(bottomright, bs - ps)
+
+        # left and right border
+        for y in range(ph, bh - ph - ph, ph):
+            s.blit(left, (0, y))
+            s.blit(right, (bw - pw, y))
+        s.blit(left, (0, bh - ph - ph))
+        s.blit(right, (bw - pw, bh - ph - ph))
+        # top and bottom border
+        for x in range(pw, bw - pw - pw, pw):
+            s.blit(top, (x, 0))
+            s.blit(bottom, (x, bh - ph))
+        s.blit(top, (bw - pw - pw, 0))
+        s.blit(bottom, (bw - pw - pw, bh - ph))
+            
+        # center
+        for x in range(pw, bw - pw - pw, pw):
+            for y in range(ph, bh - ph - ph, ph):
+                s.blit(mid, (x, y))
+
+        for x in range(pw, bw - pw - pw, pw):
+                s.blit(mid, (x, bh - ph - ph))
+        for y in range(ph, bh - ph - ph, ph):
+                s.blit(mid, (bw - pw - pw, y))
+        s.blit(mid, (bw - pw - pw, bh - ph - ph))
+        return image  
+    
+class Form(spyral.AggregateSprite):
+    def __init__(self, camera, name, manager, style = None):
+        """
+        [INSERT DESCRIPTION HERE]
+        
+        `manager` is an `EventManager` which relevant events will be
+        sent to. The event types will be
+        "%(form_name)s_%(field_name)_%(event_type)" where event_type is
+        from [INSERT LINK TO DOCUMENTATION FOR FORM EVENTS].
+        """
+        spyral.AggregateSprite.__init__(self, camera)
+        class Fields(object):
+            pass
+        self.fields = Fields()
+        self._widgets = {}
+        self._tab_orders = {}
+        self._labels = {}
+        self._current_focus = None
+        self._name = name
+        self._manager = manager        
+        self._mouse_currently_over = None
+        self._mouse_down_on = None
+        
+    def handle_event(self, event):
+        if event.type == 'MOUSEBUTTONDOWN':
+            for name, widget in self._widgets.iteritems():
+                if widget.get_rect().collide_point(widget.camera.world_to_local(event.pos)):
+                    self.focus(name)
+                    self._mouse_down_on = name
+                    widget.handle_event(event)
+                    return True
+            return False
+        if event.type == 'MOUSEBUTTONUP':
+            if self._mouse_down_on is None:
+                return False
+            self._widgets[self._mouse_down_on].handle_event(event)
+            self._mouse_down_on = None
+        if event.type == 'MOUSEMOTION':
+            if self._mouse_down_on is not None:
+                self._widgets[self._mouse_down_on].handle_event(event)
+            now_hover = None
+            for name, widget in self._widgets.iteritems():
+                if widget.get_rect().collide_point(event.pos):
+                    now_hover = name
+            if now_hover != self._mouse_currently_over:
+                if self._mouse_currently_over is not None:
+                    e = spyral.Event("%s_%s" % (self._name, "on_mouse_out"))
+                    e.form = self
+                    e.widget = self._widgets[self._mouse_currently_over]
+                    e.widget_name = self._mouse_currently_over
+                    self._manager.send_event(e)
+                self._mouse_currently_over = now_hover
+                if now_hover is not None:
+                    e = spyral.Event("%s_%s" % (self._name, "on_mouse_over"))
+                    e.form = self
+                    e.widget = self._widgets[self._mouse_currently_over]
+                    e.widget_name = self._mouse_currently_over
+                    self._manager.send_event(e)
+            return
+        if event.type == 'KEYDOWN' or event.type == 'KEYUP':
+            if self._current_focus is None:
+                return
+            if event.ascii == '\t':
+                if event.type == 'KEYDOWN':
+                    return True
+                if event.mod & spyral.mods.shift:
+                    self.previous()
+                    return True
+                self.next()
+                return True
+            if self._current_focus is not None:
+                self._widgets[self._current_focus].handle_event(event)
+            
+
+    def add_widget(self, name, widget, tab_order = None):
+        """
+        If tab-order is None, it is set to one higher than the highest tab order.
+        """
+        self._widgets[name] = widget
+        if tab_order is None:
+            if len(self._tab_orders) > 0:
+                tab_order = max(self._tab_orders.itervalues())+1
+            else:
+                tab_order = 0
+            self._tab_orders[name] = tab_order
+        self.add_child(widget)
+        setattr(self.fields, name, widget)
+        
+    def add_label(self, name, sprite):
+        """
+        Adds a non-widget spyral.Sprite as part of the form.
+        """
+        self._labels[name] = sprite
+        self.add_child(sprite)
+        setattr(self.fields, name, sprite)
+                
+    def get_values(self):
+        """
+        Returns a dictionary of the values for all the fields.
+        """
+        return dict((name, widget.value) for (name, widget) in self._widgets.iteritems())
+        
+    def _blur(self, name):
+        e = spyral.Event("blurred")
+        self._widgets[name].handle_event(e)
+        e = spyral.Event("%s_%s_%s" % (self._name, name, "on_blur"))
+        e.widget = self._widgets[name]
+        e.form = self
+        self._manager.send_event(e)
+
+    def focus(self, name = None):
+        """
+        Sets the focus to be on a specific widget. Focus by default goes
+        to the first widget added to the form.
+        """
+        if name is None:
+            if len(self._widgets) == 0:
+                return
+            name = min(self._tab_orders.iteritems(), key=operator.itemgetter(1))[0]
+        if self._current_focus is not None:
+            self._blur(self._current_focus)
+        self._current_focus = name
+        e = spyral.Event("focused")
+        self._widgets[name].handle_event(e)
+        e = spyral.Event("%s_%s_%s" % (self._name, name, "on_focus"))
+        e.widget = self._widgets[name]
+        e.form = self
+        self._manager.send_event(e)
+        return
+        
+    def blur(self):
+        """
+        Defocuses the entire form.
+        """
+        if self._current_focus is not None:
+            self._blur(self._current_focus)
+            self._current_focus = None
+        
+    def next(self, wrap = True):
+        """
+        Focuses the next widget
+        """
+        if self._current_focus is None:
+            self.focus()
+            return
+        if len(self._widgets) == 0:
+            return
+        cur = self._tab_orders[self._current_focus]
+        candidates = [(name, order) for (name, order) in self._tab_orders.iteritems() if order > cur]
+        if len(candidates) == 0:
+            if not wrap:
+                return
+            name = None
+        else:
+            name = min(candidates, key=operator.itemgetter(1))[0]
+        
+        self._blur(self._current_focus)
+        self._current_focus = None
+        self.focus(name)
+        
+    def previous(self, wrap = True):
+        """
+        Focuses the previous widget
+        """
+        if self._current_focus is None:
+            self.focus()
+            return
+        if len(self._widgets) == 0:
+            return
+        cur = self._tab_orders[self._current_focus]
+        candidates = [(name, order) for (name, order) in self._tab_orders.iteritems() if order < cur]
+        if len(candidates) == 0:
+            if not wrap:
+                return
+            name = max(self._tab_orders.iteritems(), key=operator.itemgetter(1))[0]
+        else:
+            name = max(candidates, key=operator.itemgetter(1))[0]
+        
+        self._blur(self._current_focus)
+        self._current_focus = None
+        self.focus(name)
+
+
 class TextInputWidget(spyral.AggregateSprite):            
-    def __init__(self, width, value = '', default_value = True, max_length = None, style = None, validator = None):
-        spyral.AggregateSprite.__init__(self)
+    def __init__(self, camera, width, value = '', default_value = True, max_length = None, style = None, validator = None):
+        spyral.AggregateSprite.__init__(self, camera)
         
         if style is None:
             style = get_default_style()
@@ -23,9 +387,9 @@ class TextInputWidget(spyral.AggregateSprite):
     
         self._padding = padding = int(style.get("TextInput", "padding"))
         self.child_anchor = (padding, padding)
-        self._cursor = spyral.Sprite()
+        self._cursor = spyral.Sprite(camera)
         self._cursor.anchor = (padding, padding)
-        self._text = spyral.Sprite()
+        self._text = spyral.Sprite(camera)
         self._text.pos = (padding, padding)
         self.add_child(self._cursor)
         self.add_child(self._text)
@@ -101,7 +465,7 @@ class TextInputWidget(spyral.AggregateSprite):
                 
             
     def _compute_cursor_pos(self, mouse_pos):
-        mouse_pos = self.group.camera.world_to_local(mouse_pos)
+        mouse_pos = self.camera.world_to_local(mouse_pos)
         x = mouse_pos[0] + self._view_x - self.x - self._padding
         index = bisect_right(self._letter_widths, x)
         if index >= len(self._value):
@@ -350,303 +714,3 @@ class TextInputWidget(spyral.AggregateSprite):
             self._focused = False
             self._cursor.visible = False
             self.default_value = self._default_value_permanant
-
-
-class ButtonWidget(spyral.Sprite):
-    def __init__(self, text, width = None, style = None):
-        spyral.Sprite.__init__(self)
-        style = spyral.FormStyle()
-        
-        style.button = spyral.Image("game/res/input.normal.png")
-        style.button_selected = style.button
-        
-        
-        self.image = style.render_button((200, 48))
-
-        pass
-    
-    def handle_event(self, event):
-        pass
-        
-class ToggleButtonWidget(spyral.Sprite):
-    def __init__(self, text, style = None):
-        pass
-
-class CheckboxWidget(spyral.Sprite):
-    def __init__(self, text, style = None):
-            pass
-
-class RadioButton(spyral.Sprite):
-    def __init__(self, value, style = None):
-        pass
-        
-class RadioGroup(object):
-    def __init__(self, *buttons):
-        pass
-
-class FormStyle(object):
-    def __init__(self, filename, defaults = None):
-        _defaults = {'spyral_path' : spyral._get_spyral_path()}
-        if defaults is not None:
-            _defaults.update(defaults)
-        config = SafeConfigParser(_defaults)
-        config.readfp(open(spyral._get_spyral_path() + 'resources/theme.cfg'))
-        if filename is not None:
-            config.read(filename)
-        self.config = config
-        self._images = {}
-        
-    def get(self, section, value):
-        return self.config.get(section, value)
-        
-    def get_image(self, section, value):
-        if (section, value) in self._images:
-            return self._images[(section, value)]
-        i = spyral.Image(self.config.get(section, value))
-        self._images[(section, value)] = i
-        return i
-    
-    def render_button(self, size, style = 'plain'):
-        if style == 'plain':
-            image = self._getattr('button')
-        elif style == 'selected':
-            image = self._getattr('button_selected')
-        elif style == 'hover':
-            image = self._getattr('button_hover')
-            
-        return self._render_nine_slice(size, image)
-            
-    def render_nine_slice(self, size, image):
-        bs = spyral.Vec2D(size)
-        bw = size[0]
-        bh = size[1]
-        ps = image.get_size() / 3
-        pw = int(ps[0])
-        ph = int(ps[1])
-        surf = image._surf
-        image = spyral.Image(size=bs + (1,1)) # Hack: If we don't make it one px large things get cut
-        s = image._surf
-        # should probably fix the math instead, but it works for now
-
-        topleft = surf.subsurface(pygame.Rect((0,0), ps))
-        left = surf.subsurface(pygame.Rect((0,ph), ps))
-        bottomleft = surf.subsurface(pygame.Rect((0, 2*pw), ps))
-        top = surf.subsurface(pygame.Rect((pw, 0), ps))
-        mid = surf.subsurface(pygame.Rect((pw, ph), ps))
-        bottom = surf.subsurface(pygame.Rect((pw, 2*ph), ps))
-        topright = surf.subsurface(pygame.Rect((2*pw, 0), ps))
-        right = surf.subsurface(pygame.Rect((2*ph, pw), ps))
-        bottomright = surf.subsurface(pygame.Rect((2*ph, 2*pw), ps))
-
-        # corners
-        s.blit(topleft, (0,0))
-        s.blit(topright, (bw - pw, 0))
-        s.blit(bottomleft, (0, bh - ph))
-        s.blit(bottomright, bs - ps)
-
-        # left and right border
-        for y in range(ph, bh - ph - ph, ph):
-            s.blit(left, (0, y))
-            s.blit(right, (bw - pw, y))
-        s.blit(left, (0, bh - ph - ph))
-        s.blit(right, (bw - pw, bh - ph - ph))
-        # top and bottom border
-        for x in range(pw, bw - pw - pw, pw):
-            s.blit(top, (x, 0))
-            s.blit(bottom, (x, bh - ph))
-        s.blit(top, (bw - pw - pw, 0))
-        s.blit(bottom, (bw - pw - pw, bh - ph))
-            
-        # center
-        for x in range(pw, bw - pw - pw, pw):
-            for y in range(ph, bh - ph - ph, ph):
-                s.blit(mid, (x, y))
-
-        for x in range(pw, bw - pw - pw, pw):
-                s.blit(mid, (x, bh - ph - ph))
-        for y in range(ph, bh - ph - ph, ph):
-                s.blit(mid, (bw - pw - pw, y))
-        s.blit(mid, (bw - pw - pw, bh - ph - ph))
-        return image  
-    
-class Form(spyral.AggregateSprite):
-    def __init__(self, name, manager, style = None):
-        """
-        [INSERT DESCRIPTION HERE]
-        
-        `manager` is an `EventManager` which relevant events will be
-        sent to. The event types will be
-        "%(form_name)s_%(field_name)_%(event_type)" where event_type is
-        from [INSERT LINK TO DOCUMENTATION FOR FORM EVENTS].
-        """
-        spyral.AggregateSprite.__init__(self)
-        class Fields(object):
-            pass
-        self.fields = Fields()
-        self._widgets = {}
-        self._tab_orders = {}
-        self._labels = {}
-        self._current_focus = None
-        self._name = name
-        self._manager = manager        
-        self._mouse_currently_over = None
-        self._mouse_down_on = None
-        
-    def handle_event(self, event):
-        if event.type == 'MOUSEBUTTONDOWN':
-            for name, widget in self._widgets.iteritems():
-                if widget.get_rect().collide_point(widget.group.camera.world_to_local(event.pos)):
-                    self.focus(name)
-                    self._mouse_down_on = name
-                    widget.handle_event(event)
-                    return True
-            return False
-        if event.type == 'MOUSEBUTTONUP':
-            if self._mouse_down_on is None:
-                return False
-            self._widgets[self._mouse_down_on].handle_event(event)
-            self._mouse_down_on = None
-        if event.type == 'MOUSEMOTION':
-            if self._mouse_down_on is not None:
-                self._widgets[self._mouse_down_on].handle_event(event)
-            now_hover = None
-            for name, widget in self._widgets.iteritems():
-                if widget.get_rect().collide_point(event.pos):
-                    now_hover = name
-            if now_hover != self._mouse_currently_over:
-                if self._mouse_currently_over is not None:
-                    e = spyral.Event("%s_%s" % (self._name, "on_mouse_out"))
-                    e.form = self
-                    e.widget = self._widgets[self._mouse_currently_over]
-                    e.widget_name = self._mouse_currently_over
-                    self._manager.send_event(e)
-                self._mouse_currently_over = now_hover
-                if now_hover is not None:
-                    e = spyral.Event("%s_%s" % (self._name, "on_mouse_over"))
-                    e.form = self
-                    e.widget = self._widgets[self._mouse_currently_over]
-                    e.widget_name = self._mouse_currently_over
-                    self._manager.send_event(e)
-            return
-        if event.type == 'KEYDOWN' or event.type == 'KEYUP':
-            if self._current_focus is None:
-                return
-            if event.ascii == '\t':
-                if event.type == 'KEYDOWN':
-                    return True
-                if event.mod & spyral.mods.shift:
-                    self.previous()
-                    return True
-                self.next()
-                return True
-            if self._current_focus is not None:
-                self._widgets[self._current_focus].handle_event(event)
-            
-
-    def add_widget(self, name, widget, tab_order = None):
-        """
-        If tab-order is None, it is set to one higher than the highest tab order.
-        """
-        self._widgets[name] = widget
-        if tab_order is None:
-            if len(self._tab_orders) > 0:
-                tab_order = max(self._tab_orders.itervalues())+1
-            else:
-                tab_order = 0
-            self._tab_orders[name] = tab_order
-        self.add_child(widget)
-        setattr(self.fields, name, widget)
-        
-    def add_label(self, name, sprite):
-        """
-        Adds a non-widget spyral.Sprite as part of the form.
-        """
-        self._labels[name] = sprite
-        self.add_child(sprite)
-        setattr(self.fields, name, sprite)
-                
-    def get_values(self):
-        """
-        Returns a dictionary of the values for all the fields.
-        """
-        return dict((name, widget.value) for (name, widget) in self._widgets.iteritems())
-        
-    def _blur(self, name):
-        e = spyral.Event("blurred")
-        self._widgets[name].handle_event(e)
-        e = spyral.Event("%s_%s_%s" % (self._name, name, "on_blur"))
-        e.widget = self._widgets[name]
-        e.form = self
-        self._manager.send_event(e)
-
-    def focus(self, name = None):
-        """
-        Sets the focus to be on a specific widget. Focus by default goes
-        to the first widget added to the form.
-        """
-        if name is None:
-            if len(self._widgets) == 0:
-                return
-            name = min(self._tab_orders.iteritems(), key=operator.itemgetter(1))[0]
-        if self._current_focus is not None:
-            self._blur(self._current_focus)
-        self._current_focus = name
-        e = spyral.Event("focused")
-        self._widgets[name].handle_event(e)
-        e = spyral.Event("%s_%s_%s" % (self._name, name, "on_focus"))
-        e.widget = self._widgets[name]
-        e.form = self
-        self._manager.send_event(e)
-        return
-        
-    def blur(self):
-        """
-        Defocuses the entire form.
-        """
-        if self._current_focus is not None:
-            self._blur(self._current_focus)
-            self._current_focus = None
-        
-    def next(self, wrap = True):
-        """
-        Focuses the next widget
-        """
-        if self._current_focus is None:
-            self.focus()
-            return
-        if len(self._widgets) == 0:
-            return
-        cur = self._tab_orders[self._current_focus]
-        candidates = [(name, order) for (name, order) in self._tab_orders.iteritems() if order > cur]
-        if len(candidates) == 0:
-            if not wrap:
-                return
-            name = None
-        else:
-            name = min(candidates, key=operator.itemgetter(1))[0]
-        
-        self._blur(self._current_focus)
-        self._current_focus = None
-        self.focus(name)
-        
-    def previous(self, wrap = True):
-        """
-        Focuses the previous widget
-        """
-        if self._current_focus is None:
-            self.focus()
-            return
-        if len(self._widgets) == 0:
-            return
-        cur = self._tab_orders[self._current_focus]
-        candidates = [(name, order) for (name, order) in self._tab_orders.iteritems() if order < cur]
-        if len(candidates) == 0:
-            if not wrap:
-                return
-            name = max(self._tab_orders.iteritems(), key=operator.itemgetter(1))[0]
-        else:
-            name = max(candidates, key=operator.itemgetter(1))[0]
-        
-        self._blur(self._current_focus)
-        self._current_focus = None
-        self.focus(name)

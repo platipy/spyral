@@ -19,8 +19,7 @@ class Game(spyral.Scene):
     def __init__(self):
         """
         The __init__ message for a scene should set up the camera(s) for the
-        scene, and setup groups and other structures which are needed for the
-        scene.
+        scene, and other structures which are needed for the scene
         """
         spyral.Scene.__init__(self)
         # We cannot draw directly to the root camera, so we always make a child
@@ -28,7 +27,6 @@ class Game(spyral.Scene):
         # case we'll use the same as the window size, but this doesn't have to be
         # the case
         self.camera = self.parent_camera.make_child(SIZE)
-        self.group = spyral.Group(self.camera)
         self.initialized = False
         
         self.register("system.quit", sys.exit)
@@ -46,11 +44,11 @@ class Game(spyral.Scene):
                 
     def render(self):
         """
-        The render function should call .draw() on the scene's group(s).
+        The render function should call .draw() on the scene's camera(s).
         Unless your game logic should be bound by framerate,
         logic should go elsewhere.
         """
-        self.group.draw()
+        self.camera.draw()
         
     def quit(self):
         spyral.quit()

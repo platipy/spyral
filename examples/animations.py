@@ -7,7 +7,6 @@ import spyral
 from spyral.sprite import Sprite
 from spyral.animation import Animation, DelayAnimation
 from spyral.scene import Scene
-from spyral import Group
 import spyral.animator as animator
 import math
 import sys
@@ -37,8 +36,8 @@ ANIMATIONS = [
 ]
 
 class TextSprite(Sprite):
-    def __init__(self, group, font):
-        Sprite.__init__(self, group)
+    def __init__(self, camera, font):
+        Sprite.__init__(self, camera=camera)
         self.font = font
         
     def render(self, text):
@@ -50,16 +49,15 @@ class AnimationExamples(Scene):
     def __init__(self):
         Scene.__init__(self)
         self.camera = self.parent_camera.make_child(SIZE)
-        self.group = Group(self.camera)
         
         font = spyral.Font(None, FONT_SIZE, FG_COLOR)
         
-        self.title = TextSprite(self.group, font)
+        self.title = TextSprite(self.camera, font)
         self.title.anchor = 'center'
         self.title.pos = (SIZE[0] / 2, 30)
         self.title.render("N")
         
-        self.block = Sprite(self.group)
+        self.block = Sprite(self.camera)
         self.block.image = spyral.Image(size=(40,40))
         self.block.image.fill(FG_COLOR)
         self.block.y = 300
@@ -68,7 +66,7 @@ class AnimationExamples(Scene):
         
         self.set_animation()
         
-        instructions = TextSprite(self.group, font)
+        instructions = TextSprite(self.camera, font)
         instructions.anchor = 'midbottom'
         instructions.x = 320
         instructions.y = 470
@@ -78,9 +76,6 @@ class AnimationExamples(Scene):
         bg = spyral.Image(size=SIZE)
         bg.fill(BG_COLOR)
         self.camera.set_background(bg)
-                
-    def render(self):
-        self.group.draw()
         
     def set_animation(self):
         self.title.render(ANIMATIONS[self.index][0])
@@ -99,6 +94,9 @@ class AnimationExamples(Scene):
         self.index -= 1
         self.index %= len(ANIMATIONS)
         self.set_animation()
+    
+    def render(self):
+        self.camera.draw()
         
     def update(self, dt):
         for event in self.event_handler.get():
@@ -114,7 +112,7 @@ class AnimationExamples(Scene):
                     spyral.quit()
                     sys.exit()
                     
-        self.group.update(dt)
+        self.camera.update(dt)
 
 if __name__ == "__main__":
     spyral.init()
