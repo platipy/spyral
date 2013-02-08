@@ -50,6 +50,8 @@ class Game(spyral.Scene):
         self.manager = spyral.event.EventManager()
         form = spyral.form.Form(self.camera, 'Forms', 
                                 self.manager)
+
+        
         form.add_widget("name_entry",name_entry)
         form.add_widget("email_entry",email_entry)
         form.add_widget("a_button",a_button)
@@ -71,7 +73,8 @@ class Game(spyral.Scene):
             if event['type'] == 'QUIT':
                 spyral.quit()
                 sys.exit()
-                    
+
+ 
         self.camera.update(dt)
 
 if __name__ == "__main__":

@@ -41,6 +41,21 @@ class ButtonWidget(spyral.Sprite):
         text = self.font.render(text)
         self.image.draw_image(text, (0,0), anchor = 'center')
 
+    def update_text(self, text, width = None, style = None):
+
+        padding = self._padding
+        if width is None:
+            width = self.font.get_size(text)[0] + 2*padding
+        height = int(math.ceil(self.font.get_linesize())) + 2*padding
+        size = width, height
+            
+        self.value = text
+        
+        self.image = self.render_button(size)
+        text = self.font.render(text)
+        self.image.draw_image(text, (0,0), anchor = 'center')
+        
+        
     def render_button(self, size, style = 'plain'):
         if style == 'plain':
             image = self._style.get_image('Button', 'background')
