@@ -48,7 +48,7 @@ class Sprite(object):
     ============    ============
     """
 
-    def __init__(self, group=None):
+    def __init__(self, camera):
         """ Adds this sprite to any number of groups by default. """
         _all_sprites.append(_wref(self))
         self._age = 0
@@ -56,7 +56,6 @@ class Sprite(object):
         self._image = None
         self._image_version = None
         self._layer = '__default__'
-        self._groups = []
         self._make_static = False
         self._pos = spyral.Vec2D(0, 0)
         self._blend_flags = 0
@@ -65,7 +64,8 @@ class Sprite(object):
         self._offset = spyral.Vec2D(0, 0)
         self._scale = spyral.Vec2D(1.0, 1.0)
         self._scaled_image = None
-        self._group = None
+        self._camera = camera
+        camera.add(self)
         self._angle = 0
         self._transform_image = None
         self._transform_offset = spyral.Vec2D(0, 0)
@@ -73,10 +73,6 @@ class Sprite(object):
         self._flip_y = False
         
         self.on_remove = spyral.Signal()
-
-        if group is not None:
-            group.add(self)
-            self.group = group
 
     def _set_static(self):
         self._make_static = True
@@ -239,14 +235,8 @@ class Sprite(object):
     def _set_scale_y(self, y):
         self._set_scale((self._scale[0], y))
 
-    def _get_group(self):
-        return self._group
-        
-    def _set_group(self, group):
-        if self._group is not None:
-            self._group.remove(self)
-        if group is not None:
-            group.add(self)
+    def _get_camera(self):
+        return self._camera
         
     def _get_angle(self):
         return self._angle
@@ -297,7 +287,7 @@ class Sprite(object):
     width = property(_get_width)
     height = property(_get_height)
     size = property(_get_size)
-    group = property(_get_group, _set_group)
+    camera = property(_get_camera)
     angle = property(_get_angle, _set_angle)
     flip_x = property(_get_flip_x, _set_flip_x)
     flip_y = property(_get_flip_y, _set_flip_y)
@@ -312,7 +302,7 @@ class Sprite(object):
             (self._pos[0] - self._offset[0], self._pos[1] - self._offset[1]),
             self.size)
 
-    def draw(self, camera, offset = spyral.Vec2D(0, 0)):
+    def draw(self, offset = spyral.Vec2D(0, 0)):
         """
         Draws this sprite to the camera specified. Called automatically in
         the render loop. This should only be overridden in extreme
@@ -327,20 +317,20 @@ class Sprite(object):
         if self._static:
             return
         if self._make_static or self._age > 4:
-            camera._static_blit(self,
-                                self._transform_image,
-                                (self._pos[0] - self._offset[0] + offset[0],
-                                 self._pos[1] - self._offset[1] + offset[1]),
-                                self._layer,
-                                self._blend_flags)
+            self._camera._static_blit(self,
+                                    self._transform_image,
+                                    (self._pos[0] - self._offset[0] + offset[0],
+                                    self._pos[1] - self._offset[1] + offset[1]),
+                                    self._layer,
+                                    self._blend_flags)
             self._make_static = False
             self._static = True
             return
-        camera._blit(self._transform_image,
-                     (self._pos[0] - self._offset[0] + offset[0],
-                      self._pos[1] - self._offset[1] + offset[1]),
-                     self._layer,
-                     self._blend_flags)
+        self._camera._blit(self._transform_image,
+                        (self._pos[0] - self._offset[0] + offset[0],
+                        self._pos[1] - self._offset[1] + offset[1]),
+                        self._layer,
+                        self._blend_flags)
         self._age += 1
 
     def update(self, dt, *args):
@@ -348,145 +338,26 @@ class Sprite(object):
         pass
 
     def __del__(self):
+        camera.remove(self)
         spyral.director.get_camera()._remove_static_blit(self)
         
     def animate(self, animation):
         """
         Animates this sprite given an animation. Read more about :ref:`animation <spyral_animation>`.
         """
-        if self.group is None:
-            raise ValueError("You must add this sprite to an Group before you can animate it.")
-        self.group._add_animation(animation, self)
+        self.camera._add_animation(animation, self)
 
     def stop_animation(self, animation):
         """
         Stops a given animation currently running on this sprite.
         """
-        if self.group is None:
-            raise ValueError("You must add this sprite to an Group before you can animate it.")
-        self.group._stop_animation(animation, self)
+        self.camera._stop_animation(animation, self)
 
     def stop_all_animations(self):
         """
         Stops all animations currently running on this sprite.
         """
-        if self.group is None:
-            raise ValueError("You must add this sprite to an Group before you can animate it.")
-        self.group._stop_animations_for_sprite(self)
-
-
-### Group classes ###
-
-
-class Group(object):
-    """ Behaves like sprite.Group in pygame. """
-
-    def __init__(self, camera = None):
-        """
-        Create a group and associate a camera with it. This is where all drawing
-        will be sent.
-        """
-        self.camera = camera
-        self._sprites = []
-        self._animations = defaultdict(list)
-        self._progress = {}
-
-    def draw(self, camera = None):
-        """ Draws all of its sprites to the group's camera. """
-        if camera is None:
-            camera = self.camera
-        if camera is None:
-            raise Exception("You need a camera to draw things.")
-        for x in self._sprites:
-            x.draw(camera)
-
-    def update(self, dt, *args):
-        """ Calls update on all of its Sprites. """
-        self._run_animations(dt)
-        for sprite in self._sprites:
-            sprite.update(dt, *args)
-
-    def remove(self, *sprites):
-        """ Removes Sprites from this Group. """
-        for sprite in sprites:
-            if sprite in self._sprites:
-                self._sprites.remove(sprite)
-                sprite._group = None
-                sprite._expire_static()
-                sprite.on_remove.emit(self)
-
-    def add(self, *sprites):
-        """ Adds an object to its drawable list. """
-        for sprite in sprites:
-            if sprite not in self._sprites:
-                self._sprites.append(sprite)
-                sprite.group = self
-
-    def has(self, *sprites):
-        """
-        Return true if all sprites are contained in the group.
-        """
-        for sprite in sprites:
-            if sprite not in self._sprites:
-                return False
-        return True
-
-    def empty(self):
-        """ Clears all sprites from the group. """
-        for sprite in self._sprites:
-            sprite._group = None
-        self._sprites = []
-
-    def sprites(self):
-        """ Return a list of the sprites in this group. """
-        return self._sprites[:]
-
-    def _add_animation(self, animation, sprite):
-        for a in self._animations[sprite]:
-            if a.properties.intersection(animation.properties):
-                raise ValueError(
-                    "Cannot animate on propety %s twice" % animation.property)
-        self._animations[sprite].append(animation)
-        self._progress[(sprite, animation)] = 0
-        self._evaluate(animation, sprite, 0.0)
-
-    def _evaluate(self, animation, sprite, progress):
-        values = animation.evaluate(sprite, progress)
-        for property in animation.properties:
-            if property in values:
-                setattr(sprite, property, values[property])
-            
-    def _run_animations(self, dt):
-        completed = []
-        for sprite in self._sprites:
-            for animation in self._animations[sprite]:
-                self._progress[(sprite, animation)] += dt
-                progress = self._progress[(sprite, animation)]
-                if progress > animation.duration:
-                    self._evaluate(animation, sprite, animation.duration)
-                    if animation.loop is True:
-                        self._evaluate(animation, sprite, progress - animation.duration)
-                        self._progress[(sprite, animation)] = progress - animation.duration
-                    elif animation.loop:
-                        self._evaluate(animation, sprite, progress - animation.duration + animation.loop)
-                        self._progress[(sprite, animation)] = progress - animation.duration + animation.loop
-                    else:
-                        completed.append((animation, sprite))
-                else:
-                    self._evaluate(animation, sprite, progress)
-
-        for animation, sprite in completed:
-            self._stop_animation(animation, sprite)
-
-    def _stop_animation(self, animation, sprite):
-        if sprite in self._animations and animation in self._animations[sprite]:
-            self._animations[sprite].remove(animation)
-            animation.on_complete.emit(animation, sprite)
-            del self._progress[(sprite, animation)]
-
-    def _stop_animations_for_sprite(self, sprite):
-        for animation in self._animations[sprite][:]:
-            self._stop_animation(animation, sprite)
+        self.camera._stop_animations_for_sprite(self)
             
 class AggregateSprite(Sprite):
     """
@@ -500,30 +371,16 @@ class AggregateSprite(Sprite):
     Child sprites do not need to worry about being in a Group, the
     AggregateSprite will handle that for them.
     """
-    def __init__(self, group = None):
-        Sprite.__init__(self, group)
-        self._internal_group = Group()
+    def __init__(self, camera):
+        Sprite.__init__(self, camera)
+        self._internal_group = set()
         self._child_anchor = spyral.Vec2D(0, 0)
-        self.group = group
-        
-    def _get_group(self):
-        return self._group
-        
-    def _set_group(self, group):
-        if self._group is not None:
-            self._group.remove(self)
-        if group is not None:
-            self._group = group
-            group.add(self)
-            self._internal_group.camera = group.camera
-        
-    group = property(_get_group, _set_group)
         
     def _get_child_anchor(self):
         return self._child_anchor
         
     def _set_child_anchor(self, anchor):
-        for sprite in self._internal_group.sprites():
+        for sprite in self._internal_group:
             sprite._expire_static()
         try:
             self._child_anchor = spyral.Vec2D(anchor)
@@ -548,11 +405,12 @@ class AggregateSprite(Sprite):
         """
         Return a list of the children sprites
         """
-        return self._internal_group.sprites()
+        return self._internal_group
         
     def update(self, dt, *args):
         """ Called once per update tick. """
-        self._internal_group.update(dt, *args)
+        for sprite in self._internal_group:
+            sprite.update(dt, *args)
         
     def get_rect(self):
         """
@@ -561,7 +419,7 @@ class AggregateSprite(Sprite):
         # This may potentially be a performance trap
         # Down the line we may have to mess with getting cached
         # versions of rects if we know the children haven't changed
-        sprites = self._internal_group.sprites() 
+        sprites = self._internal_group 
         r = Sprite.get_rect(self)
         try:
             i_offset = getattr(Sprite.get_rect(self), self._child_anchor)
@@ -571,16 +429,16 @@ class AggregateSprite(Sprite):
             r = r.union(s.get_rect().move(*i_offset))
         return r       
     
-    def draw(self, camera, offset = spyral.Vec2D(0,0)):
+    def draw(self, offset = spyral.Vec2D(0,0)):
         """
         Draws this sprite and all children to the camera. Should be
         overridden only in extreme circumstances.
         """
         if self._age == 0:
-            for sprite in self._internal_group.sprites():
+            for sprite in self._internal_group:
                 sprite._expire_static()
         if self.image is not None:
-            Sprite.draw(self, camera, offset)
+            Sprite.draw(self, offset)
         if not self.visible:
             return
         try:
@@ -588,5 +446,5 @@ class AggregateSprite(Sprite):
         except (TypeError, AttributeError):
             i_offset = self.pos - self._offset
         
-        for sprite in self._internal_group.sprites():
-            sprite.draw(camera, offset + i_offset)
+        for sprite in self._internal_group:
+            sprite.draw(offset + i_offset)

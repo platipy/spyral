@@ -1,5 +1,5 @@
 import spyral
-from spyral.sprite import Sprite, Group
+from spyral.sprite import Sprite
 from collections import defaultdict
 
 

@@ -14,8 +14,8 @@ def get_default_style():
     return _style
 
 class ButtonWidget(spyral.Sprite):
-    def __init__(self, text, width = None, style = None):
-        spyral.Sprite.__init__(self)
+    def __init__(self, camera, text, width = None, style = None):
+        spyral.Sprite.__init__(self, camera)
         if style is None:
             style = get_default_style()
         self._style = style
@@ -72,20 +72,20 @@ class ButtonWidget(spyral.Sprite):
             self._focused = False
         
 class ToggleButtonWidget(spyral.Sprite):
-    def __init__(self, text, style = None):
-        pass
+    def __init__(self, camera, text, style = None):
+        spyral.Sprite.__init__(self, camera)
 
 class CheckboxWidget(spyral.Sprite):
-    def __init__(self, text, style = None):
-            pass
+    def __init__(self, camera, text, style = None):
+        spyral.Sprite.__init__(self, camera)
 
 class RadioButton(spyral.Sprite):
-    def __init__(self, value, style = None):
-        pass
+    def __init__(self, camera, value, style = None):
+        spyral.Sprite.__init__(self, camera)
         
 class RadioGroup(object):
-    def __init__(self, *buttons):
-        pass
+    def __init__(self, camera, *buttons):
+        spyral.Sprite.__init__(self, camera)
 
 class FormStyle(object):
     def __init__(self, filename, defaults = None):
@@ -163,7 +163,7 @@ class FormStyle(object):
         return image  
     
 class Form(spyral.AggregateSprite):
-    def __init__(self, name, manager, style = None):
+    def __init__(self, camera, name, manager, style = None):
         """
         [INSERT DESCRIPTION HERE]
         
@@ -172,7 +172,7 @@ class Form(spyral.AggregateSprite):
         "%(form_name)s_%(field_name)_%(event_type)" where event_type is
         from [INSERT LINK TO DOCUMENTATION FOR FORM EVENTS].
         """
-        spyral.AggregateSprite.__init__(self)
+        spyral.AggregateSprite.__init__(self, camera)
         class Fields(object):
             pass
         self.fields = Fields()
@@ -188,8 +188,7 @@ class Form(spyral.AggregateSprite):
     def handle_event(self, event):
         if event.type == 'MOUSEBUTTONDOWN':
             for name, widget in self._widgets.iteritems():
-                print name, widget.group
-                if widget.get_rect().collide_point(widget.group.camera.world_to_local(event.pos)):
+                if widget.get_rect().collide_point(widget.camera.world_to_local(event.pos)):
                     self.focus(name)
                     self._mouse_down_on = name
                     widget.handle_event(event)
@@ -347,8 +346,8 @@ class Form(spyral.AggregateSprite):
 
 
 class TextInputWidget(spyral.AggregateSprite):            
-    def __init__(self, width, value = '', default_value = True, max_length = None, style = None, validator = None):
-        spyral.AggregateSprite.__init__(self)
+    def __init__(self, camera, width, value = '', default_value = True, max_length = None, style = None, validator = None):
+        spyral.AggregateSprite.__init__(self, camera)
         
         if style is None:
             style = get_default_style()
@@ -356,9 +355,9 @@ class TextInputWidget(spyral.AggregateSprite):
     
         self._padding = padding = int(style.get("TextInput", "padding"))
         self.child_anchor = (padding, padding)
-        self._cursor = spyral.Sprite()
+        self._cursor = spyral.Sprite(camera)
         self._cursor.anchor = (padding, padding)
-        self._text = spyral.Sprite()
+        self._text = spyral.Sprite(camera)
         self._text.pos = (padding, padding)
         self.add_child(self._cursor)
         self.add_child(self._text)
@@ -434,7 +433,7 @@ class TextInputWidget(spyral.AggregateSprite):
                 
             
     def _compute_cursor_pos(self, mouse_pos):
-        mouse_pos = self.group.camera.world_to_local(mouse_pos)
+        mouse_pos = self.camera.world_to_local(mouse_pos)
         x = mouse_pos[0] + self._view_x - self.x - self._padding
         index = bisect_right(self._letter_widths, x)
         if index >= len(self._value):

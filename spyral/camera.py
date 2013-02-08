@@ -2,6 +2,8 @@ from __future__ import division
 import spyral
 import pygame
 import math
+from weakref import ref as _wref
+from collections import defaultdict
 import operator
 import sys
 
@@ -65,6 +67,10 @@ class Camera(object):
         if layers is None:
             layers = ['all']
         self._layers = layers
+        
+        self._sprites = set()
+        self._animations = defaultdict(list)
+        self._progress = {}
 
         if self._root:
             self._background = pygame.surface.Surface(self._rsize)
@@ -358,3 +364,68 @@ class Camera(object):
 
     def redraw(self):
         self._clear_this_frame.append(self.get_rect())
+
+        
+    def remove(self, sprite):
+        if sprite in self._sprites:
+            self._sprites.remove(sprite)
+    def add(self, sprite):
+        self._sprites.add(sprite)
+    def has(self, sprite):
+        return sprite in self._sprites
+    def empty(self):
+        self._sprites = set()
+    def sprites(self):
+        return list(self._sprites)
+    def update(self, dt, *args):
+        """ Calls update on all of its Sprites. """
+        self._run_animations(dt)
+        for sprite in self._sprites:
+            sprite.update(dt, *args)
+        
+    def _add_animation(self, animation, sprite):
+        for a in self._animations[sprite]:
+            if a.properties.intersection(animation.properties):
+                raise ValueError(
+                    "Cannot animate on propety %s twice" % animation.property)
+        self._animations[sprite].append(animation)
+        self._progress[(sprite, animation)] = 0
+        self._evaluate(animation, sprite, 0.0)
+
+    def _evaluate(self, animation, sprite, progress):
+        values = animation.evaluate(sprite, progress)
+        for property in animation.properties:
+            if property in values:
+                setattr(sprite, property, values[property])
+            
+    def _run_animations(self, dt):
+        completed = []
+        for sprite in self._sprites:
+            for animation in self._animations[sprite]:
+                self._progress[(sprite, animation)] += dt
+                progress = self._progress[(sprite, animation)]
+                if progress > animation.duration:
+                    self._evaluate(animation, sprite, animation.duration)
+                    if animation.loop is True:
+                        self._evaluate(animation, sprite, progress - animation.duration)
+                        self._progress[(sprite, animation)] = progress - animation.duration
+                    elif animation.loop:
+                        self._evaluate(animation, sprite, progress - animation.duration + animation.loop)
+                        self._progress[(sprite, animation)] = progress - animation.duration + animation.loop
+                    else:
+                        completed.append((animation, sprite))
+                else:
+                    self._evaluate(animation, sprite, progress)
+
+        for animation, sprite in completed:
+            self._stop_animation(animation, sprite)
+
+    def _stop_animation(self, animation, sprite):
+        if sprite in self._animations and animation in self._animations[sprite]:
+            self._animations[sprite].remove(animation)
+            animation.on_complete.emit(animation, sprite)
+            del self._progress[(sprite, animation)]
+
+    def _stop_animations_for_sprite(self, sprite):
+        for animation in self._animations[sprite][:]:
+            self._stop_animation(animation, sprite)
