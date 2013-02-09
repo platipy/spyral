@@ -1,7 +1,4 @@
 Spyral:
-    * Event unregistering
-      - All events in a namespace
-      - A specific namespace -> handler mapping
     * Move animation code into Sprites
     * Get rid of sprite.update
     * Let Scenes be actors
@@ -25,6 +22,9 @@ Spyral:
     spyral.config
         - smoothscale v scale
         - number of frames till static blit caching
+    * Mouse Cursor Hiding
+    * Keyboard repeating
+    * More sensetive input time handling?
         
     
 Platipy:
