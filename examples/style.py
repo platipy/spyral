@@ -30,6 +30,7 @@ class Game(spyral.Scene):
         self.initialized = False
         
         self.load_style("style.spys")
+        self.register("system.quit", sys.exit)
         
     def on_enter(self):
         # Some things you may wish to do every time you enter the scene
@@ -56,11 +57,6 @@ class Game(spyral.Scene):
         Here is where camera.update() should be called for the cameras, where
         event handling should be taken care of, etc.
         """
-        for event in self.event_handler.get():
-            if event['type'] == 'QUIT':
-                spyral.quit()
-                sys.exit()
-                    
         self.camera.update(dt)
 
 if __name__ == "__main__":

@@ -60,7 +60,7 @@ class Game(spyral.Scene):
         Here is where group.update() should be called for the groups, ...
         [FILL IN SOME STUFF HERE]
         """
-        self.group.update(dt)
+        self.camera.update(dt)
 
 if __name__ == "__main__":
     spyral.init() # Always call spyral.init() first
