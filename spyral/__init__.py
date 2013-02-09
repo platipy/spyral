@@ -31,7 +31,7 @@ all_by_module = {
     'spyral.actor' : ['Actor']
 }
 
-attribute_modules = frozenset(['memoize', 'point', 'camera', 'animator', 'event', '_lib', 'color', 'font', 'form', 'director'])
+attribute_modules = frozenset(['memoize', 'point', 'camera', 'animator', 'event', '_lib', 'color', 'font', 'form', 'director', 'sprite'])
 
 object_origins = {}
 for module, items in all_by_module.iteritems():
