@@ -158,7 +158,7 @@ def run(sugar=False, profiling=False):
 
             def frame_callback(interpolation):
                 spyral.event.handle("spyral.director.pre_render")
-                scene.render()
+                spyral.event.handle("spyral.director.render")
                 camera._draw()
                 spyral.event.handle("spyral.director.post_render")
 
@@ -175,8 +175,7 @@ def run(sugar=False, profiling=False):
                 for event in events:
                     scene._queue_event(*spyral.event._pygame_to_spyral(event))
                 spyral.event.handle("spyral.director.pre_update")
-                scene._handle_events()
-                scene.update(dt)
+                spyral.event.handle("spyral.director.update", spyral.Event(dt=dt))
                 _tick += 1
                 spyral.event.handle("spyral.director.post_update")
             clock.frame_callback = frame_callback
