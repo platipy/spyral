@@ -15,8 +15,8 @@ _type_to_attrs = None
 _type_to_type = None
 
 class Event(object):
-    def __init__(self, type = None):
-        self.type = type
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 _event_names = ['QUIT', 'ACTIVEEVENT', 'KEYDOWN', 'KEYUP', 'MOUSEMOTION',
                 'MOUSEBUTTONUP', 'VIDEORESIZE', 'VIDEOEXPOSE', 'USEREVENT',
