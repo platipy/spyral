@@ -75,6 +75,9 @@ class Sprite(object):
         self._flip_x = False
         self._flip_y = False
         
+        self._scene.register('spyral.director.update', self.update, ('dt', ))
+        self._scene.register('spyral.director.render', self.draw)
+        
     def _set_static(self):
         self._make_static = True
         self._static = True

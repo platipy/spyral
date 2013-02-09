@@ -8,9 +8,7 @@ import spyral
 import os
 import random
 import base64
-from collections import defaultdict
 
-_type_to_name = None
 _type_to_attrs = None
 _type_to_type = None
 
@@ -23,10 +21,8 @@ _event_names = ['QUIT', 'ACTIVEEVENT', 'KEYDOWN', 'KEYUP', 'MOUSEMOTION',
                 'MOUSEBUTTONDOWN']
 
 def init():
-    global _type_to_name
     global _type_to_attrs
     global _type_to_type
-    _type_to_name = dict((getattr(pygame, name), name) for name in _event_names)
 
     _type_to_attrs = {
         pygame.QUIT: tuple(),
@@ -59,7 +55,7 @@ def handle(type, event = None):
 
 def _pygame_to_spyral(event):
     attrs = _type_to_attrs[event.type]
-    e = Event(_type_to_name[event.type])
+    e = Event()
     for attr in attrs:
         setattr(e, attr, getattr(event, attr))
     return (_type_to_type[event.type], e)

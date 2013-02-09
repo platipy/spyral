@@ -27,7 +27,8 @@ all_by_module = {
     'spyral.clock' : ['GameClock'],
     'spyral.event' : ['keys', 'mods', 'queue', 'Event', 'EventHandler', 'LiveEventHandler'],
     'spyral.form' : ['TextInputWidget', 'Form', 'FormStyle', 'ButtonWidget'],
-    'spyral.dev' : ['_get_spyral_path']
+    'spyral.dev' : ['_get_spyral_path'],
+    'spyral.actor' : ['Actor']
 }
 
 attribute_modules = frozenset(['memoize', 'point', 'camera', 'animator', 'event', '_lib', 'color', 'font', 'form', 'director'])

@@ -1,11 +1,10 @@
 import spyral
 import time
 import yaml
-
-
 import collections
 import operator
 import itertools
+import greenlet        
 
 class Scene(object):
     """
@@ -36,8 +35,23 @@ class Scene(object):
         self._handling_events = False
         self._events = []
         self._pending = []
+        self._greenlets = {} # Maybe need to weakref dict
+        
+        self.register('spyral.director.update', self.handle_events)
+        self.register('spyral.director.update', self.run_actors, ('dt',))
     
     # Internal Methods
+    
+    def _register_actor(self, actor, greenlet):
+        self._greenlets[actor] = greenlet
+                    
+    def _run_actors_greenlet(self, dt, _):
+        for actor, greenlet in self._greenlets.iteritems():
+            dt, rerun = greenlet.switch(dt)
+            while rerun:
+                dt, rerun = greenlet.switch(dt)
+        return False
+
     
     def _queue_event(self, type, event):
         if self._handling_events:
@@ -80,9 +94,10 @@ class Scene(object):
         for handler_info in itertools.chain.from_iterable(self._handlers[namespace] for namespace in self._get_namespaces(type)):
             if self._send_event_to_handler(event, *handler_info):
                 break
-        
-    
-    def _handle_events(self):
+                    
+    # External methods
+
+    def handle_events(self):
         self._handling_events = True
         do = True
         while do or len(self._pending) > 0:
@@ -91,8 +106,16 @@ class Scene(object):
                 self._handle_event(type, event)
             self._events = self._pending
             self._pending = []
-                    
-    # External methods
+            
+    def run_actors(self, dt):
+        g = greenlet.greenlet(self._run_actors_greenlet)
+        while True:
+            d = g.switch(dt, False)
+            if d is True:
+                continue
+            if d is False:
+                break
+            g.switch(d, True)
     
     def load_style(self, filename):
         style = yaml.load(open(filename, 'r'))
