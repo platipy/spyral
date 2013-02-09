@@ -14,7 +14,7 @@ import pygame
 
 # import mapping to objects in other modules
 all_by_module = {
-    'spyral.sprite' : ['Sprite', 'Group', 'AggregateSprite'],
+    'spyral.sprite' : ['Sprite', 'AggregateSprite'],
     'spyral.scene' : ['Scene'],
     'spyral.image' : ['Image'],
     'spyral.vector' : ['Vec2D'],
