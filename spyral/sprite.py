@@ -76,8 +76,6 @@ class Sprite(object):
         self._flip_x = False
         self._flip_y = False
         
-        self.on_remove = spyral.Signal()
-
     def _set_static(self):
         self._make_static = True
         self._static = True
