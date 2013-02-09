@@ -5,6 +5,7 @@ import math
 from collections import defaultdict
 import operator
 import sys
+import weakref
 
 class _Blit(object):
     __slots__ = ['surface', 'rect', 'layer', 'flags', 'static']
@@ -70,7 +71,7 @@ class Camera(object):
         self._sprites = set()
         self._animations = defaultdict(list)
         self._progress = {}
-
+        
         if self._root:
             self._background = pygame.surface.Surface(self._rsize)
             self._background.fill((255, 255, 255))
@@ -83,8 +84,8 @@ class Camera(object):
             self._static_blits = {}
             self._rs = self
             self._rect = self._surface.get_rect()
-            self._saved_blits = {}
-            self._backgrounds = {}
+            self._saved_blits = weakref.WeakKeyDictionary()
+            self._backgrounds = weakref.WeakKeyDictionary()
 
     def make_child(self, virtual_size=None,
                    real_size=None,
@@ -130,20 +131,15 @@ class Camera(object):
         Sets a background for this camera's display.
         """
         surface = image._surf
-        # This is CPython specific, but right now so is Pygame.
-        if sys._getframe(1).f_code.co_name == "__init__":
-            raise RuntimeError("Background initialization must be done in a scene's on_enter, not __init__")
+        scene = spyral._get_executing_scene()
         if surface.get_size() != self._vsize:
             raise ValueError("Background size must match the display size.")
         if not self._root:
-            self._rs._background.blit(_scale(surface, self._scale),
-                                      self._offset)
-            self._rs._clear_this_frame.append(self._rs._background.get_rect())
-        else:
-            raise ValueError(
-                "You cannot set the background on the root camera directly.")
-            self._background = surface
-            self._clear_this_frame.append(surface.get_rect())
+            if scene not in self._rs._backgrounds:
+                self._rs._backgrounds[scene] = pygame.Surface(self._rs._background.get_size(), pygame.SRCALPHA).convert_alpha()
+            self._rs._backgrounds[scene].blit(_scale(surface, self._scale), self._offset)
+            if scene is spyral.director.get_scene():
+                self._rs._clear_this_frame.append(self._rs._background.get_rect())
             
     def _compute_layer(self, layer):
         if type(layer) in (int, long, float):
