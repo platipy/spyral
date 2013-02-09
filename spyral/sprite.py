@@ -63,13 +63,12 @@ class Sprite(object):
         self._offset = spyral.Vec2D(0, 0)
         self._scale = spyral.Vec2D(1.0, 1.0)
         self._scaled_image = None
+        self._scene = spyral._get_executing_scene()
         if camera is None:
-            scene = spyral._get_executing_scene()
-            if not hasattr(scene, 'camera'):
+            if not hasattr(self._scene, 'camera'):
                 raise Exception("Your scene must have a camera created before creating sprites, or you must pass a camera explicitly.")
-            camera = getattr(scene, 'camera')
+            camera = getattr(self._scene, 'camera')
         self._camera = camera
-        camera.add(self)
         self._angle = 0
         self._transform_image = None
         self._transform_offset = spyral.Vec2D(0, 0)
@@ -340,7 +339,6 @@ class Sprite(object):
         pass
 
     def __del__(self):
-        camera.remove(self)
         spyral.director.get_camera()._remove_static_blit(self)
         
     def animate(self, animation):

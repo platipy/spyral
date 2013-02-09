@@ -363,10 +363,6 @@ class Camera(object):
 
     def redraw(self):
         self._clear_this_frame.append(self.get_rect())
-
-    def draw(self):
-        for sprite in self.sprites():
-            sprite.draw()
         
     def _add_animation(self, animation, sprite):
         for a in self._animations[sprite]:
@@ -408,7 +404,6 @@ class Camera(object):
     def _stop_animation(self, animation, sprite):
         if sprite in self._animations and animation in self._animations[sprite]:
             self._animations[sprite].remove(animation)
-            animation.on_complete.emit(animation, sprite)
             del self._progress[(sprite, animation)]
 
     def _stop_animations_for_sprite(self, sprite):
