@@ -63,7 +63,7 @@ class Scene(object):
     def _send_event_to_handler(self, event, handler, args, kwargs, priority, dynamic):
         try:
             args = [getattr(event, attr) for attr in args]
-            kwargs = {attr : getattr(event, attr2) for attr, attr2 in kwargs.iteritems()}
+            kwargs = dict((attr, getattr(event, attr2)) for attr, attr2 in kwargs.iteritems())
         except Exception:
             pass # Do some error printing
         if dynamic is True:

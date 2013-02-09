@@ -85,9 +85,9 @@ class MultiAnimation(Animation):
             if animation.loop:
                 self.loop = True
         # Ensure we don't clobber on properties
-        clobbering_animations = [('scale', {'scale_x', 'scale_y'}),
-                                 ('pos', {'x', 'y', 'position'}),
-                                 ('position', {'x', 'y', 'pos'})]
+        clobbering_animations = [('scale', set(['scale_x', 'scale_y'])),
+                                 ('pos', set(['x', 'y', 'position'])),
+                                 ('position', set(['x', 'y', 'pos']))]
         for p, others in clobbering_animations:
             if p in self.properties and self.properties.intersection(others):
                 raise ValueError("Cannot animate on %s and %s in the same animation." % (p, str(self.properties.intersection(others).pop())))
