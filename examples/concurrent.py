@@ -34,7 +34,9 @@ class Game(spyral.Scene):
         spyral.Scene.__init__(self)
         self.clock.max_ups = 60.
         self.camera = self.parent_camera.make_child(SIZE)
-        self.initialized = False
+        bg = spyral.Image(size=SIZE)
+        bg.fill(BG_COLOR)
+        self.camera.set_background(bg)
 
         def add_new_box():
             StupidSprite(self.camera)
@@ -43,18 +45,6 @@ class Game(spyral.Scene):
         self.register('system.quit', sys.exit)            
         self.register('input.keyboard.down', add_new_box)
         
-    def on_enter(self):
-        if self.initialized:
-            return
-        self.initialized = True
-
-        bg = spyral.Image(size=SIZE)
-        bg.fill(BG_COLOR)
-        self.camera.set_background(bg)
-                
-    def render(self):
-        self.camera.draw()        
-
 if __name__ == "__main__":
     spyral.init()
     spyral.director.init(SIZE)
