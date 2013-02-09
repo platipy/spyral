@@ -2,7 +2,6 @@ from __future__ import division
 import spyral
 import pygame
 import math
-from weakref import ref as _wref
 from collections import defaultdict
 import operator
 import sys
@@ -365,23 +364,6 @@ class Camera(object):
     def redraw(self):
         self._clear_this_frame.append(self.get_rect())
 
-        
-    def remove(self, sprite):
-        if sprite in self._sprites:
-            self._sprites.remove(sprite)
-    def add(self, sprite):
-        self._sprites.add(sprite)
-    def has(self, sprite):
-        return sprite in self._sprites
-    def empty(self):
-        self._sprites = set()
-    def sprites(self):
-        return list(self._sprites)
-    def update(self, dt, *args):
-        """ Calls update on all of its Sprites. """
-        self._run_animations(dt)
-        for sprite in self._sprites:
-            sprite.update(dt, *args)
     def draw(self):
         for sprite in self.sprites():
             sprite.draw()
