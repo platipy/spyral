@@ -51,6 +51,7 @@ class Image(object):
         self._surf.fill(color)
         self._version += 1
         spyral.camera._scale.clear(self._surf)
+        return self
         
     def draw_rect(self, color, position, size, border_width = 0, anchor= 'topleft'):
         """
@@ -68,6 +69,7 @@ class Image(object):
         pygame.draw.rect(self._surf, color, (position + offset, size), border_width)
         self._version += 1
         spyral.camera._scale.clear(self._surf)
+        return self
         
     def draw_lines(self, color, points, width = 1, closed = False):
         """
@@ -85,6 +87,7 @@ class Image(object):
             pygame.draw.lines(self._surf, color, closed, points, width)
         self._version += 1
         spyral.camera._scale.clear(self._surf)
+        return self
     
     def draw_circle(self, color, position, radius, width = 0, anchor= 'topleft'):
         """
@@ -98,6 +101,7 @@ class Image(object):
         pygame.draw.circle(self._surf, color, position + offset, radius, width)
         self._version += 1
         spyral.camera._scale.clear(self._surf)
+        return self
         
     def draw_ellipse(self, color, position, size, border_width = 0, anchor= 'topleft'):
         """
@@ -115,6 +119,7 @@ class Image(object):
         pygame.draw.ellipse(self._surf, color, (position + offset, size), border_width)
         self._version += 1
         spyral.camera._scale.clear(self._surf)
+        return self
     
     def draw_point(self, color, position, anchor= 'topleft'):
         """
@@ -127,6 +132,7 @@ class Image(object):
         self._surf.set_at(position + offset, color)
         self._version += 1
         spyral.camera._scale.clear(self._surf)
+        return self
     
     def draw_arc(self, color, position, size, start_angle, end_angle, border_width = 0, anchor = 'topleft'):
         """
@@ -143,6 +149,7 @@ class Image(object):
         pygame.draw.arc(self._surf, color, (position + offset, size), start_angle, end_angle, border_width)
         self._version += 1
         spyral.camera._scale.clear(self._surf)
+        return self
         
     def draw_image(self, image, position = (0, 0), anchor= 'topleft'):
         """
@@ -153,6 +160,7 @@ class Image(object):
         self._surf.blit(image._surf, position + offset)
         self._version += 1
         spyral.camera._scale.clear(self._surf)
+        return self
         
     @classmethod
     def from_sequence(self, images, orientation = None, padding=0):
@@ -191,6 +199,7 @@ class Image(object):
                 sequence.append((image, base))
                 base = base + selector * (image.get_size() + (padding, padding))
         return Image.from_conglomerate(sequence)
+        
     @classmethod
     def from_conglomerate(self, sequence):
         """
@@ -204,6 +213,7 @@ class Image(object):
         for image, (x, y) in sequence:
             new.draw_image(image, (x,y))
         return new
+        
     def rotate(self, angle):
         """
         Rotates the image by *angle* degrees clockwise. This may change
@@ -214,6 +224,7 @@ class Image(object):
         """
         self._surf = pygame.transform.rotate(self._surf, angle).convert_alpha()
         self._version += 1
+        return self
         
     def scale(self, size):
         """
@@ -221,6 +232,7 @@ class Image(object):
         """
         self._surf = pygame.transform.smoothscale(self._surf, size).convert_alpha()
         self._version += 1
+        return self
         
     def flip(self, xbool, ybool):
         """
@@ -228,6 +240,7 @@ class Image(object):
         """
         self._version += 1
         self._surf = pygame.transform.flip(self._surf, xbool, ybool).convert_alpha()
+        return self
         
     def copy(self):
         """
@@ -251,6 +264,7 @@ class Image(object):
         new.blit(self._surf, (0,0), (position, size))
         self._surf = new
         self._version += 1
+        return self
         
     def _calculate_offset(self, anchor_type, size = (0,0)):
         w, h = self._surf.get_size()
