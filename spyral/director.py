@@ -115,7 +115,7 @@ def pop():
         exit(0)
     pygame.event.get()
 
-def push( scene):
+def push(scene):
     """
     Place *scene* on the top of the stack, and move control to it.
 
@@ -157,8 +157,10 @@ def run(sugar=False, profiling=False):
             old_scene = scene
 
             def frame_callback(interpolation):
+                spyral.event.handle("spyral.director.pre_render")
                 scene.render()
                 camera._draw()
+                spyral.event.handle("spyral.director.post_render")
 
             def update_callback(dt):
                 global _tick
@@ -172,9 +174,11 @@ def run(sugar=False, profiling=False):
                 events = scene._event_source.get()
                 for event in events:
                     scene._queue_event(*spyral.event._pygame_to_spyral(event))
+                spyral.event.handle("spyral.director.pre_update")
                 scene._handle_events()
                 scene.update(dt)
                 _tick += 1
+                spyral.event.handle("spyral.director.post_update")
             clock.frame_callback = frame_callback
             clock.update_callback = update_callback
         clock.tick()

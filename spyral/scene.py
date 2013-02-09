@@ -76,17 +76,19 @@ class Scene(object):
         if handler is not None:
             handler(*args, **kwargs)
     
+    def _handle_event(self, type, event):
+        for handler_info in itertools.chain.from_iterable(self._handlers[namespace] for namespace in self._get_namespaces(type)):
+            if self._send_event_to_handler(event, *handler_info):
+                break
+        
+    
     def _handle_events(self):
         self._handling_events = True
         do = True
         while do or len(self._pending) > 0:
             do = False
             for (type, event) in self._events:
-                quit = False
-                for handler_info in itertools.chain.from_iterable(self._handlers[namespace] for namespace in self._get_namespaces(type)):
-                    quit = self._send_event_to_handler(event, *handler_info)
-                    if quit:
-                        break
+                self._handle_event(type, event)
             self._events = self._pending
             self._pending = []
                     
