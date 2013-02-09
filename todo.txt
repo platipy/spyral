@@ -1,0 +1,65 @@
+Spyral:
+    * Event unregistering
+      - All events in a namespace
+      - A specific namespace -> handler mapping
+    * Move animation code into Sprites
+    * Get rid of sprite.update
+    * Let Scenes be actors
+    * Fix AggregateSprites
+    * Add sprite.kill
+    * Fix clock bug
+    * Namespace Memoization
+    * Fix color stuff
+    * Reinvestigate event sources
+    * Styles
+    * Add key to keyboard event types
+    * Documentation
+        - Cameras
+    * Unit/Integration Testing
+    * Forms
+        - Button needs to not have its text dissappear
+        - ToggleButtons
+        - Checkboxes
+        - RadioBoxes
+        - A complete example
+    spyral.config
+        - smoothscale v scale
+        - number of frames till static blit caching
+        
+    
+Platipy:
+    Needs an FAQ/Tips & Tricks section:
+        - Showcase things like IteratorAnimator
+    Needs tutorials on:
+        - Layering
+        - All of the new sprite properties
+        - Cameras
+        - Event Recording/Playback
+        - Measuring performance
+        - Translation/internationalization
+ 
+Example.activity:
+    - Add flag for popping into pdb upon crash
+    - Saving stack traces into a directory on crashes
+    - Uploading stack traces to conspyre
+    - Add ability to build other distributions
+        - Source, for bundling a source .tar.gz or tar.bz2
+        - win, for building an exe on windows
+        - xo, for building .xo files for the olpc
+        - app, for building OS X .app bundles
+        - Debugging versions of all of the above which use different configs
+    - Configuration for different launcher profiles
+        - XO for on the XOs
+        - Release for released versions (exe, app, xo, etc.)
+        - Debug for debugging enabled release versions
+        - Development for when used by the dev launcher
+        Configuration should allow changing
+            - Conspyre server
+            - Whether to upload stack traces
+            - Whether to store stack traces
+            - Maybe access to spyral config options
+            - Fullscreen or not
+            - Framerate cap
+            - Profiling output
+    - Add Box2D from the Physics.activity
+    - Add greenlet binaries for certain platforms
