@@ -48,8 +48,7 @@ class Sprite(object):
     ============    ============
     """
 
-    def __init__(self, camera):
-        """ Adds this sprite to any number of groups by default. """
+    def __init__(self, camera = None):
         _all_sprites.append(_wref(self))
         self._age = 0
         self._static = False
@@ -64,6 +63,11 @@ class Sprite(object):
         self._offset = spyral.Vec2D(0, 0)
         self._scale = spyral.Vec2D(1.0, 1.0)
         self._scaled_image = None
+        if camera is None:
+            scene = spyral._get_executing_scene()
+            if not hasattr(scene, 'camera'):
+                raise Exception("Your scene must have a camera created before creating sprites, or you must pass a camera explicitly.")
+            camera = getattr(scene, 'camera')
         self._camera = camera
         camera.add(self)
         self._angle = 0

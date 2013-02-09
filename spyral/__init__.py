@@ -21,7 +21,7 @@ all_by_module = {
     'spyral.signal' : ['Signal'],
     'spyral.rect' : ['Rect'],
     'spyral.animation' : ['Animation'],
-    'spyral.core' : ['init', 'quit'],
+    'spyral.core' : ['init', 'quit', '_get_executing_scene'],
     'spyral.font' : ['Font'],
     'spyral.camera' : ['Camera'],
     'spyral.clock' : ['GameClock'],
