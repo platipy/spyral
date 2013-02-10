@@ -55,10 +55,14 @@ def handle(type, event = None):
 
 def _pygame_to_spyral(event):
     attrs = _type_to_attrs[event.type]
+    type = _type_to_type[event.type]
+    if type.startswith('input.keyboard'):
+        k = pygame.key.name(event.key).replace(' ', '_').replace('.', 'dot')
+        type += '.' + k
     e = Event()
     for attr in attrs:
         setattr(e, attr, getattr(event, attr))
-    return (_type_to_type[event.type], e)
+    return (type, e)
     
 
 class EventHandler(object):
