@@ -359,43 +359,6 @@ class Camera(object):
 
     def redraw(self):
         self._clear_this_frame.append(self.get_rect())
-        
-    def _add_animation(self, animation, sprite):
-        for a in self._animations[sprite]:
-            if a.properties.intersection(animation.properties):
-                raise ValueError(
-                    "Cannot animate on propety %s twice" % animation.property)
-        self._animations[sprite].append(animation)
-        self._progress[(sprite, animation)] = 0
-        self._evaluate(animation, sprite, 0.0)
-
-    def _evaluate(self, animation, sprite, progress):
-        values = animation.evaluate(sprite, progress)
-        for property in animation.properties:
-            if property in values:
-                setattr(sprite, property, values[property])
-            
-    def _run_animations(self, dt):
-        completed = []
-        for sprite in self._sprites:
-            for animation in self._animations[sprite]:
-                self._progress[(sprite, animation)] += dt
-                progress = self._progress[(sprite, animation)]
-                if progress > animation.duration:
-                    self._evaluate(animation, sprite, animation.duration)
-                    if animation.loop is True:
-                        self._evaluate(animation, sprite, progress - animation.duration)
-                        self._progress[(sprite, animation)] = progress - animation.duration
-                    elif animation.loop:
-                        self._evaluate(animation, sprite, progress - animation.duration + animation.loop)
-                        self._progress[(sprite, animation)] = progress - animation.duration + animation.loop
-                    else:
-                        completed.append((animation, sprite))
-                else:
-                    self._evaluate(animation, sprite, progress)
-
-        for animation, sprite in completed:
-            self._stop_animation(animation, sprite)
 
     def _stop_animation(self, animation, sprite):
         if sprite in self._animations and animation in self._animations[sprite]:

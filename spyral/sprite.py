@@ -1,7 +1,6 @@
 import spyral
 import pygame as pygame
 from weakref import ref as _wref
-from collections import defaultdict
 import math
 
 _all_sprites = []
@@ -74,8 +73,9 @@ class Sprite(object):
         self._transform_offset = spyral.Vec2D(0, 0)
         self._flip_x = False
         self._flip_y = False
+        self._animations = []
+        self._progress = {}
         
-        self._scene.register('spyral.director.update', self.update, ('dt', ))
         self._scene.register('spyral.director.render', self.draw)
         
     def _set_static(self):
@@ -151,6 +151,35 @@ class Sprite(object):
         self._recalculate_offset()
         self._expire_static()
 
+    def _evaluate(self, animation, progress):
+        values = animation.evaluate(self, progress)
+        for property in animation.properties:
+            if property in values:
+                setattr(self, property, values[property])
+                
+    def _run_animations(self, dt):
+        completed = []
+        for animation in self._animations:
+            self._progress[animation] += dt
+            progress = self._progress[animation]
+            if progress > animation.duration:
+                self._evaluate(animation, animation.duration)
+                if animation.loop is True:
+                    self._evaluate(animation, progress - animation.duration)
+                    self._progress[animation] = progress - animation.duration
+                elif animation.loop:
+                    self._evaluate(animation, progress - animation.duration + animation.loop)
+                    self._progress[animation] = progress - animation.duration + animation.loop
+                else:
+                    completed.append(animation)
+            else:
+                self._evaluate(animation, progress)
+
+        for animation in completed:
+            self._stop_animation(animation)
+
+
+    # Getters and Setters
     def _get_pos(self):
         return self._pos
 
@@ -337,10 +366,6 @@ class Sprite(object):
                         self._blend_flags)
         self._age += 1
 
-    def update(self, dt, *args):
-        """ Called once per update tick. """
-        pass
-
     def __del__(self):
         spyral.director.get_camera()._remove_static_blit(self)
         
@@ -348,19 +373,36 @@ class Sprite(object):
         """
         Animates this sprite given an animation. Read more about :ref:`animation <spyral_animation>`.
         """
-        self.camera._add_animation(animation, self)
+        for a in self._animations:
+            if a.properties.intersection(animation.properties):
+                raise ValueError(
+                    "Cannot animate on propety %s twice" % animation.property)
+        if len(self._animations) == 0:
+            self._scene.register('spyral.director.update',
+                                 self._run_animations,
+                                 ('dt', ))
+        self._animations.append(animation)
+        self._progress[animation] = 0
+        self._evaluate(animation, 0.0)
 
     def stop_animation(self, animation):
         """
         Stops a given animation currently running on this sprite.
         """
-        self.camera._stop_animation(animation, self)
+        if animation in self._animations:
+            self._animations.remove(animation)
+            del self._progress[animation]
+            if len(self._animations) == 0:
+                self._scene.unregister('spyral.director.update', self._run_animations)
+
 
     def stop_all_animations(self):
         """
         Stops all animations currently running on this sprite.
         """
-        self.camera._stop_animations_for_sprite(self)
+        for animation in self._animations:
+            self.stop_animation(animation)
+
             
 class AggregateSprite(Sprite):
     """
@@ -410,12 +452,7 @@ class AggregateSprite(Sprite):
         Return a list of the children sprites
         """
         return self._internal_group
-        
-    def update(self, dt, *args):
-        """ Called once per update tick. """
-        for sprite in self._internal_group:
-            sprite.update(dt, *args)
-        
+                
     def get_rect(self):
         """
         Return a rect which is the union of all the child rects.
