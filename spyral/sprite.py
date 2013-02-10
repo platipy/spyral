@@ -176,7 +176,7 @@ class Sprite(object):
                 self._evaluate(animation, progress)
 
         for animation in completed:
-            self._stop_animation(animation)
+            self.stop_animation(animation)
 
 
     # Getters and Setters
@@ -416,7 +416,7 @@ class AggregateSprite(Sprite):
     Child sprites do not need to worry about being in a Group, the
     AggregateSprite will handle that for them.
     """
-    def __init__(self, camera):
+    def __init__(self, camera = None):
         Sprite.__init__(self, camera)
         self._internal_group = set()
         self._child_anchor = spyral.Vec2D(0, 0)
@@ -438,8 +438,8 @@ class AggregateSprite(Sprite):
         """
         Adds a child to this AggregateSprite.
         """
-        sprite.camera.remove(sprite)
         self._internal_group.add(sprite)
+        self._scene.unregister("spyral.director.render", sprite.draw)
         
     def remove_child(self, sprite):
         """
