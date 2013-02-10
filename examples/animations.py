@@ -74,7 +74,11 @@ class AnimationExamples(Scene):
         
         # Register all event handlers
         self.register('system.quit', sys.exit)
-                        
+        self.register('input.keyboard.down.p', self.previous)
+        self.register('input.keyboard.down.n', self.next)
+        self.register('input.keyboard.down.q', sys.exit)
+        self.register('input.keyboard.down.escape', sys.exit)
+                                
     def set_animation(self):
         self.title.render(ANIMATIONS[self.index][0])
         self.block.stop_all_animations()
@@ -92,19 +96,6 @@ class AnimationExamples(Scene):
         self.index -= 1
         self.index %= len(ANIMATIONS)
         self.set_animation()
-        
-    def update(self, dt):
-        for event in self.event_handler.get():
-            if event['type'] == 'KEYDOWN':
-                if event['ascii'] == 'p':
-                    self.previous()
-                elif event['ascii'] == 'n':
-                    self.next()
-                elif event['ascii'] == 'q':
-                    spyral.quit()
-                    sys.exit()
-                    
-        self.camera.update(dt)
 
 if __name__ == "__main__":
     spyral.init()
