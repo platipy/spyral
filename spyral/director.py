@@ -84,13 +84,13 @@ def replace(scene):
     calling it.
     """
     if _stack:
+        spyral.event.handle('spyral.director.scene.exit')
         old = _stack.pop()
-        old.on_exit()
         spyral.sprite._switch_scene()
         _camera._exit_scene(old)
     _stack.append(scene)
     _camera._enter_scene(scene)
-    scene.on_enter()
+    spyral.event.handle('spyral.director.scene.enter')
     pygame.event.get()
 
 def pop():
@@ -103,14 +103,14 @@ def pop():
     """
     if len(_stack) < 1:
         return
+    spyral.event.handle('spyral.director.scene.exit')
     scene = _stack.pop()
-    scene.on_exit()
     spyral.sprite._switch_scene()
     _camera._exit_scene(scene)
     if _stack:
         scene = _stack[-1]
         _camera._enter_scene(scene)
-        scene.on_enter()
+        spyral.event.handle('spyral.director.scene.enter')
     else:
         exit(0)
     pygame.event.get()
@@ -123,13 +123,13 @@ def push(scene):
     calling it.
     """
     if _stack:
+        spyral.event.handle('spyral.director.scene.exit')
         old = _stack[-1]
-        old.on_exit()
         spyral.sprite._switch_scene()
         _camera._exit_scene(old)
     _stack.append(scene)
     _camera._enter_scene(scene)
-    scene.on_enter()
+    spyral.event.handle('spyral.director.scene.enter')
     pygame.event.get()
 
 def run(sugar=False, profiling=False):

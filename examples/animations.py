@@ -2,7 +2,6 @@ try:
     import _path
 except NameError:
     pass
-import pygame
 import spyral
 from spyral.sprite import Sprite
 from spyral.animation import Animation, DelayAnimation
@@ -36,28 +35,29 @@ ANIMATIONS = [
 ]
 
 class TextSprite(Sprite):
-    def __init__(self, camera, font):
+    def __init__(self, font, camera=None):
         Sprite.__init__(self, camera=camera)
         self.font = font
         
     def render(self, text):
         self.image = self.font.render(text)
 
-
-
 class AnimationExamples(Scene):
     def __init__(self):
         Scene.__init__(self)
         self.camera = self.parent_camera.make_child(SIZE)
+        bg = spyral.Image(size=SIZE)
+        bg.fill(BG_COLOR)
+        self.camera.set_background(bg)
         
         font = spyral.Font(None, FONT_SIZE, FG_COLOR)
         
-        self.title = TextSprite(self.camera, font)
+        self.title = TextSprite(font)
         self.title.anchor = 'center'
         self.title.pos = (SIZE[0] / 2, 30)
         self.title.render("N")
         
-        self.block = Sprite(self.camera)
+        self.block = Sprite()
         self.block.image = spyral.Image(size=(40,40))
         self.block.image.fill(FG_COLOR)
         self.block.y = 300
@@ -66,17 +66,19 @@ class AnimationExamples(Scene):
         
         self.set_animation()
         
-        instructions = TextSprite(self.camera, font)
+        instructions = TextSprite(font)
         instructions.anchor = 'midbottom'
         instructions.x = 320
         instructions.y = 470
         instructions.render("n: next example  p: previous example  q: quit")
-                
-    def on_enter(self):
-        bg = spyral.Image(size=SIZE)
-        bg.fill(BG_COLOR)
-        self.camera.set_background(bg)
         
+        # Register all event handlers
+        self.register('system.quit', sys.exit)
+        self.register('input.keyboard.down.p', self.previous)
+        self.register('input.keyboard.down.n', self.next)
+        self.register('input.keyboard.down.q', sys.exit)
+        self.register('input.keyboard.down.escape', sys.exit)
+                                
     def set_animation(self):
         self.title.render(ANIMATIONS[self.index][0])
         self.block.stop_all_animations()
@@ -94,25 +96,6 @@ class AnimationExamples(Scene):
         self.index -= 1
         self.index %= len(ANIMATIONS)
         self.set_animation()
-    
-    def render(self):
-        self.camera.draw()
-        
-    def update(self, dt):
-        for event in self.event_handler.get():
-            if event['type'] == 'QUIT':
-                spyral.quit()
-                sys.exit()
-            if event['type'] == 'KEYDOWN':
-                if event['ascii'] == 'p':
-                    self.previous()
-                elif event['ascii'] == 'n':
-                    self.next()
-                elif event['ascii'] == 'q':
-                    spyral.quit()
-                    sys.exit()
-                    
-        self.camera.update(dt)
 
 if __name__ == "__main__":
     spyral.init()

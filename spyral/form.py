@@ -14,7 +14,7 @@ def get_default_style():
     return _style
 
 class ButtonWidget(spyral.Sprite):
-    def __init__(self, camera, text, width = None, style = None):
+    def __init__(self, text, width = None, style = None, camera = None):
         spyral.Sprite.__init__(self, camera)
         if style is None:
             style = get_default_style()
@@ -104,19 +104,19 @@ class ButtonWidget(spyral.Sprite):
             self._focused = False
         
 class ToggleButtonWidget(spyral.Sprite):
-    def __init__(self, camera, text, style = None):
+    def __init__(self, text, style = None, camera = None):
         spyral.Sprite.__init__(self, camera)
 
 class CheckboxWidget(spyral.Sprite):
-    def __init__(self, camera, text, style = None):
+    def __init__(self, text, style = None, camera = None):
         spyral.Sprite.__init__(self, camera)
 
 class RadioButton(spyral.Sprite):
-    def __init__(self, camera, value, style = None):
+    def __init__(self, value, style = None, camera = None):
         spyral.Sprite.__init__(self, camera)
         
 class RadioGroup(object):
-    def __init__(self, camera, *buttons):
+    def __init__(self, buttons, camera = None):
         spyral.Sprite.__init__(self, camera)
 
 class FormStyle(object):
@@ -195,7 +195,7 @@ class FormStyle(object):
         return image  
     
 class Form(spyral.AggregateSprite):
-    def __init__(self, camera, name, manager, style = None):
+    def __init__(self, name, manager, style = None, camera = None):
         """
         [INSERT DESCRIPTION HERE]
         
@@ -378,7 +378,7 @@ class Form(spyral.AggregateSprite):
 
 
 class TextInputWidget(spyral.AggregateSprite):            
-    def __init__(self, camera, width, value = '', default_value = True, max_length = None, style = None, validator = None):
+    def __init__(self, width, value = '', default_value = True, max_length = None, style = None, validator = None, camera = None):
         spyral.AggregateSprite.__init__(self, camera)
         
         if style is None:

@@ -27,6 +27,10 @@ Spyral:
     spyral.config
         - smoothscale v scale
         - number of frames till static blit caching
+    * Mouse Cursor Hiding
+    * Keyboard repeating
+    * More sensetive input time handling?
+    * Investigate behavior with naming keys in events with modifier keys
         
     
 Platipy:

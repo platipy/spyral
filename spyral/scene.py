@@ -150,37 +150,23 @@ class Scene(object):
     def register_multiple_dynamic(self, event_namespace, handler_strings, args = None, kwargs = None, priority = 0):
         self._reg_internal(event_namespace, handler_strings, args, kwargs, priority, True)
         
+    def unregister(self, event_namespace, handler):
+        """
+        Unregisters a registered handler. Dynamic handler strings are supported as well.
+        """
+        if event_namespace.endswith(".*"):
+            event_namespace = event_namespace[:-2]
+        self._handlers[event_namespace] = [h for h in self._handlers[event_namespace] if h[0] != handler]
+        
+    def clear_namespace(self, namespace):
+        """
+        Clears all handlers from namespaces that are at least as specific as the provided namespace.
+        """
+        if namespace.endswith(".*"):
+            namespace = namespace[:-2]
+        ns = [n for n in self._namespaces if n.startswith(namespace)]
+        for namespace in ns:
+            self._handlers[namespace] = []
+        
     def set_event_source(self, source):
         self._event_source = source
-
-    # User Defined Methods
-
-    def on_exit(self):
-        """
-        Called by the director when this scene is about to run.
-        """
-        pass
-
-    def on_enter(self):
-        """
-        Called by the director when this scene is exiting.
-        """
-        pass
-
-    def render(self):
-        """
-        Called by the director when a new frame needs to be rendered.
-        """
-        pass
-
-    def update(self, tick):
-        """
-        Called by the director when a new game logic step should be taken.
-        """
-        pass
-
-    def redraw(self):
-        """
-        Advanced: Called by the director if the scene should force redraw of non-spyral based assets, like PGU
-        """
-        pass
