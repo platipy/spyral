@@ -1,4 +1,9 @@
 Spyral:
+    * Event unregistering
+      - All events in a namespace
+      - A specific namespace -> handler mapping
+    * Events for Animations
+      - e.g. on_animation_end
     * Move animation code into Sprites
     * Get rid of sprite.update
     * Let Scenes be actors
