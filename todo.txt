@@ -1,4 +1,5 @@
 Spyral:
+    * Fix Redrawing
     * Event unregistering
       - All events in a namespace
       - A specific namespace -> handler mapping
