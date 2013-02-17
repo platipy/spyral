@@ -32,6 +32,8 @@ Spyral:
     * Keyboard repeating
     * More sensetive input time handling?
     * Investigate behavior with naming keys in events with modifier keys
+    * How should sprite.kill work with AggregateSprites? 
+    * How about AggregateSprite.remove?
         
     
 Platipy:
