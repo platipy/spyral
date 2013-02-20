@@ -1,11 +1,7 @@
 Spyral:
-    * Fix Redrawing
     * Event unregistering
       - All events in a namespace
       - A specific namespace -> handler mapping
-    * Events for Animations
-      - e.g. on_animation_end
-    * Move animation code into Sprites
     * Get rid of sprite.update
     * Let Scenes be actors
     * Fix AggregateSprites
@@ -34,6 +30,11 @@ Spyral:
     * Investigate behavior with naming keys in events with modifier keys
     * How should sprite.kill work with AggregateSprites? 
     * How about AggregateSprite.remove?
+    * Better error messages if events are queued/fired while a Scene isn't started (also maybe in the context of another scene)
+
+Documentation:
+    * Clarify difference between running animations on sprite (non-blocking, backgrounded) vs actors (blocks the actor for the animation time)
+
         
     
 Platipy:

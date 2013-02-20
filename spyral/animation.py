@@ -33,8 +33,6 @@ class Animation(object):
         self.properties = set((property,))
         self._shift = shift
         
-        self.on_complete = spyral.Signal()
-
     def evaluate(self, sprite, progress):
         progress = progress / self.duration
         value = self.animator(sprite, progress)
@@ -92,7 +90,6 @@ class MultiAnimation(Animation):
             if p in self.properties and self.properties.intersection(others):
                 raise ValueError("Cannot animate on %s and %s in the same animation." % (p, str(self.properties.intersection(others).pop())))
         self.loop = kwargs.get('loop', self.loop)
-        self.on_complete = spyral.Signal()
 
     def evaluate(self, sprite, progress):
         res = {}
@@ -130,7 +127,6 @@ class SequentialAnimation(Animation):
                 raise ValueError("Looping animation in the middle of a sequence is not allowed.")
         if animations[-1].loop is True:
             self.loop = self.duration - animations[-1].duration
-        self.on_complete = spyral.Signal()
 
     def evaluate(self, sprite, progress):
         res = {}
@@ -159,7 +155,6 @@ class DelayAnimation(Animation):
         self.properties = set([])
         self.duration = duration
         self.loop = False
-        self.on_complete = spyral.Signal()
 
     def evaluate(self, sprite, progress):
         return {}

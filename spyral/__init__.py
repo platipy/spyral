@@ -18,7 +18,6 @@ all_by_module = {
     'spyral.scene' : ['Scene'],
     'spyral.image' : ['Image'],
     'spyral.vector' : ['Vec2D'],
-    'spyral.signal' : ['Signal'],
     'spyral.rect' : ['Rect'],
     'spyral.animation' : ['Animation'],
     'spyral.core' : ['init', 'quit', '_get_executing_scene'],

@@ -37,8 +37,8 @@ class Scene(object):
         self._pending = []
         self._greenlets = {} # Maybe need to weakref dict
         
-        self.register('spyral.director.update', self.handle_events)
-        self.register('spyral.director.update', self.run_actors, ('dt',))
+        self.register('director.update', self.handle_events)
+        self.register('director.update', self.run_actors, ('dt',))
     
     # Internal Methods
     

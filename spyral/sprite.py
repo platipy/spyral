@@ -76,7 +76,7 @@ class Sprite(object):
         self._animations = []
         self._progress = {}
         
-        self._scene.register('spyral.director.render', self.draw)
+        self._scene.register('director.render', self.draw)
         
     def _set_static(self):
         self._make_static = True
@@ -378,12 +378,14 @@ class Sprite(object):
                 raise ValueError(
                     "Cannot animate on propety %s twice" % animation.property)
         if len(self._animations) == 0:
-            self._scene.register('spyral.director.update',
+            self._scene.register('director.update',
                                  self._run_animations,
                                  ('dt', ))
         self._animations.append(animation)
         self._progress[animation] = 0
         self._evaluate(animation, 0.0)
+        e = spyral.Event(animation=animation, sprite=self)
+        spyral.event.handle("sprites.%s.animation.start", e)
 
     def stop_animation(self, animation):
         """
@@ -393,7 +395,9 @@ class Sprite(object):
             self._animations.remove(animation)
             del self._progress[animation]
             if len(self._animations) == 0:
-                self._scene.unregister('spyral.director.update', self._run_animations)
+                self._scene.unregister('director.update', self._run_animations)
+                e = spyral.Event(animation=animation, sprite=self)
+                spyral.event.handle("sprites.%s.animation.end", e)
 
 
     def stop_all_animations(self):
