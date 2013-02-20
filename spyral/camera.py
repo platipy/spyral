@@ -358,7 +358,7 @@ class Camera(object):
         return None
 
     def redraw(self):
-        self._clear_this_frame.append(self.get_rect())
+        self._clear_this_frame.append(pygame.Rect((0,0), self._vsize))
 
     def _stop_animation(self, animation, sprite):
         if sprite in self._animations and animation in self._animations[sprite]:

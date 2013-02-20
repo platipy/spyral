@@ -169,7 +169,8 @@ def run(sugar=False, profiling=False):
                         gtk.main_iteration()
                 if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
                     camera.redraw()
-                    scene.redraw()
+                    spyral.event.handle("spyral.director.redraw")
+
                 scene._event_source.tick()
                 events = scene._event_source.get()
                 for event in events:

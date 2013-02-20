@@ -27,32 +27,11 @@ class Game(spyral.Scene):
         # case we'll use the same as the window size, but this doesn't have to be
         # the case
         self.camera = self.parent_camera.make_child(SIZE)
-        self.initialized = False
-        
-        self.register("system.quit", sys.exit)
-        
-    def on_enter(self):
-        # Some things you may wish to do every time you enter the scene
-        if self.initialized:
-            return
-        self.initialized = True
-        # Other things you may want to do only once
         bg = spyral.Image(size=SIZE)
         bg.fill(BG_COLOR)
         self.camera.set_background(bg)
-        # More setup here
-                
-    def render(self):
-        """
-        The render function should call .draw() on the scene's camera(s).
-        Unless your game logic should be bound by framerate,
-        logic should go elsewhere.
-        """
-        self.camera.draw()
         
-    def quit(self):
-        spyral.quit()
-        sys.exit()
+        self.register("system.quit", sys.exit)
         
     def update(self, dt):
         """
