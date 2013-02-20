@@ -443,7 +443,7 @@ class AggregateSprite(Sprite):
         Adds a child to this AggregateSprite.
         """
         self._internal_group.add(sprite)
-        self._scene.unregister("spyral.director.render", sprite.draw)
+        self._scene.unregister("director.render", sprite.draw)
         
     def remove_child(self, sprite):
         """

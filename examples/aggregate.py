@@ -18,6 +18,9 @@ class Game(spyral.Scene):
         self.camera.set_background(bg)
 
         self.register("system.quit", sys.exit)
+        self.register("director.scene.enter", self.start)
+
+    def start(self):
         
         s = spyral.AggregateSprite()
         s.image = spyral.Image(size=(10,10)).draw_circle((255, 255, 255), (5,5), 5)
@@ -35,8 +38,8 @@ class Game(spyral.Scene):
                                             radius = lambda theta: 30),
                                             duration = 0.5,
                                             loop = True)
-        c.animate(a)
         s.add_child(c)
+        c.animate(a)
         
         
 
