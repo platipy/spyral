@@ -53,7 +53,7 @@ class Scene(object):
         return False
 
     
-    def _queue_event(self, type, event):
+    def _queue_event(self, type, event = None):
         if self._handling_events:
             self._pending.append((type, event))
         else:
@@ -90,7 +90,7 @@ class Scene(object):
         if handler is not None:
             handler(*args, **kwargs)
     
-    def _handle_event(self, type, event):
+    def _handle_event(self, type, event = None):
         for handler_info in itertools.chain.from_iterable(self._handlers[namespace] for namespace in self._get_namespaces(type)):
             if self._send_event_to_handler(event, *handler_info):
                 break

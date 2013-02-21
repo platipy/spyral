@@ -47,11 +47,15 @@ def init():
         pygame.VIDEOEXPOSE: "system.video_expose",
     }
     
-def queue(type, event = None):
-    spyral.director.get_scene()._queue_event(type, event)
+def queue(type, event = None, _scene = None):
+    if _scene is None:
+        _scene = spyral._get_executing_scene()
+    _scene._queue_event(type, event)
 
-def handle(type, event = None):
-    spyral.director.get_scene()._handle_event(type, event)
+def handle(type, event = None, _scene = None):
+    if _scene is None:
+        _scene = spyral._get_executing_scene()
+    _scene._handle_event(type, event)
 
 def _pygame_to_spyral(event):
     attrs = _type_to_attrs[event.type]

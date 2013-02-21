@@ -84,13 +84,13 @@ def replace(scene):
     calling it.
     """
     if _stack:
-        spyral.event.handle('director.scene.exit')
+        spyral.event.handle('director.scene.exit', _scene = _stack[-1])
         old = _stack.pop()
         spyral.sprite._switch_scene()
         _camera._exit_scene(old)
     _stack.append(scene)
     _camera._enter_scene(scene)
-    spyral.event.handle('director.scene.enter')
+    spyral.event.handle('director.scene.enter', _scene = scene)
     pygame.event.get()
 
 def pop():
@@ -103,14 +103,14 @@ def pop():
     """
     if len(_stack) < 1:
         return
-    spyral.event.handle('director.scene.exit')
+    spyral.event.handle('director.scene.exit', _scene = _stack[-1])
     scene = _stack.pop()
     spyral.sprite._switch_scene()
     _camera._exit_scene(scene)
     if _stack:
         scene = _stack[-1]
         _camera._enter_scene(scene)
-        spyral.event.handle('director.scene.enter')
+        spyral.event.handle('director.scene.enter', _scene = scene)
     else:
         exit(0)
     pygame.event.get()
@@ -123,13 +123,13 @@ def push(scene):
     calling it.
     """
     if _stack:
-        spyral.event.handle('director.scene.exit')
+        spyral.event.handle('director.scene.exit', _scene = _stack[-1])
         old = _stack[-1]
         spyral.sprite._switch_scene()
         _camera._exit_scene(old)
     _stack.append(scene)
     _camera._enter_scene(scene)
-    spyral.event.handle('director.scene.enter')
+    spyral.event.handle('director.scene.enter', _scene = scene)
     pygame.event.get()
 
 def run(sugar=False, profiling=False):
@@ -157,10 +157,10 @@ def run(sugar=False, profiling=False):
             old_scene = scene
 
             def frame_callback(interpolation):
-                spyral.event.handle("director.pre_render")
-                spyral.event.handle("director.render")
+                scene._handle_event("director.pre_render")
+                scene._handle_event("director.render")
                 camera._draw()
-                spyral.event.handle("director.post_render")
+                scene._handle_event("director.post_render")
 
             def update_callback(dt):
                 global _tick
@@ -169,16 +169,16 @@ def run(sugar=False, profiling=False):
                         gtk.main_iteration()
                 if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
                     camera.redraw()
-                    spyral.event.handle("director.redraw")
+                    scene._handle_event("director.redraw")
 
                 scene._event_source.tick()
                 events = scene._event_source.get()
                 for event in events:
                     scene._queue_event(*spyral.event._pygame_to_spyral(event))
-                spyral.event.handle("director.pre_update")
-                spyral.event.handle("director.update", spyral.Event(dt=dt))
+                scene._handle_event("director.pre_update")
+                scene._handle_event("director.update", spyral.Event(dt=dt))
                 _tick += 1
-                spyral.event.handle("director.post_update")
+                scene._handle_event("director.post_update")
             clock.frame_callback = frame_callback
             clock.update_callback = update_callback
         clock.tick()
