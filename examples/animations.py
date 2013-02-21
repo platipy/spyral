@@ -64,6 +64,8 @@ class AnimationExamples(Scene):
         
         self.index = 0
         
+        self.set_animation()
+        
         instructions = TextSprite(font)
         instructions.anchor = 'midbottom'
         instructions.x = 320
@@ -76,7 +78,6 @@ class AnimationExamples(Scene):
         self.register('input.keyboard.down.n', self.next)
         self.register('input.keyboard.down.q', sys.exit)
         self.register('input.keyboard.down.escape', sys.exit)
-        self.register('director.scene.enter', self.set_animation)
 
                                 
     def set_animation(self):
