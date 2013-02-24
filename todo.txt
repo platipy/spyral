@@ -1,10 +1,5 @@
 Spyral:
-    * Event unregistering
-      - All events in a namespace
-      - A specific namespace -> handler mapping
-    * Get rid of sprite.update
     * Let Scenes be actors
-    * Fix AggregateSprites
     * Add sprite.kill
     * Fix clock bug
     * Namespace Memoization
@@ -30,7 +25,7 @@ Spyral:
     * Investigate behavior with naming keys in events with modifier keys
     * How should sprite.kill work with AggregateSprites? 
     * How about AggregateSprite.remove?
-    * Better error messages if events are queued/fired while a Scene isn't started (also maybe in the context of another scene)
+    * Add greenlet to requirements.txt
 
 Documentation:
     * Clarify difference between running animations on sprite (non-blocking, backgrounded) vs actors (blocks the actor for the animation time)
