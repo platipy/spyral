@@ -4,7 +4,9 @@ import yaml
 import collections
 import operator
 import itertools
-import greenlet        
+import greenlet
+import inspect
+import sys
 
 class Scene(object):
     """
@@ -60,10 +62,6 @@ class Scene(object):
             self._events.append((type, event))
 
     def _reg_internal(self, namespace, handlers, args, kwargs, priority, dynamic):
-        if args is None:
-            args = tuple()
-        if kwargs is None:
-            kwargs = {}
         if namespace.endswith(".*"):
             namespace = namespace[:-2]
         self._namespaces.add(namespace)
@@ -75,18 +73,49 @@ class Scene(object):
         return [n for n in self._namespaces if namespace.startswith(n)]
         
     def _send_event_to_handler(self, event, handler, args, kwargs, priority, dynamic):
-        try:
-            args = [getattr(event, attr) for attr in args]
-            kwargs = dict((attr, getattr(event, attr2)) for attr, attr2 in kwargs.iteritems())
-        except Exception:
-            pass # Do some error printing
+        fillval = "__spyral_itertools_fillvalue__"
+        def _get_arg_val(arg, default = fillval):
+            if arg == 'event':
+                return event
+            elif hasattr(event, arg):
+                return getattr(event, arg)
+            else:
+                if default != fillval:
+                    return default
+                raise TypeError("Handler expects an argument of named %s, %s does not have that." % (arg, str(event)))
+
         if dynamic is True:
             h = handler
             handler = self
             for piece in h.split("."):
                 handler = getattr(handler, piece, None)
                 if handler is None:
-                    break
+                    return
+        if handler is sys.exit and args is None and kwargs is None:
+            # This is a dirty hack. If only Python's builtin functions worked better
+            args = []
+            kwargs = {}
+        elif args is None and kwargs is None:
+            # Autodetect the arguments 
+            try:
+                h_argspec = inspect.getargspec(handler)
+            except Exception, e:
+                raise Exception("Unfortunate Python Problem! %s isn't supported by Python's inspect module! Oops." % str(handler))
+            h_args = h_argspec.args
+            h_defaults = h_argspec.defaults or tuple()
+            if 'self' == h_args[0]:
+                h_args.pop(0)
+            d = len(h_args) - len(h_defaults)
+            if d > 0:
+                h_defaults = [fillval] * d + list(*h_defaults)
+            args = [_get_arg_val(arg, default) for arg, default in zip(h_args, h_defaults)]
+            kwargs = {}
+        elif args is None:
+            args = []
+            kwargs = dict([(arg, _get_arg_val(arg)) for arg in kwargs])
+        else:
+            args = [_get_arg_val(arg) for arg in args]
+            kwargs = {}
         if handler is not None:
             handler(*args, **kwargs)
     
@@ -157,7 +186,7 @@ class Scene(object):
         if event_namespace.endswith(".*"):
             event_namespace = event_namespace[:-2]
         self._handlers[event_namespace] = [h for h in self._handlers[event_namespace] if h[0] != handler]
-        
+
     def clear_namespace(self, namespace):
         """
         Clears all handlers from namespaces that are at least as specific as the provided namespace.
