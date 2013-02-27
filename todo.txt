@@ -1,4 +1,5 @@
 Spyral:
+    * Can director.run consume an optional Scene? How often do you not want to run the game without one?
     * Let Scenes be actors
     * Add sprite.kill
     * Fix clock bug
