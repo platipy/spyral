@@ -1,6 +1,5 @@
 import spyral
 import time
-import yaml
 import collections
 import operator
 import itertools
@@ -145,25 +144,7 @@ class Scene(object):
             if d is False:
                 break
             g.switch(d, True)
-    
-    def load_style(self, filename):
-        style = yaml.load(open(filename, 'r'))
-        result = self.parse(style)
-        print result
-    
-    def parse(self, style):
-        result = {}
-        try:
-            for k, v in style.items():
-                try:
-                    value = eval(v)
-                    result[k] = value
-                except Exception, e:
-                    result[k] = self.parse(v)
-            return result
-        except Exception, e:
-            return style
-        
+            
     def register(self, event_namespace, handler, args = None, kwargs = None, priority = 0):
         """
         I'm gonna pop some tags.
