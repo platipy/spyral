@@ -1,0 +1,60 @@
+newline_ = ('\r' '\n' | '\r' | '\n' | ';')+
+comment = '#' <(~newline_ anything)*>
+ws = (' ' | '\t')* -> None
+
+trailing_content = (' ' | '\t')* comment?
+newline = trailing_content newline_ -> None
+
+alpha = anything:x ?(x in string.ascii_letters) -> x
+digit = anything:x ?(x in string.digits) -> x
+name_characters = (alpha | digit | '_')
+
+# Types of constants
+integer = <(digit+)>:s -> int(s)
+true = 'T' 'r' 'u' 'e' -> True
+false = 'F' 'a' 'l' 's' 'e' -> False
+none = 'N' 'o' 'n' 'e' -> None
+float = (<int_part? '.' int_part> | <int_part '.'>):f -> leval(f)
+int_part = <digit+>
+
+identifier = <((alpha | '_') name_characters*)>:i -> i
+assignment = ws identifier:identifier ws '=' ws (expression):value trailing_content? -> parser.assign(identifier, value)
+property_set = ws identifier:identifier ws ':' ws (expression):value trailing_content? -> parser.set_property(identifier, value)
+
+
+# Expressions
+# tuple_e = '(' ws expression:first (comma_expression*):rest ws ','? ws ')' -> tuple([first] + rest) if len(rest) != 1 else Vec2D(first, rest[0])
+tuple_e = '(' ws expression:first (comma_expression*):rest ws ','? ws ')' -> tuple([first] + rest)
+constant_e = (float | integer | true | false | none | tuple_e | string_e):c -> c
+identifier_e = identifier:i -> parser.lookup(i)
+comma_expression = ',' ws expression:e -> e
+paren_e = '(' ws expression:e ws ')' -> e
+string_e = (string_single | string_double):s -> s
+string_single = '\'' <('\\' anything | ~'\'' ~'\n' anything)*>:s '\'' -> leval("'%s'" % s)
+string_double = '"' <('\\' anything | ~'"' ~'\n' anything)*>:s '"' -> leval('"%s"' % s)
+
+
+
+simple_expression = (paren_e | constant_e | identifier_e):expr -> expr
+expression = arithmetic | simple_expression
+
+add = '+' ws arithmetic2:n -> ('+', n)
+sub = '-' ws arithmetic2:n -> ('-', n)
+mul = '*' ws simple_expression:n -> ('*', n)
+div = '/' ws simple_expression:n -> ('/', n)
+
+addsub = ws (add | sub)
+muldiv = ws (mul | div)
+
+arithmetic = arithmetic2:left addsub*:right -> parser.calculate(left, right)
+arithmetic2 = simple_expression:left muldiv*:right -> parser.calculate(left, right)
+
+
+
+comma_identifier = ws ',' ws identifier:i -> i
+csv_identifiers = ws identifier:i (comma_identifier*):l -> [i] + l
+
+block = ws csv_identifiers:idents ws !(parser.push(idents)) '{' (newline | property_set | block)*:props ws '}' !(parser.pop()) -> ('block', idents, props)
+
+
+all = (newline | assignment | comment | block)*

@@ -75,9 +75,10 @@ class Sprite(object):
         self._flip_y = False
         self._animations = []
         self._progress = {}
-        
+
+        self._scene.apply_style(self.__class__.__name__, self)
         self._scene.register('director.render', self.draw)
-        
+
     def _set_static(self):
         self._make_static = True
         self._static = True

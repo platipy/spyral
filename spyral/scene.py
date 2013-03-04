@@ -37,6 +37,7 @@ class Scene(object):
         self._events = []
         self._pending = []
         self._greenlets = {} # Maybe need to weakref dict
+        self._style_parser = None
         
         self.register('director.update', self.handle_events)
         self.register('director.update', self.run_actors, ('dt',))
@@ -180,3 +181,18 @@ class Scene(object):
         
     def set_event_source(self, source):
         self._event_source = source
+
+    def load_style(self, path):
+        if self._style_parser is None:
+            self._style_parser = spyral._style.StyleParser()
+        self._style_parser.parse(open(path, "r").read())
+
+    def apply_style(self, style_name, object):
+        if self._style_parser is None:
+            return
+        if style_name not in self._style_parser.properties:
+            return
+
+        properties = self._style_parser.properties[style_name]
+        for property, value in properties.iteritems():
+            setattr(object, property, value)
