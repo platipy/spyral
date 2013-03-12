@@ -132,13 +132,15 @@ def push(scene):
     spyral.event.handle('director.scene.enter', _scene = scene)
     pygame.event.get()
 
-def run(sugar=False, profiling=False):
+def run(sugar=False, profiling=False, scene=None):
     """
     Runs the scene as dictated by the stack.
 
     If profiling is enabled, this function will return on every
     scene change so that scenes can be profiled independently.
     """
+    if scene is not None:
+        push(scene)
     if sugar:
         import gtk
     if not _stack:
