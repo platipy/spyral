@@ -9,8 +9,8 @@ SIZE = (600, 600)
 BG_COLOR = (0, 0, 0)
     
 class StupidSprite(spyral.Sprite, spyral.Actor):
-    def __init__(self, camera):
-        spyral.Sprite.__init__(self, camera)
+    def __init__(self, scene):
+        spyral.Sprite.__init__(self, scene)
         spyral.Actor.__init__(self)
         
         self.image = spyral.Image(size=(10, 10))
@@ -31,22 +31,19 @@ class StupidSprite(spyral.Sprite, spyral.Actor):
          
 class Game(spyral.Scene):
     def __init__(self):
-        spyral.Scene.__init__(self)
+        spyral.Scene.__init__(self, SIZE)
         self.clock.max_ups = 60.
-        self.camera = self.parent_camera.make_child(SIZE)
         bg = spyral.Image(size=SIZE)
         bg.fill(BG_COLOR)
-        self.camera.set_background(bg)
+        self.set_background(bg)
 
         def add_new_box():
-            StupidSprite(self.camera)
+            StupidSprite(self)
         add_new_box()
         
         self.register('system.quit', sys.exit)            
         self.register('input.keyboard.down', add_new_box)
         
 if __name__ == "__main__":
-    spyral.init()
     spyral.director.init(SIZE)
-    spyral.director.push(Game())
-    spyral.director.run()
+    spyral.director.run(scene=Game())

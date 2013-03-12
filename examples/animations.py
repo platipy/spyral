@@ -35,8 +35,8 @@ ANIMATIONS = [
 ]
 
 class TextSprite(Sprite):
-    def __init__(self, font, camera=None):
-        Sprite.__init__(self, camera=camera)
+    def __init__(self, scene, font):
+        Sprite.__init__(self, scene)
         self.font = font
         
     def render(self, text):
@@ -44,20 +44,19 @@ class TextSprite(Sprite):
 
 class AnimationExamples(Scene):
     def __init__(self):
-        Scene.__init__(self)
-        self.camera = self.parent_camera.make_child(SIZE)
+        Scene.__init__(self, SIZE)
         bg = spyral.Image(size=SIZE)
         bg.fill(BG_COLOR)
-        self.camera.set_background(bg)
+        self.set_background(bg)
         
         font = spyral.Font(None, FONT_SIZE, FG_COLOR)
         
-        self.title = TextSprite(font)
+        self.title = TextSprite(self, font)
         self.title.anchor = 'center'
         self.title.pos = (SIZE[0] / 2, 30)
         self.title.render("N")
         
-        self.block = Sprite()
+        self.block = Sprite(self)
         self.block.image = spyral.Image(size=(40,40))
         self.block.image.fill(FG_COLOR)
         self.block.y = 300
@@ -66,7 +65,7 @@ class AnimationExamples(Scene):
         
         self.set_animation()
         
-        instructions = TextSprite(font)
+        instructions = TextSprite(self, font)
         instructions.anchor = 'midbottom'
         instructions.x = 320
         instructions.y = 470
@@ -101,5 +100,4 @@ class AnimationExamples(Scene):
 if __name__ == "__main__":
     spyral.init()
     spyral.director.init(SIZE)
-    spyral.director.push(AnimationExamples())
-    spyral.director.run()
+    spyral.director.run(scene=AnimationExamples())
