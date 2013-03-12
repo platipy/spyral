@@ -23,8 +23,7 @@ property_set = ws identifier:identifier ws ':' ws (expression):value trailing_co
 
 
 # Expressions
-# tuple_e = '(' ws expression:first (comma_expression*):rest ws ','? ws ')' -> tuple([first] + rest) if len(rest) != 1 else Vec2D(first, rest[0])
-tuple_e = '(' ws expression:first (comma_expression*):rest ws ','? ws ')' -> tuple([first] + rest)
+tuple_e = '(' ws expression:first (comma_expression*):rest ws ','? ws ')' -> tuple([first] + rest) if len(rest) != 1 else Vec2D(first, rest[0])
 constant_e = (float | integer | true | false | none | tuple_e | string_e):c -> c
 identifier_e = identifier:i -> parser.lookup(i)
 comma_expression = ',' ws expression:e -> e

@@ -12,7 +12,8 @@ def init():
     parser.parser = parsley.makeGrammar(open(spyral._get_spyral_path() + 'resources/style.parsley', "r").read(),
                                           {"string": string,
                                            "parser": parser,
-                                           "leval": literal_eval})
+                                           "leval": literal_eval,
+                                           "Vec2D": spyral.Vec2D})
 
 def parse(style, scene):
     parser.scene = scene
