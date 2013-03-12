@@ -218,10 +218,17 @@ class Scene(object):
     def apply_style(self, object):
         if not hasattr(object, "__stylize__"):
             raise spyral.NotStylableError("%r is not an object which can be styled." % object)
+        properties = {}
+        for cls in reversed(object.__class__.__mro__[1:-1]):
+            name = cls.__name__
+            if name not in self._style_properties:
+                continue
+            properties.update(self._style_properties[name])
         name = getattr(object, "__style__", object.__class__.__name__)
-        if name not in self._style_properties:
-            return
-        object.__stylize__(self._style_properties[name])
+        if name in self._style_properties:
+            properties.update(self._style_properties[name])
+        if properties != {}:
+            object.__stylize__(properties)
 
     def add_style_function(self, name, function):
         self._style_functions[name] = function
