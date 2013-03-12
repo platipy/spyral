@@ -6,6 +6,7 @@ import itertools
 import greenlet
 import inspect
 import sys
+from collections import defaultdict
 
 class Scene(object):
     """
@@ -37,7 +38,12 @@ class Scene(object):
         self._events = []
         self._pending = []
         self._greenlets = {} # Maybe need to weakref dict
-        self._style_parser = None
+
+        self._style_symbols = {}
+        self._style_classes = []
+        self._style_properties = defaultdict(lambda: {})
+        self._style_functions = {}
+
         
         self.register('director.update', self.handle_events)
         self.register('director.update', self.run_actors, ('dt',))
@@ -103,7 +109,7 @@ class Scene(object):
                 raise Exception("Unfortunate Python Problem! %s isn't supported by Python's inspect module! Oops." % str(handler))
             h_args = h_argspec.args
             h_defaults = h_argspec.defaults or tuple()
-            if 'self' == h_args[0]:
+            if len(h_args) > 0 and 'self' == h_args[0]:
                 h_args.pop(0)
             d = len(h_args) - len(h_defaults)
             if d > 0:
@@ -183,16 +189,12 @@ class Scene(object):
         self._event_source = source
 
     def load_style(self, path):
-        if self._style_parser is None:
-            self._style_parser = spyral._style.StyleParser()
-        self._style_parser.parse(open(path, "r").read())
+        spyral._style.parse(open(path, "r").read(), self)
 
     def apply_style(self, style_name, object):
-        if self._style_parser is None:
-            return
-        if style_name not in self._style_parser.properties:
+        if style_name not in self._style_properties:
             return
 
-        properties = self._style_parser.properties[style_name]
+        properties = self._style_properties[style_name]
         for property, value in properties.iteritems():
             setattr(object, property, value)

@@ -10,7 +10,8 @@ def init():
         return
     _inited = True
     spyral.event.init()
-    pygame.init()
+    spyral._style.init()
+    pygame.display.init()
     pygame.font.init()
 
 def quit():
