@@ -104,7 +104,7 @@ class Camera(object):
         """
         if real_size == (0, 0) or real_size is None:
             real_size = self.get_size()
-        y = spyral.camera.Camera(virtual_size, real_size, offset, layers, 0)
+        y = spyral._camera.Camera(virtual_size, real_size, offset, layers, 0)
         y._parent = self
         offset = spyral.Vec2D(offset) * self._scale
         y._offset = offset + self._offset

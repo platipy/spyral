@@ -14,10 +14,8 @@ class Scene(object):
 
     *self.clock* will contain an instance of GameClock which can be replaced
     or changed as is needed.
-    *self.parent_camera* will contain a Camera object that this scene should
-    use as the basis for all of it's cameras.
     """
-    def __init__(self, parent_camera=None, max_ups=None, max_fps=None):
+    def __init__(self, size, max_ups=None, max_fps=None):
         """
         By default, max_ups and max_fps are pulled from the director.
         """
@@ -27,10 +25,8 @@ class Scene(object):
             max_fps=max_fps or spyral.director._max_fps,
             max_ups=max_ups or spyral.director._max_ups)
         self.clock.use_wait = True
-        if parent_camera is None:
-            parent_camera = spyral.director.get_camera()
 
-        self.parent_camera = parent_camera
+        self._camera = spyral.director._get_camera().make_child(size)
         self._handlers = collections.defaultdict(lambda: [])
         self._namespaces = set()
         self._event_source = spyral.event.LiveEventHandler() # Gotta go rename this now
@@ -198,3 +194,6 @@ class Scene(object):
         properties = self._style_properties[style_name]
         for property, value in properties.iteritems():
             setattr(object, property, value)
+
+    def set_background(self, image):
+        self._camera.set_background(image)
