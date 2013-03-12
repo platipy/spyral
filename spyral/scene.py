@@ -15,7 +15,7 @@ class Scene(object):
     *self.clock* will contain an instance of GameClock which can be replaced
     or changed as is needed.
     """
-    def __init__(self, size, max_ups=None, max_fps=None):
+    def __init__(self, size = None, max_ups=None, max_fps=None):
         """
         By default, max_ups and max_fps are pulled from the director.
         """
@@ -26,7 +26,9 @@ class Scene(object):
             max_ups=max_ups or spyral.director._max_ups)
         self.clock.use_wait = True
 
-        self._camera = spyral.director._get_camera().make_child(size)
+        self._camera_ = None
+        if size is not None:
+            self._camera_ = spyral.director._get_camera().make_child(size)
         self._handlers = collections.defaultdict(lambda: [])
         self._namespaces = set()
         self._event_source = spyral.event.LiveEventHandler() # Gotta go rename this now
@@ -40,10 +42,35 @@ class Scene(object):
         self._style_properties = defaultdict(lambda: {})
         self._style_functions = {}
 
+        def TestingBox(size, color):
+            i = spyral.Image(size=size)
+            i.fill(color)
+            return i
         
+        self._style_functions['TestingBox'] = TestingBox
+
         self.register('director.update', self.handle_events)
         self.register('director.update', self.run_actors, ('dt',))
     
+    @property
+    def _camera(self):
+        if self._camera_ is None:
+            raise spyral.SceneHasNoSizeException("You should specify a size in the constructor or in a style file before other operations.")
+        return self._camera_
+
+    def __stylize__(self, properties):
+        if 'size' in properties:
+            size = properties.pop('size')
+            self._camera_ = spyral.director._get_camera().make_child(size)
+        if 'background' in properties:
+            background = properties.pop('background')
+            if isinstance(background, (tuple, list)):
+                bg = spyral.Image(size=self._camera.get_size())
+                bg.fill(background)
+            else:
+                bg = spyral.Image(backgronud)
+            self.set_background(bg)
+
     # Internal Methods
     
     def _register_actor(self, actor, greenlet):
@@ -186,14 +213,15 @@ class Scene(object):
 
     def load_style(self, path):
         spyral._style.parse(open(path, "r").read(), self)
+        self.apply_style(self)
 
-    def apply_style(self, style_name, object):
-        if style_name not in self._style_properties:
+    def apply_style(self, object):
+        if not hasattr(object, "__stylize__"):
+            raise spyral.NotStylableError("%r is not an object which can be styled." % object)
+        name = getattr(object, "__style__", object.__class__.__name__)
+        if name not in self._style_properties:
             return
-
-        properties = self._style_properties[style_name]
-        for property, value in properties.iteritems():
-            setattr(object, property, value)
+        object.__stylize__(self._style_properties[name])
 
     def add_style_function(self, name, function):
         self._style_functions[name] = function

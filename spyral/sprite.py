@@ -44,6 +44,10 @@ class Sprite(object):
     ============    ============
     """
 
+    def __stylize__(self, properties):
+        for property, value in properties.iteritems():
+            setattr(self, property, value)
+
     def __init__(self, scene):
         _all_sprites.append(_wref(self))
         self._age = 0
@@ -69,7 +73,7 @@ class Sprite(object):
         self._animations = []
         self._progress = {}
 
-        self._scene.apply_style(self.__class__.__name__, self)
+        self._scene.apply_style(self)
         self._scene.register('director.render', self.draw)
 
     def _set_static(self):
@@ -333,12 +337,14 @@ class Sprite(object):
         the render loop. This should only be overridden in extreme
         circumstances.
         """
+        if not self.visible:
+            return
+        if self._image is None:
+            raise spyral.NoImageError("A sprite must have an image set before it can be drawn.")
         if self._image_version != self._image._version:
             self._image_version = self._image._version
             self._recalculate_transforms()
             self._expire_static()
-        if not self.visible:
-            return
         if self._static:
             return
         if self._make_static or self._age > 4:

@@ -1,3 +1,9 @@
+Game {
+	size: (640, 480)
+	background: (255, 0, 0)
+}
+
 CustomSprite {
     pos: (20, 20)
+    image: TestingBox((10, 10), (255, 255, 0))
 }
