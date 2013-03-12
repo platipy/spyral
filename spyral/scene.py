@@ -103,7 +103,7 @@ class Scene(object):
                 raise Exception("Unfortunate Python Problem! %s isn't supported by Python's inspect module! Oops." % str(handler))
             h_args = h_argspec.args
             h_defaults = h_argspec.defaults or tuple()
-            if 'self' == h_args[0]:
+            if len(h_args) > 0 and 'self' == h_args[0]:
                 h_args.pop(0)
             d = len(h_args) - len(h_defaults)
             if d > 0:
