@@ -59,6 +59,11 @@ class StyleParser(object):
             else:
                 self.scene._style_properties[cls][property] = value
 
+    def apply_func(self, f, args):
+        if f not in self.scene._style_functions:
+            raise ValueError("Function '%s' is undefined" % f)
+        return self.scene._style_functions[f](*args)
+
     def parse(self, style):
         parse = self.parser(style).all()
 
