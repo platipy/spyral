@@ -195,5 +195,8 @@ class Scene(object):
         for property, value in properties.iteritems():
             setattr(object, property, value)
 
+    def add_style_function(self, name, function):
+        self._style_functions[name] = function
+
     def set_background(self, image):
         self._camera.set_background(image)

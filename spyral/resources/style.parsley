@@ -24,17 +24,19 @@ property_set = ws identifier:identifier ws ':' ws (expression):value trailing_co
 
 # Expressions
 tuple_e = '(' ws expression:first (comma_expression*):rest ws ','? ws ')' -> tuple([first] + rest) if len(rest) != 1 else Vec2D(first, rest[0])
-constant_e = (float | integer | true | false | none | tuple_e | string_e):c -> c
+list_e = '[' ws expression:first (comma_expression*):rest ws ','? ws ']' -> [first] + rest
+constant_e = (float | integer | true | false | none | tuple_e | list_e | string_e):c -> c
 identifier_e = identifier:i -> parser.lookup(i)
 comma_expression = ',' ws expression:e -> e
 paren_e = '(' ws expression:e ws ')' -> e
 string_e = (string_single | string_double):s -> s
 string_single = '\'' <('\\' anything | ~'\'' ~'\n' anything)*>:s '\'' -> leval("'%s'" % s)
 string_double = '"' <('\\' anything | ~'"' ~'\n' anything)*>:s '"' -> leval('"%s"' % s)
+empty_parens = '(' ws ')' -> tuple()
+func_e = identifier:f ws (tuple_e:tuple | empty_parens:tuple) -> parser.apply_func(f, tuple)
 
 
-
-simple_expression = (paren_e | constant_e | identifier_e):expr -> expr
+simple_expression = (paren_e | func_e | constant_e | identifier_e):expr -> expr
 expression = arithmetic | simple_expression
 
 add = '+' ws arithmetic2:n -> ('+', n)

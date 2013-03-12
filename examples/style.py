@@ -10,23 +10,22 @@ BG_COLOR = (0, 0, 0)
 
 
 class CustomSprite(spyral.Sprite):
-    def __init__(self):
-        spyral.Sprite.__init__(self)
+    def __init__(self, scene):
+        spyral.Sprite.__init__(self, scene)
         self.image = spyral.Image(size=(30, 30))
         self.image.fill((255, 0, 0))
 
 
 class Game(spyral.Scene):
     def __init__(self, color):
-        spyral.Scene.__init__(self)
-        self.camera = self.parent_camera.make_child(SIZE)
+        spyral.Scene.__init__(self, SIZE)
         bg = spyral.Image(size=SIZE)
         bg.fill(color)
-        self.camera.set_background(bg)
+        self.set_background(bg)
 
         self.load_style("style.spys")
 
-        CustomSprite()
+        CustomSprite(self)
 
         self.register("system.quit", sys.exit)
 
