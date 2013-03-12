@@ -49,13 +49,13 @@ def init(size=(0, 0),
 
     _initialized = True
 
-    _camera = spyral.camera.Camera(virtual_size=size, root=True)
+    _camera = spyral._camera.Camera(virtual_size=size, root=True)
     pygame.display.set_caption(caption)
 
     _max_ups = max_ups
     _max_fps = max_fps
 
-def get_camera():
+def _get_camera():
     """
     Returns the root camera for the display.
     """

@@ -21,15 +21,14 @@ class Game(spyral.Scene):
         The __init__ message for a scene should set up the camera(s) for the
         scene, and other structures which are needed for the scene
         """
-        spyral.Scene.__init__(self)
+        spyral.Scene.__init__(self, SIZE)
         # We cannot draw directly to the root camera, so we always make a child
         # camera for our scene with our requested virtual resolution. In this
         # case we'll use the same as the window size, but this doesn't have to be
         # the case
-        self.camera = self.parent_camera.make_child(SIZE)
         bg = spyral.Image(size=SIZE)
         bg.fill(BG_COLOR)
-        self.camera.set_background(bg)
+        self.set_background(bg)
         
         self.register("system.quit", sys.exit)
         

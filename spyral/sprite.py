@@ -17,10 +17,7 @@ class Sprite(object):
     Sprites are how images are positioned and drawn onto the screen. 
     They aggregate information such as where to be drawn, layering
     information, and more together.
-    
-    Each sprite should belong to a group, which handles tracking and
-    drawing sprites.
-    
+        
     Sprites have the following built-in attributes.
     
     ============    ============
@@ -47,7 +44,7 @@ class Sprite(object):
     ============    ============
     """
 
-    def __init__(self, camera = None):
+    def __init__(self, scene):
         _all_sprites.append(_wref(self))
         self._age = 0
         self._static = False
@@ -62,12 +59,8 @@ class Sprite(object):
         self._offset = spyral.Vec2D(0, 0)
         self._scale = spyral.Vec2D(1.0, 1.0)
         self._scaled_image = None
-        self._scene = spyral._get_executing_scene()
-        if camera is None:
-            if not hasattr(self._scene, 'camera'):
-                raise Exception("Your scene must have a camera created before creating sprites, or you must pass a camera explicitly.")
-            camera = getattr(self._scene, 'camera')
-        self._camera = camera
+        self._scene = scene
+        self._camera = scene._camera
         self._angle = 0
         self._transform_image = None
         self._transform_offset = spyral.Vec2D(0, 0)
@@ -87,7 +80,7 @@ class Sprite(object):
         # Expire static is part of the private API which must
         # be implemented by Sprites that wish to be static.
         if self._static:
-            spyral.director.get_camera()._remove_static_blit(self)
+            spyral.director._get_camera()._remove_static_blit(self)
         self._static = False
         self._age = 0
         return True
@@ -268,9 +261,6 @@ class Sprite(object):
 
     def _set_scale_y(self, y):
         self._set_scale((self._scale[0], y))
-
-    def _get_camera(self):
-        return self._camera
         
     def _get_angle(self):
         return self._angle
@@ -321,7 +311,6 @@ class Sprite(object):
     width = property(_get_width)
     height = property(_get_height)
     size = property(_get_size)
-    camera = property(_get_camera)
     angle = property(_get_angle, _set_angle)
     flip_x = property(_get_flip_x, _set_flip_x)
     flip_y = property(_get_flip_y, _set_flip_y)
@@ -338,6 +327,8 @@ class Sprite(object):
 
     def draw(self, offset = spyral.Vec2D(0, 0)):
         """
+        This documentation is wrong now. Fix it later.
+
         Draws this sprite to the camera specified. Called automatically in
         the render loop. This should only be overridden in extreme
         circumstances.
@@ -368,7 +359,7 @@ class Sprite(object):
         self._age += 1
 
     def __del__(self):
-        spyral.director.get_camera()._remove_static_blit(self)
+        spyral.director._get_camera()._remove_static_blit(self)
         
     def animate(self, animation):
         """
