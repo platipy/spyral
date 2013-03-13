@@ -116,11 +116,12 @@ class Camera(object):
         if surface.get_size() != self._vsize:
             raise ValueError("Background size must match the display size.")
         if not self._root:
-            if scene not in self._rs._backgrounds:
-                self._rs._backgrounds[scene] = pygame.Surface(self._rs._background.get_size(), pygame.SRCALPHA).convert_alpha()
-            self._rs._backgrounds[scene].blit(_scale(surface, self._scale), (0,0))
             if scene is spyral.director.get_scene():
-                self._rs._clear_this_frame.append(self._rs._background.get_rect())
+                self._rs._background = surface
+                self._rs._clear_this_frame.append(surface.get_rect())
+            else:
+                self._rs._backgrounds[scene] = surface
+
             
     def _blit(self, surface, position, layer, flags, clipping):
         position = spyral.point.scale(position, self._scale)
