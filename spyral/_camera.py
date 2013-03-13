@@ -8,13 +8,14 @@ import sys
 import weakref
 
 class _Blit(object):
-    __slots__ = ['surface', 'rect', 'layer', 'flags', 'static']
-    def __init__(self, surface, rect, layer, flags, static):
+    __slots__ = ['surface', 'rect', 'layer', 'flags', 'static', 'clipping']
+    def __init__(self, surface, rect, layer, flags, static, clipping):
         self.surface = surface
         self.rect = rect
         self.layer = layer
         self.flags = flags
         self.static = static
+        self.clipping = clipping
         
 
 @spyral.memoize._ImageMemoize
@@ -159,7 +160,7 @@ class Camera(object):
             layer = len(self._layers)
         return layer
 
-    def _blit(self, surface, position, layer, flags):
+    def _blit(self, surface, position, layer, flags, clipping):
         position = spyral.point.scale(position, self._scale)
         position = (position[0] + self._offset[0],
                     position[1] + self._offset[1])
@@ -181,9 +182,10 @@ class Camera(object):
                                      r,
                                      layer,
                                      flags,
-                                     False))
+                                     False,
+                                     clipping))
 
-    def _static_blit(self, sprite, surface, position, layer, flags):
+    def _static_blit(self, sprite, surface, position, layer, flags, clipping):
         position = spyral.point.scale(position, self._scale)
         position = (position[0] + self._offset[0],
                     position[1] + self._offset[1])
@@ -208,7 +210,8 @@ class Camera(object):
                                           r,
                                           layer,
                                           flags,
-                                          True)
+                                          True,
+                                          clipping)
         if redraw:
             rs._clear_this_frame.append(r2.union(r))
         else:
@@ -266,51 +269,43 @@ class Camera(object):
         self._soft_clear = []
         screen_rect = screen.get_rect()
         drawn_static = 0
-        v = pygame.version.vernum
+        
+        blit_flags_available = pygame.version.vernum < (1, 8)
         
         for blit in blits:
+            blit_clipping_offset, blit_clipping_region = blit.clipping
+            blit_rect = blit.rect.move(blit_clipping_offset)
+            blit_flags = blit.flags if blit_flags_available else 0
             # If a blit is entirely off screen, we can ignore it altogether
-            if not screen_rect.contains(blit.rect) and not screen_rect.colliderect(blit.rect):
+            if not screen_rect.contains(blit_rect) and not screen_rect.colliderect(blit_rect):
                 continue
             if blit.static:
                 skip_soft_clear = False
                 for rect in clear_this:
-                    if blit.rect.colliderect(rect):
-                        if v < (1, 8):
-                            screen.blit(blit.surface, blit.rect)
-                        else:
-                            screen.blit(blit.surface, blit.rect, None, blit.flags)
+                    if blit_rect.colliderect(rect):
+                        screen.blit(blit.surface, blit_rect, blit_clipping_region, blit_flags)
                         skip_soft_clear = True
-                        clear_this.append(blit.rect)
-                        self._soft_clear.append(blit.rect)
+                        clear_this.append(blit_rect)
+                        self._soft_clear.append(blit_rect)
                         drawn_static += 1
                         break
                 if skip_soft_clear:
                     continue
                 for rect in soft_clear:
-                    if blit.rect.colliderect(rect):
-                        if v < (1, 8):
-                            screen.blit(blit.surface, blit.rect)
-                        else:
-                            screen.blit(blit.surface, blit.rect, None, blit.flags)
+                    if blit_rect.colliderect(rect):
+                        screen.blit(blit.surface, blit_rect, blit_clipping_region, blit_flags)
                         soft_clear.append(blit.rect)
                         drawn_static += 1
                         break
             else:                
-                if screen_rect.contains(blit.rect):
-                    if v < (1, 8):
-                        r = screen.blit(blit.surface, blit.rect)
-                    else:
-                        r = screen.blit(blit.surface, blit.rect, None, blit.flags)
+                if screen_rect.contains(blit_rect):
+                    r = screen.blit(blit.surface, blit_rect, blit_clipping_region, blit_flags)
                     clear_next.append(r)
-                elif screen_rect.colliderect(blit.rect):
+                elif screen_rect.colliderect(blit_rect):
                     x = blit.rect.clip(screen_rect)
-                    y = x.move(-blit.rect.left, -blit.rect.top)
+                    y = x.move(-blit_rect.left, -blit_rect.top)
                     b = blit.surf.subsurface(y)
-                    if v < (1, 8):
-                        r = screen.blit(b, x)
-                    else:
-                        r = screen.blit(b, x, None, blit.flags)
+                    r = screen.blit(blit.surface, blit_rect, blit_clipping_region, blit_flags)
                     clear_next.append(r)
 
         # print "%d / %d static drawn, %d dynamic" %

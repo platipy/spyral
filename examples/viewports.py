@@ -14,7 +14,7 @@ class Game(spyral.Scene):
         spyral.Scene.__init__(self, SIZE)
         bg = spyral.Image(size=SIZE)
         bg.fill(color)
-        k =spyral.Rect(160,160,640-320,480-240)
+        k =spyral.Rect(160,120,640-320,480-240)
         bg.draw_rect( (0, 100, 0), k.topleft, k.size)
         self.set_background(bg)
         
@@ -22,10 +22,15 @@ class Game(spyral.Scene):
         s.image = spyral.Image(size=(20,20)).draw_circle((255, 255, 255), (10,10), 10)
         s.pos = 300, 200
         
-        a = spyral.Animation('pos', spyral.animator.LinearTuple(start = (0,0), finish= SIZE),
-                                           duration = 5,
-                                           loop = True)
-        s.animate(a)
+        a1 = spyral.Animation('pos', spyral.animator.LinearTuple(start = (0,0), finish= SIZE),
+                                           duration = 3,
+                                           loop = False)
+        a2 = spyral.Animation('pos', spyral.animator.LinearTuple(start = (0, SIZE[1]), finish= (SIZE[0], 0)),
+                                           duration = 3,
+                                           loop = False)
+        a3 = a1 + a2
+        a3.loop = True
+        s.animate(a3)
         
         v = spyral.ViewPort(self)
         v.crop = k

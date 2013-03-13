@@ -120,7 +120,7 @@ class Sprite(object):
             offset = a * spyral.Vec2D(-1, -1)
         self._offset = spyral.Vec2D(offset) - self._transform_offset
             
-    def _recalculate_transforms(self, crop = None, offset = (0,0)):
+    def _recalculate_transforms(self):
         source = self._image._surf
         
         # flip
@@ -145,21 +145,6 @@ class Sprite(object):
             source = pygame.transform.rotate(source, angle).convert_alpha()
             new = source.get_rect().center
             self._transform_offset = old - new
-        
-        if crop:
-            original = spyral.Rect(self._pos[0] - self._offset[0] + offset[0],
-                        self._pos[1] - self._offset[1] + offset[1],
-                        source.get_rect().width,
-                        source.get_rect().height)
-            cropped = original.clip(crop)
-            new = pygame.Surface(cropped.size, pygame.SRCALPHA)
-            cropped.left = max(0, crop.left- original.left)
-            cropped.top = max(0, crop.top- original.top)
-            print original, crop, cropped
-            new.blit(source, (0,0), (cropped.topleft, cropped.size))
-            source = new
-            self._transform_offset += cropped.topleft
-            #offset += max(original.left, crop.left), max(original.top, crop.top)
         
         self._transform_image = source
         self._recalculate_offset()
@@ -357,19 +342,35 @@ class Sprite(object):
             return
         if self._image is None:
             raise spyral.NoImageError("A sprite must have an image set before it can be drawn.")
-        if self._image_version != self._image._version or crop:
+        if self._image_version != self._image._version:
             self._image_version = self._image._version
-            self._recalculate_transforms(crop, offset)
+            self._recalculate_transforms()
             self._expire_static()
         if self._static:
             return
+        
+        if crop:
+            original = spyral.Rect(self._pos[0] - self._offset[0] + offset[0],
+                         self._pos[1] - self._offset[1] + offset[1],
+                         self._transform_image.get_rect().width,
+                         self._transform_image.get_rect().height)
+            cropped_region = original.clip(crop)
+            cropped_region.left -= original.left
+            cropped_region.top -= original.top
+            x_offset = (original.width - cropped_region.width) if cropped_region.x > 0 else 0
+            y_offset = (original.height - cropped_region.height) if cropped_region.y > 0 else 0
+            crop_offset = x_offset, y_offset
+            clipping = (crop_offset, (cropped_region.topleft, cropped_region.size))
+        else:
+            clipping = ( (0, 0), ((0, 0), self._transform_image.get_rect().size))
 
         if self._make_static or self._age > 4:
             self._camera._static_blit(self,
                                     self._transform_image,
                                     k,
                                     self._layer,
-                                    self._blend_flags)
+                                    self._blend_flags,
+                                    clipping)
             self._make_static = False
             self._static = True
             return
@@ -377,7 +378,8 @@ class Sprite(object):
                         (self._pos[0] - self._offset[0] + offset[0],
                         self._pos[1] - self._offset[1] + offset[1]),
                         self._layer,
-                        self._blend_flags)
+                        self._blend_flags,
+                        clipping)
         self._age += 1
 
     def __del__(self):
