@@ -34,7 +34,6 @@ class Sprite(object):
     width           Width of the image after all transforms. Read-only
     height          Height of the image after all transforms. Read-only
     size            (width, height) of the image after all transforms. Read-only
-    group           The group which this sprite belongs to. If this property is changed, the sprite will be removed from the old group.
     scale           A scale factor for resizing the image. It will always contain a :ref:`Vec2D <spyral_Vec2D>` with an x factor and a y factor, but it can be set to a numeric value which will be set for both coordinates.
     scale_x         The x factor of the scaling. Kept in sync with scale
     scale_y         The y factor of the scaling. Kept in sync with scale
@@ -43,6 +42,11 @@ class Sprite(object):
     angle           An angle to rotate the image by. Rotation is computed after scaling and flipping, and keeps the center of the original image aligned with the center of the rotated image.
     ============    ============
     """
+
+    def __stylize__(self, properties):
+        simple = ['scale', 'flip_x', 'flip_y', 'angle', 'visible', 'layer']
+        for property, value in properties.iteritems():
+            setattr(self, property, value)
 
     def __init__(self, scene):
         _all_sprites.append(_wref(self))
@@ -70,7 +74,7 @@ class Sprite(object):
         self._animations = []
         self._progress = {}
 
-        self._scene.apply_style(self.__class__.__name__, self)
+        self._scene.apply_style(self)
         self._scene.register('director.render', self.draw)
 
     def _set_static(self):
@@ -147,14 +151,14 @@ class Sprite(object):
                         self._pos[1] - self._offset[1] + offset[1],
                         source.get_rect().width,
                         source.get_rect().height)
-            cropped = crop.clip(original)
-            print original, crop, cropped
-            a, b = pygame.Rect(0, 0, 10, 10), pygame.Rect(5,5,15,15)
-            print a.clip(b) == b.clip(a)
+            cropped = original.clip(crop)
             new = pygame.Surface(cropped.size, pygame.SRCALPHA)
-            new.blit(source, (0,0), ((0, 0), cropped.size))
-            print cropped.size
+            cropped.left = max(0, crop.left- original.left)
+            cropped.top = max(0, crop.top- original.top)
+            print original, crop, cropped
+            new.blit(source, (0,0), (cropped.topleft, cropped.size))
             source = new
+            self._transform_offset += cropped.topleft
             #offset += max(original.left, crop.left), max(original.top, crop.top)
         
         self._transform_image = source
@@ -349,12 +353,14 @@ class Sprite(object):
         the render loop. This should only be overridden in extreme
         circumstances.
         """
+        if not self.visible:
+            return
+        if self._image is None:
+            raise spyral.NoImageError("A sprite must have an image set before it can be drawn.")
         if self._image_version != self._image._version or crop:
             self._image_version = self._image._version
             self._recalculate_transforms(crop, offset)
             self._expire_static()
-        if not self.visible:
-            return
         if self._static:
             return
 

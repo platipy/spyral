@@ -14,6 +14,8 @@ class Game(spyral.Scene):
         spyral.Scene.__init__(self, SIZE)
         bg = spyral.Image(size=SIZE)
         bg.fill(color)
+        k =spyral.Rect(160,160,640-320,480-240)
+        bg.draw_rect( (0, 100, 0), k.topleft, k.size)
         self.set_background(bg)
         
         s = spyral.AggregateSprite(self)
@@ -36,7 +38,7 @@ class Game(spyral.Scene):
         c.animate(a)
         
         v = spyral.ViewPort(self)
-        v.crop = spyral.Rect(160,120,640-320,480-240)
+        v.crop = k
         v.add(s)
         
         self.register("system.quit", sys.exit)

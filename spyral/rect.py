@@ -186,7 +186,7 @@ class Rect(object):
             
         if ((A._x + A._w) > B._x) and ((A._x + A._w) <= (B._x + B._w)):
             w = A._x + A._w - x
-        elif ((B._x + B._w) < A._x) and ((B._x + B._w) <= A._x + A._w):
+        elif ((B._x + B._w) > A._x) and ((B._x + B._w) <= A._x + A._w):
             w = B._x + B._w - x
         else:
             return Rect(A._x, A._y, 0, 0)
