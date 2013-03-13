@@ -6,4 +6,5 @@ Game {
 CustomSprite {
     pos: (20, 20)
     image: TestingBox((10, 10), (255, 255, 0))
+    scale: 10
 }

@@ -34,7 +34,6 @@ class Sprite(object):
     width           Width of the image after all transforms. Read-only
     height          Height of the image after all transforms. Read-only
     size            (width, height) of the image after all transforms. Read-only
-    group           The group which this sprite belongs to. If this property is changed, the sprite will be removed from the old group.
     scale           A scale factor for resizing the image. It will always contain a :ref:`Vec2D <spyral_Vec2D>` with an x factor and a y factor, but it can be set to a numeric value which will be set for both coordinates.
     scale_x         The x factor of the scaling. Kept in sync with scale
     scale_y         The y factor of the scaling. Kept in sync with scale
@@ -45,6 +44,7 @@ class Sprite(object):
     """
 
     def __stylize__(self, properties):
+        simple = ['scale', 'flip_x', 'flip_y', 'angle', 'visible', 'layer']
         for property, value in properties.iteritems():
             setattr(self, property, value)
 
