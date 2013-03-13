@@ -4,3 +4,5 @@ class NotStylableError(Exception):
 	pass
 class NoImageError(Exception):
 	pass
+class BackgroundSizeError(Exception):
+	pass
