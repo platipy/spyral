@@ -33,16 +33,11 @@ def _scale(s, factor):
 
 class Camera(object):
     """
-    Represents an area to draw to. It can handle automatic scaling with
-    optional offsets and optional layering.
-    
     Cameras should never be instantiated directly. Instead, you should
     call `make_camera` on the camera passed into your scene.
     """
     def __init__(self, virtual_size=None,
                  real_size=None,
-                 offset=(0, 0),
-                 layers = None,
                  root = False):
         if root:
             self._surface = pygame.display.get_surface()
@@ -64,15 +59,7 @@ class Camera(object):
                            self._rsize[1] / self._vsize[1])
         self._background = None
         self._root = root
-        self._offset = offset
-        if layers is None:
-            layers = ['all']
-        self._layers = layers
-        
-        self._sprites = set()
-        self._animations = defaultdict(list)
-        self._progress = {}
-        
+                
         if self._root:
             self._background = pygame.surface.Surface(self._rsize)
             self._background.fill((255, 255, 255))
@@ -89,9 +76,7 @@ class Camera(object):
             self._backgrounds = weakref.WeakKeyDictionary()
 
     def make_child(self, virtual_size=None,
-                   real_size=None,
-                   offset=(0, 0),
-                   layers = ['all']):
+                   real_size=None):
         """
         Method for creating a new Camera.
 
@@ -99,18 +84,13 @@ class Camera(object):
         | *real_size* is a size of the resolution with respect to the parent
           camera (not to the physical display, unless the parent camera is the
           root one). This allows multi-level nesting of cameras, if needed.
-        | *offset* is a position offset of where this camera should be in the
-          parent camera's coordinates.
-        | *layers* is a list of layers which should be drawn bottom to top.
         """
         if real_size == (0, 0) or real_size is None:
             real_size = self.get_size()
-        y = spyral._camera.Camera(virtual_size, real_size, offset, layers, 0)
+        y = Camera(virtual_size, real_size, False)
         y._parent = self
-        offset = spyral.Vec2D(offset) * self._scale
-        y._offset = offset + self._offset
         y._scale = spyral.Vec2D(self._scale) * y._scale
-        y._rect = pygame.Rect(y._offset,
+        y._rect = pygame.Rect((0, 0),
                               spyral.point.scale(real_size, self._scale))
         y._rs = self._rs
         return y
@@ -138,33 +118,12 @@ class Camera(object):
         if not self._root:
             if scene not in self._rs._backgrounds:
                 self._rs._backgrounds[scene] = pygame.Surface(self._rs._background.get_size(), pygame.SRCALPHA).convert_alpha()
-            self._rs._backgrounds[scene].blit(_scale(surface, self._scale), self._offset)
+            self._rs._backgrounds[scene].blit(_scale(surface, self._scale), (0,0))
             if scene is spyral.director.get_scene():
                 self._rs._clear_this_frame.append(self._rs._background.get_rect())
             
-    def _compute_layer(self, layer):
-        if type(layer) in (int, long, float):
-            return layer
-        try:
-            s = layer.split(':')
-            layer = s[0]
-            offset = 0
-            if len(s) > 1:
-                mod = s[1]
-                if mod == 'above':
-                    offset = 0.5
-                if mod == 'below':
-                    offset = -0.5
-            layer = self._layers.index(layer) + offset
-        except ValueError:
-            layer = len(self._layers)
-        return layer
-
     def _blit(self, surface, position, layer, flags, clipping):
         position = spyral.point.scale(position, self._scale)
-        position = (position[0] + self._offset[0],
-                    position[1] + self._offset[1])
-        layer = self._compute_layer(layer)
         new_surface = _scale(surface, self._scale)
         r = pygame.Rect(position, new_surface.get_size())
 
@@ -187,9 +146,6 @@ class Camera(object):
 
     def _static_blit(self, sprite, surface, position, layer, flags, clipping):
         position = spyral.point.scale(position, self._scale)
-        position = (position[0] + self._offset[0],
-                    position[1] + self._offset[1])
-        layer = self._compute_layer(layer)
         rs = self._rs
         redraw = sprite in rs._static_blits
         if redraw:
@@ -347,19 +303,9 @@ class Camera(object):
         """
         pos = spyral.Vec2D(pos)
         if self._rect.collidepoint(pos):
-            pos -= self._offset
             pos = pos / self._scale
             return pos
         return None
 
     def redraw(self):
         self._clear_this_frame.append(pygame.Rect((0,0), self._vsize))
-
-    def _stop_animation(self, animation, sprite):
-        if sprite in self._animations and animation in self._animations[sprite]:
-            self._animations[sprite].remove(animation)
-            del self._progress[(sprite, animation)]
-
-    def _stop_animations_for_sprite(self, sprite):
-        for animation in self._animations[sprite][:]:
-            self._stop_animation(animation, sprite)
