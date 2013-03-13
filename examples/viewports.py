@@ -31,6 +31,7 @@ class Game(spyral.Scene):
         a3 = a1 + a2
         a3.loop = True
         s.animate(a3)
+        s.anchor = 'center'
         
         v = spyral.ViewPort(self)
         v.crop = k
