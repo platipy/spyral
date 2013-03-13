@@ -17,23 +17,27 @@ class Game(spyral.Scene):
         self.set_background(bg)
         
         s = spyral.AggregateSprite(self)
-        s.image = spyral.Image(size=(10,10)).draw_circle((255, 255, 255), (5,5), 5)
+        s.image = spyral.Image(size=(20,20)).draw_circle((255, 255, 255), (10,10), 10)
         s.pos = 300, 200
         
         a = spyral.Animation('pos', spyral.animator.Polar(center = (320, 240),
-                                           radius = lambda theta: 100.0+25.0*math.sin(5.0*theta)),
-                                           duration = 3.0,
+                                           radius = lambda theta: 150.0+25.0*math.sin(5.0*theta)),
+                                           duration = 15.0,
                                            loop = True)
         s.animate(a)
         
         c = spyral.Sprite(self)
-        c.image = spyral.Image(size=(10,10)).draw_circle((0, 0, 255), (5,5), 5)
+        c.image = spyral.Image(size=(20,20)).draw_circle((0, 0, 255), (10,10), 10)
         a = spyral.Animation('pos', spyral.animator.Polar(center = (0, 0),
                                             radius = lambda theta: 30),
                                             duration = 0.5,
                                             loop = True)
         s.add_child(c)
         c.animate(a)
+        
+        v = spyral.ViewPort(self)
+        v.crop = spyral.Rect(160,120,640-320,480-240)
+        v.add(s)
         
         self.register("system.quit", sys.exit)
 

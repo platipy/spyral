@@ -62,6 +62,7 @@ class Sprite(object):
         self._scene = scene
         self._camera = scene._camera
         self._angle = 0
+        self._crop = None
         self._transform_image = None
         self._transform_offset = spyral.Vec2D(0, 0)
         self._flip_x = False
@@ -115,7 +116,7 @@ class Sprite(object):
             offset = a * spyral.Vec2D(-1, -1)
         self._offset = spyral.Vec2D(offset) - self._transform_offset
             
-    def _recalculate_transforms(self):
+    def _recalculate_transforms(self, crop = None, offset = (0,0)):
         source = self._image._surf
         
         # flip
@@ -140,6 +141,21 @@ class Sprite(object):
             source = pygame.transform.rotate(source, angle).convert_alpha()
             new = source.get_rect().center
             self._transform_offset = old - new
+        
+        if crop:
+            original = spyral.Rect(self._pos[0] - self._offset[0] + offset[0],
+                        self._pos[1] - self._offset[1] + offset[1],
+                        source.get_rect().width,
+                        source.get_rect().height)
+            cropped = crop.clip(original)
+            print original, crop, cropped
+            a, b = pygame.Rect(0, 0, 10, 10), pygame.Rect(5,5,15,15)
+            print a.clip(b) == b.clip(a)
+            new = pygame.Surface(cropped.size, pygame.SRCALPHA)
+            new.blit(source, (0,0), ((0, 0), cropped.size))
+            print cropped.size
+            source = new
+            #offset += max(original.left, crop.left), max(original.top, crop.top)
         
         self._transform_image = source
         self._recalculate_offset()
@@ -325,7 +341,7 @@ class Sprite(object):
             (self._pos[0] - self._offset[0], self._pos[1] - self._offset[1]),
             self.size)
 
-    def draw(self, offset = spyral.Vec2D(0, 0)):
+    def draw(self, offset = spyral.Vec2D(0, 0), crop = None):
         """
         This documentation is wrong now. Fix it later.
 
@@ -333,19 +349,19 @@ class Sprite(object):
         the render loop. This should only be overridden in extreme
         circumstances.
         """
-        if self._image_version != self._image._version:
+        if self._image_version != self._image._version or crop:
             self._image_version = self._image._version
-            self._recalculate_transforms()
+            self._recalculate_transforms(crop, offset)
             self._expire_static()
         if not self.visible:
             return
         if self._static:
             return
+
         if self._make_static or self._age > 4:
             self._camera._static_blit(self,
                                     self._transform_image,
-                                    (self._pos[0] - self._offset[0] + offset[0],
-                                    self._pos[1] - self._offset[1] + offset[1]),
+                                    k,
                                     self._layer,
                                     self._blend_flags)
             self._make_static = False
@@ -466,7 +482,7 @@ class AggregateSprite(Sprite):
             r = r.union(s.get_rect().move(*i_offset))
         return r       
     
-    def draw(self, offset = spyral.Vec2D(0,0)):
+    def draw(self, offset = spyral.Vec2D(0,0), crop = None):
         """
         Draws this sprite and all children to the camera. Should be
         overridden only in extreme circumstances.
@@ -475,7 +491,7 @@ class AggregateSprite(Sprite):
             for sprite in self._internal_group:
                 sprite._expire_static()
         if self.image is not None:
-            Sprite.draw(self, offset)
+            Sprite.draw(self, offset, crop)
         if not self.visible:
             return
         try:
@@ -484,10 +500,95 @@ class AggregateSprite(Sprite):
             i_offset = self.pos - self._offset
         
         for sprite in self._internal_group:
-            sprite.draw(offset + i_offset)
+            sprite.draw(offset + i_offset, crop)
             
 class ViewPort(Sprite):
     """
+    A ViewPort is a collection of Sprites that has a distinct layer and 
+    clipping.
     """
-    pass
+    def __init__(self, scene, crop = None):
+        Sprite.__init__(self, scene)
+        self._internal_group = set()
+        self._child_anchor = spyral.Vec2D(0, 0)
+        self._crop = crop
+        
+    def _get_child_anchor(self):
+        return self._child_anchor
+        
+    def _set_child_anchor(self, anchor):
+        for sprite in self._internal_group:
+            sprite._expire_static()
+        try:
+            self._child_anchor = spyral.Vec2D(anchor)
+        except Exception:
+            self._child_anchor = anchor
+            
+    def _get_crop(self):
+        return _crop
     
+    def _set_crop(self, region):
+        self._crop = region
+            
+    child_anchor = property(_get_child_anchor, _set_child_anchor)
+    crop = property(_get_crop, _set_crop)
+        
+    def add(self, sprite):
+        """
+        Adds a child to this AggregateSprite.
+        """
+        self._internal_group.add(sprite)
+        self._scene.unregister("director.render", sprite.draw)
+        
+    def remove(self, sprite):
+        """
+        Remove a child from this AggregateSprite.
+        """
+        self._internal_group.remove(sprite)
+        
+    def sprites(self):
+        """
+        Return a list of the children sprites
+        """
+        return self._internal_group
+                
+    def get_rect(self):
+        """
+        Return a rect which is the union of all the child rects.
+        """
+        # This may potentially be a performance trap
+        # Down the line we may have to mess with getting cached
+        # versions of rects if we know the children haven't changed
+        sprites = self._internal_group 
+        r = Sprite.get_rect(self)
+        try:
+            i_offset = getattr(Sprite.get_rect(self), self._child_anchor)
+        except (AttributeError, TypeError):
+            i_offset = self.pos
+        for s in sprites:
+            r = r.union(s.get_rect().move(*i_offset))
+        return r       
+    
+    def draw(self, offset = spyral.Vec2D(0,0)):
+        """
+        Draws this sprite and all children to the camera. Should be
+        overridden only in extreme circumstances.
+        """
+        if self._age == 0:
+            for sprite in self._internal_group:
+                sprite._expire_static()
+        if not self.visible:
+            return
+        try:
+            i_offset = getattr(Sprite.get_rect(self), self._child_anchor)
+        except (TypeError, AttributeError):
+            i_offset = self.pos - self._offset
+        
+        for sprite in self._internal_group:
+            if self._crop is not None:
+                if sprite.get_rect().contains(self._crop):
+                    sprite.draw(offset + i_offset)
+                elif sprite.get_rect().collide_rect(self._crop):
+                    sprite.draw(offset + i_offset, crop = self._crop)
+            else:
+                sprite.draw(offset + i_offset)

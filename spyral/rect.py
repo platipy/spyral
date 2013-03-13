@@ -211,9 +211,7 @@ class Rect(object):
         """
         Returns True if the rect r is contained inside this rect
         """
-        if self.clip(r).size == r.size:
-            return True
-        return False
+        return r.collide_point(self.topleft) and r.collide_point(self.bottomright)
         
     def collide_rect(self, r):
         """
