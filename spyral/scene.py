@@ -89,6 +89,9 @@ class Scene(object):
         self._static_blits = {}
         self._rect = self._surface.get_rect()
 
+        self._layers = ['all']
+        self._sprites = set()
+
         self.register('director.update', self.handle_events)
         self.register('director.update', self.run_actors, ('dt',))
     
@@ -244,6 +247,9 @@ class Scene(object):
             else:
                 bg = spyral.Image(backgronud)
             self.set_background(bg)
+        if 'layers' in properties:
+            layers = properties.pop('layers')
+            self.set_layers(layers)
 
     def load_style(self, path):
         spyral._style.parse(open(path, "r").read(), self)
@@ -253,14 +259,15 @@ class Scene(object):
         if not hasattr(object, "__stylize__"):
             raise spyral.NotStylableError("%r is not an object which can be styled." % object)
         properties = {}
-        for cls in reversed(object.__class__.__mro__[1:-1]):
+        for cls in reversed(object.__class__.__mro__[:-1]):
             name = cls.__name__
             if name not in self._style_properties:
                 continue
             properties.update(self._style_properties[name])
-        name = getattr(object, "__style__", object.__class__.__name__)
-        if name in self._style_properties:
-            properties.update(self._style_properties[name])
+        if hasattr(object, "__style__"):
+            name = getattr(object, "__style__")
+            if name in self._style_properties:
+                properties.update(self._style_properties[name])
         if properties != {}:
             object.__stylize__(properties)
 
@@ -290,7 +297,15 @@ class Scene(object):
         self._background = pygame.transform.smoothscale(surface, self._surface.get_size())
         self._clear_this_frame.append(surface.get_rect())
 
+    def _register_sprite(self, sprite):
+        self._sprites.add(sprite)
+
+    def _unregister_sprite(self, sprite):
+        if sprite in self._sprites:
+            self._sprites.remove(sprite)
+
     def _blit(self, surface, position, layer, flags, clipping):
+        layer = self._compute_layer(layer)
         position = spyral.point.scale(position, self._scale)
         new_surface = _scale(surface, self._scale)
         r = pygame.Rect(position, new_surface.get_size())
@@ -307,6 +322,7 @@ class Scene(object):
         self._blits.append(_Blit(new_surface, r, layer, flags, False, clipping))
 
     def _static_blit(self, sprite, surface, position, layer, flags, clipping):
+        layer = self._compute_layer(layer)
         position = spyral.point.scale(position, self._scale)
         redraw = sprite in self._static_blits
         if redraw:
@@ -428,8 +444,33 @@ class Scene(object):
     def redraw(self):
         self._clear_this_frame.append(pygame.Rect((0,0), self._vsize))
 
+
+    def _compute_layer(self, layer):
+        # This should be optimized at some point.
+        if type(layer) in (int, long, float):
+            return layer
+        try:
+            s = layer.split(':')
+            layer = s[0]
+            offset = 0
+            if len(s) > 1:
+                mod = s[1]
+                if mod == 'above':
+                    offset = 0.5
+                if mod == 'below':
+                    offset = -0.5
+            layer = self._layers.index(layer) + offset
+        except ValueError:
+            layer = len(self._layers)
+        return layer
+
     def set_layers(self, layers):
-        pass
+        # Potential caveat: If you change layers after blitting, previous blits may be wrong
+        # for a frame, static ones wrong until they expire
+        if self._layers == ['all']:
+            self._layers = layers
+        else:
+            raise spyral.LayersAlreadySetError("You can only define the layers for a scene once.")
 
     def world_to_local(self, pos):
         """

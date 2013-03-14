@@ -1,10 +1,27 @@
 Game {
-    size: (640, 480)
-	background: (255, 0, 0)
+	size: (640, 480)
+	background: (255, 255, 255)
+	layers: ['1', '2', '3']
 }
 
 CustomSprite {
-    pos: (20, 20)
-    image: TestingBox((10, 10), (255, 255, 0))
-    scale: 10
+	angle: 3.14/4
+}
+
+Red {
+	pos: (10, 10)
+	image: TestingBox((30, 30), (255, 0, 0))
+	layer: '1'
+}
+
+Green {
+	pos: (20, 20)
+	image: TestingBox((30, 30), (0, 255, 0))
+	layer: '3'
+}
+
+Blue {
+	pos: (30, 30)
+	image: TestingBox((30, 30), (0, 0, 255))
+	layer: '2'
 }

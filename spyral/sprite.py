@@ -44,8 +44,11 @@ class Sprite(object):
     """
 
     def __stylize__(self, properties):
+        if 'image' in properties:
+            image = properties.pop('image')
+            setattr(self, 'image', image)
         simple = ['scale', 'flip_x', 'flip_y', 'angle', 'visible', 'layer']
-        for property, value in properties.iteritems():
+        for property, value in properties.iteritems(): 
             setattr(self, property, value)
 
     def __init__(self, scene):
@@ -73,6 +76,7 @@ class Sprite(object):
         self._animations = []
         self._progress = {}
 
+        self._scene._register_sprite(self)
         self._scene.apply_style(self)
         self._scene.register('director.render', self.draw)
 
@@ -382,8 +386,11 @@ class Sprite(object):
                         clipping)
         self._age += 1
 
+    def kill(self):
+        self._scene._unregister_sprite(self)
+
     def __del__(self):
-        scene._remove_static_blit(self)
+        self._scene._remove_static_blit(self)
         
     def animate(self, animation):
         """
