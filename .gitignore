@@ -1,6 +1,7 @@
 *.pyc
 *.bak
 *.stackdump
+examples/spyral
 .DS_Store
 MANIFEST
 build
