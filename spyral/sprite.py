@@ -366,7 +366,8 @@ class Sprite(object):
         if self._make_static or self._age > 4:
             self._scene._static_blit(self,
                                     self._transform_image,
-                                    k,
+                                    (self._pos[0] - self._offset[0] + offset[0],
+                                    self._pos[1] - self._offset[1] + offset[1]),
                                     self._layer,
                                     self._blend_flags,
                                     clipping)
