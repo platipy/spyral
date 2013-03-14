@@ -6,7 +6,7 @@ import spyral
 import sys
 
 SIZE = (640, 480)
-BG_COLOR = (255, 255, 255)
+BG_COLOR = (128, 128, 128)
 
 class Game(spyral.Scene):
     """

@@ -1,3 +1,11 @@
 ButtonWidget {
 	font: ("../spyral/resources/fonts/DejaVuSans.ttf", 14, (0, 0, 0))
+    image_up: "../spyral/resources/images/button.up.png"
+    image_up_hovered: "../spyral/resources/images/button.up.hovered.png"
+    image_up_focused: "../spyral/resources/images/button.up.focused.png"
+    image_down: "../spyral/resources/images/button.down.png"
+    image_down_hovered: "../spyral/resources/images/button.down.hovered.png"
+    image_down_focused: "../spyral/resources/images/button.down.focused.png"
+    nine_slice: True
+    text: "Button"
 }
