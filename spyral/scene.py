@@ -275,7 +275,6 @@ class Scene(object):
         return self._size
 
     def _set_size(self, size):
-        print '_set_size'
         rsize = self._surface.get_size()
         self._size = size
         self._scale = (rsize[0] / size[0],
