@@ -1,5 +1,6 @@
 *.pyc
 *.bak
+*.stackdump
 .DS_Store
 MANIFEST
 build

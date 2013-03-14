@@ -4,21 +4,15 @@ import operator
 import pygame
 import math
 import string
-from ConfigParser import SafeConfigParser
-_style = None
-
-def get_default_style():
-    global _style
-    if _style is None:
-        _style = FormStyle(None)
-    return _style
 
 class ButtonWidget(spyral.Sprite):
-    def __init__(self, text, width = None, style = None, camera = None):
+    """
+    A ButtonWidget is a simple button that can be pressed. It can have some
+    text. If you don't specify an explicit width, then it will be sized
+    according to it's text.
+    """
+    def __init__(self, scene, text = "Okay"):
         spyral.Sprite.__init__(self, camera)
-        if style is None:
-            style = get_default_style()
-        self._style = style
         
         self._padding = padding = int(style.get("Button", "padding"))
         
@@ -63,8 +57,7 @@ class ButtonWidget(spyral.Sprite):
         
         self.image = self.render_button(size)
         text = self.font.render(text)
-        self.image.draw_image(text, (0,0), anchor = 'center')
-        
+        self.image.draw_image(text, (0,0), anchor = 'center')        
         
     def render_button(self, size, style = 'plain'):
         if style == 'plain':
@@ -104,95 +97,27 @@ class ButtonWidget(spyral.Sprite):
             self._focused = False
         
 class ToggleButtonWidget(spyral.Sprite):
-    def __init__(self, text, style = None, camera = None):
+    """
+    A ToggleButtonWidget is similar to a Button, except that it will stay down
+    after it's been clicked, until it is clicked again.
+    """
+    def __init__(self, scene, text = "Okay"):
         spyral.Sprite.__init__(self, camera)
 
 class CheckboxWidget(spyral.Sprite):
-    def __init__(self, text, style = None, camera = None):
+    """
+    A CheckboxWidget is similar to a ToggleButtonWidget, only it doesn't have text.
+    """
+    def __init__(self, scene):
         spyral.Sprite.__init__(self, camera)
 
 class RadioButton(spyral.Sprite):
-    def __init__(self, value, style = None, camera = None):
+    def __init__(self, scene, value):
         spyral.Sprite.__init__(self, camera)
         
 class RadioGroup(object):
     def __init__(self, buttons, camera = None):
         spyral.Sprite.__init__(self, camera)
-
-class FormStyle(object):
-    def __init__(self, filename, defaults = None):
-        _defaults = {'spyral_path' : spyral._get_spyral_path()}
-        if defaults is not None:
-            _defaults.update(defaults)
-        config = SafeConfigParser(_defaults)
-        config.readfp(open(spyral._get_spyral_path() + 'resources/theme.cfg'))
-        if filename is not None:
-            config.read(filename)
-        self.config = config
-        self._images = {}
-        
-    def get(self, section, value):
-        return self.config.get(section, value)
-        
-    def get_image(self, section, value):
-        if (section, value) in self._images:
-            return self._images[(section, value)]
-        i = spyral.Image(self.config.get(section, value))
-        self._images[(section, value)] = i
-        return i
-            
-    def render_nine_slice(self, size, image):
-        bs = spyral.Vec2D(size)
-        bw = size[0]
-        bh = size[1]
-        ps = image.get_size() / 3
-        pw = int(ps[0])
-        ph = int(ps[1])
-        surf = image._surf
-        image = spyral.Image(size=bs + (1,1)) # Hack: If we don't make it one px large things get cut
-        s = image._surf
-        # should probably fix the math instead, but it works for now
-
-        topleft = surf.subsurface(pygame.Rect((0,0), ps))
-        left = surf.subsurface(pygame.Rect((0,ph), ps))
-        bottomleft = surf.subsurface(pygame.Rect((0, 2*pw), ps))
-        top = surf.subsurface(pygame.Rect((pw, 0), ps))
-        mid = surf.subsurface(pygame.Rect((pw, ph), ps))
-        bottom = surf.subsurface(pygame.Rect((pw, 2*ph), ps))
-        topright = surf.subsurface(pygame.Rect((2*pw, 0), ps))
-        right = surf.subsurface(pygame.Rect((2*ph, pw), ps))
-        bottomright = surf.subsurface(pygame.Rect((2*ph, 2*pw), ps))
-
-        # corners
-        s.blit(topleft, (0,0))
-        s.blit(topright, (bw - pw, 0))
-        s.blit(bottomleft, (0, bh - ph))
-        s.blit(bottomright, bs - ps)
-
-        # left and right border
-        for y in range(ph, bh - ph - ph, ph):
-            s.blit(left, (0, y))
-            s.blit(right, (bw - pw, y))
-        s.blit(left, (0, bh - ph - ph))
-        s.blit(right, (bw - pw, bh - ph - ph))
-        # top and bottom border
-        for x in range(pw, bw - pw - pw, pw):
-            s.blit(top, (x, 0))
-            s.blit(bottom, (x, bh - ph))
-        s.blit(top, (bw - pw - pw, 0))
-        s.blit(bottom, (bw - pw - pw, bh - ph))
-            
-        # center
-        for x in range(pw, bw - pw - pw, pw):
-            for y in range(ph, bh - ph - ph, ph):
-                s.blit(mid, (x, y))
-
-        for x in range(pw, bw - pw - pw, pw):
-                s.blit(mid, (x, bh - ph - ph))
-        for y in range(ph, bh - ph - ph, ph):
-                s.blit(mid, (bw - pw - pw, y))
-        s.blit(mid, (bw - pw - pw, bh - ph - ph))
-        return image  
     
 class Form(spyral.AggregateSprite):
     def __init__(self, name, manager, style = None, camera = None):

@@ -214,6 +214,60 @@ class Image(object):
             new.draw_image(image, (x,y))
         return new
         
+    @classmethod
+    def render_nine_slice(self, image, size):
+        bs = spyral.Vec2D(size)
+        bw = size[0]
+        bh = size[1]
+        ps = image.get_size() / 3
+        pw = int(ps[0])
+        ph = int(ps[1])
+        surf = image._surf
+        image = spyral.Image(size=bs + (1,1)) # Hack: If we don't make it one px large things get cut
+        s = image._surf
+        # should probably fix the math instead, but it works for now
+
+        topleft = surf.subsurface(pygame.Rect((0,0), ps))
+        left = surf.subsurface(pygame.Rect((0,ph), ps))
+        bottomleft = surf.subsurface(pygame.Rect((0, 2*pw), ps))
+        top = surf.subsurface(pygame.Rect((pw, 0), ps))
+        mid = surf.subsurface(pygame.Rect((pw, ph), ps))
+        bottom = surf.subsurface(pygame.Rect((pw, 2*ph), ps))
+        topright = surf.subsurface(pygame.Rect((2*pw, 0), ps))
+        right = surf.subsurface(pygame.Rect((2*ph, pw), ps))
+        bottomright = surf.subsurface(pygame.Rect((2*ph, 2*pw), ps))
+
+        # corners
+        s.blit(topleft, (0,0))
+        s.blit(topright, (bw - pw, 0))
+        s.blit(bottomleft, (0, bh - ph))
+        s.blit(bottomright, bs - ps)
+
+        # left and right border
+        for y in range(ph, bh - ph - ph, ph):
+            s.blit(left, (0, y))
+            s.blit(right, (bw - pw, y))
+        s.blit(left, (0, bh - ph - ph))
+        s.blit(right, (bw - pw, bh - ph - ph))
+        # top and bottom border
+        for x in range(pw, bw - pw - pw, pw):
+            s.blit(top, (x, 0))
+            s.blit(bottom, (x, bh - ph))
+        s.blit(top, (bw - pw - pw, 0))
+        s.blit(bottom, (bw - pw - pw, bh - ph))
+            
+        # center
+        for x in range(pw, bw - pw - pw, pw):
+            for y in range(ph, bh - ph - ph, ph):
+                s.blit(mid, (x, y))
+
+        for x in range(pw, bw - pw - pw, pw):
+                s.blit(mid, (x, bh - ph - ph))
+        for y in range(ph, bh - ph - ph, ph):
+                s.blit(mid, (bw - pw - pw, y))
+        s.blit(mid, (bw - pw - pw, bh - ph - ph))
+        return image  
+        
     def rotate(self, angle):
         """
         Rotates the image by *angle* degrees clockwise. This may change
