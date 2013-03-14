@@ -1,15 +1,11 @@
 Spyral:
     * Can director.run consume an optional Scene? How often do you not want to run the game without one?
     * Let Scenes be actors
-    * Add sprite.kill
     * Fix clock bug
     * Namespace Memoization
-    * Fix color stuff
     * Reinvestigate event sources
-    * Styles
     * Add key to keyboard event types
-    * Documentation
-        - Cameras
+        - I think this is done, but we need to investigate with caps and all kinds of special cases
     * Unit/Integration Testing
     * Forms
         - Button needs to not have its text dissappear
@@ -18,18 +14,24 @@ Spyral:
         - RadioBoxes
         - A complete example
     spyral.config
+        - Do I still like this idea?
+            - If I do, can the style parser be used?
         - smoothscale v scale
         - number of frames till static blit caching
     * Mouse Cursor Hiding
     * Keyboard repeating
-    * More sensetive input time handling?
     * Investigate behavior with naming keys in events with modifier keys
     * How should sprite.kill work with AggregateSprites? 
-    * How about AggregateSprite.remove?
-    * Add greenlet to requirements.txt
+    * How about AggregateSprite.remove? Does it kill?
+    * Figure out if we need two ways to run animations
+    * Rename animator, it seems shitty.
 
 Documentation:
-    * Clarify difference between running animations on sprite (non-blocking, backgrounded) vs actors (blocks the actor for the animation time)
+    * Pending results of other crap
+        * Clarify difference between running animations on sprite (non-blocking, backgrounded) vs actors (blocks the actor for the animation time)
+    * Diagram showing controll flow in the game
+    * Good explanation of Actors and events
+    * Tables showing all the stylable parameters for different stylable objects.
 
         
     
