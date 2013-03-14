@@ -1,0 +1,3 @@
+ButtonWidget {
+	font: ("../spyral/resources/fonts/DejaVuSans.ttf", 14, (0, 0, 0))
+}

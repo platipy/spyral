@@ -24,7 +24,7 @@ all_by_module = {
     'spyral.font' : ['Font'],
     'spyral.clock' : ['GameClock'],
     'spyral.event' : ['keys', 'mods', 'queue', 'Event', 'EventHandler', 'LiveEventHandler'],
-    'spyral.form' : ['TextInputWidget', 'Form', 'FormStyle', 'ButtonWidget'],
+    'spyral.form' : ['TextInputWidget', 'Form', 'ButtonWidget', 'CheckboxWidget', 'RadioButtonWidget', 'RadioGroup'],
     'spyral.dev' : ['_get_spyral_path'],
     'spyral.actor' : ['Actor'],
     'spyral.exceptions': ['SceneHasNoSizeError', 'NotStylableError', 'NoImageError', 'BackgroundSizeError']

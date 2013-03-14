@@ -5,6 +5,8 @@ import pygame
 import math
 import string
 
+
+
 class ButtonWidget(spyral.Sprite):
     """
     A ButtonWidget is a simple button that can be pressed. It can have some
@@ -12,89 +14,93 @@ class ButtonWidget(spyral.Sprite):
     according to it's text.
     """
     def __init__(self, scene, text = "Okay"):
-        spyral.Sprite.__init__(self, camera)
-        
-        self._padding = padding = int(style.get("Button", "padding"))
-        
+        spyral.Sprite.__init__(self, scene)
         self._focused = False
         
-        self.font = spyral.Font(style.get("Button", "font"),
-                                int(style.get("Button", "font_size")),
-                                style.get("Button", "font_color"))
-
-        if width is None:
-            width = self.font.get_size(text)[0] + 2*padding
-        height = int(math.ceil(self.font.get_linesize())) + 2*padding
-        size = width, height
-
-        self._size = size
+        self.image = self.font.render(text)
         
-        self.value = text
-        self._down_delay = 0
-        self._pressed = False
+    def __stylize__(self, properties):
+        spyral.Sprite.__stylize__(self, properties)
+        if 'font' in properties:
+            setattr(self, 'font', spyral.Font(*properties['font']))
+
+        # if width is None:
+            # width = self.font.get_size(text)[0] + 2*padding
+        # height = int(math.ceil(self.font.get_linesize())) + 2*padding
+        # size = width, height
+
+        # self._size = size
         
-        self.image = self.render_button(size)
-        text = self.font.render(text)
+        # self.value = text
+        # self._down_delay = 0
+        # self._pressed = False
+        
+        # self.image = self.render_button(size)
+        # text = self.font.render(text)
         
                 
-        self._image_normal = self.image
-        self._image_down = None
-        self._image_hover = None
-        self._image_focused = None
+        # self._image_normal = self.image
+        # self._image_down = None
+        # self._image_hover = None
+        # self._image_focused = None
         
 
-        self.image.draw_image(text, (0,0), anchor = 'center')
+        # self.image.draw_image(text, (0,0), anchor = 'center')
         
-    def update_text(self, text, width = None, style = None):
+    # def update_text(self, text, width = None, style = None):
 
-        padding = self._padding
-        if width is None:
-            width = self.font.get_size(text)[0] + 2*padding
-        height = int(math.ceil(self.font.get_linesize())) + 2*padding
-        size = width, height
-        self._size = size    
-        self.value = text
+        # padding = self._padding
+        # if width is None:
+            # width = self.font.get_size(text)[0] + 2*padding
+        # height = int(math.ceil(self.font.get_linesize())) + 2*padding
+        # size = width, height
+        # self._size = size    
+        # self.value = text
         
-        self.image = self.render_button(size)
-        text = self.font.render(text)
-        self.image.draw_image(text, (0,0), anchor = 'center')        
+        # self.image = self.render_button(size)
+        # text = self.font.render(text)
+        # self.image.draw_image(text, (0,0), anchor = 'center')        
         
-    def render_button(self, size, style = 'plain'):
-        if style == 'plain':
-            image = self._style.get_image('Button', 'background')
-        elif style == 'selected':
-            image = self._style.get_image('Button', 'background_selected')
-        elif style == 'hover':
-            image = self._style.get_image('Button', 'background_hovered')
-        elif style == 'focused':
-            image = self._style.get_image('Button', 'background_focused')
-        if self._style.get('Button', 'nine_slice'):
-            return self._style.render_nine_slice(size, image)
-        else:
-            return image
+    # def render_button(self, size, style = 'plain'):
+        # if style == 'plain':
+            # image = self._style.get_image('Button', 'background')
+        # elif style == 'selected':
+            # image = self._style.get_image('Button', 'background_selected')
+        # elif style == 'hover':
+            # image = self._style.get_image('Button', 'background_hovered')
+        # elif style == 'focused':
+            # image = self._style.get_image('Button', 'background_focused')
+        # if self._style.get('Button', 'nine_slice'):
+            # return self._style.render_nine_slice(size, image)
+        # else:
+            # return image
     
-    def handle_event(self, event):
-        if event.type == 'MOUSEBUTTONDOWN':
-            if self._image_down == None:
-                self._image_down = self.render_button(self._size, "selected")
-            self.image = self._image_down
-            self._pressed = True
-        elif event.type == 'MOUSEBUTTONUP':
-            self._pressed = False
-            self.image = self._image_normal
-        elif event.type == 'MOUSEMOTION':
-            if not self._pressed:
-                if self._image_hover == None:
-                    self._image_hover = self.render_button(self._size, "hover")
-                self.image = self._image_hover
-        elif event.type == 'focused':
-            if self._image_focused == None:
-                    self._image_focused = self.render_button(self._size, "focused")
-            self._focused = True
-            self.image = self._image_focused
-        elif event.type == 'blurred':
-            self.image = self._image_normal
-            self._focused = False
+    # def handle_event(self, event):
+        # if event.type == 'MOUSEBUTTONDOWN':
+            # if self._image_down == None:
+                # self._image_down = self.render_button(self._size, "selected")
+            # self.image = self._image_down
+            # self._pressed = True
+        # elif event.type == 'MOUSEBUTTONUP':
+            # self._pressed = False
+            # self.image = self._image_normal
+        # elif event.type == 'MOUSEMOTION':
+            # if not self._pressed:
+                # if self._image_hover == None:
+                    # self._image_hover = self.render_button(self._size, "hover")
+                # self.image = self._image_hover
+        # elif event.type == 'focused':
+            # if self._image_focused == None:
+                    # self._image_focused = self.render_button(self._size, "focused")
+            # self._focused = True
+            # self.image = self._image_focused
+        # elif event.type == 'blurred':
+            # self.image = self._image_normal
+            # self._focused = False
+            
+class MultiButtonStateWidget(spyral.Sprite):
+    def __init__(self, scene):
+        spyral.Sprite.__init__(self, scene)
         
 class ToggleButtonWidget(spyral.Sprite):
     """
@@ -102,34 +108,37 @@ class ToggleButtonWidget(spyral.Sprite):
     after it's been clicked, until it is clicked again.
     """
     def __init__(self, scene, text = "Okay"):
-        spyral.Sprite.__init__(self, camera)
+        spyral.Sprite.__init__(self, scene)
 
 class CheckboxWidget(spyral.Sprite):
     """
     A CheckboxWidget is similar to a ToggleButtonWidget, only it doesn't have text.
     """
     def __init__(self, scene):
-        spyral.Sprite.__init__(self, camera)
+        spyral.Sprite.__init__(self, scene)
 
-class RadioButton(spyral.Sprite):
-    def __init__(self, scene, value):
-        spyral.Sprite.__init__(self, camera)
+class RadioButtonWidget(spyral.Sprite):
+    """
+    A RadioButton is similar to a CheckBox, except it is to be placed into a
+    RadioGroup, which will ensure that only one RadioButton in it's group is
+    selected at a time.
+    """
+    def __init__(self, scene):
+        spyral.Sprite.__init__(self, scene)
         
 class RadioGroup(object):
-    def __init__(self, buttons, camera = None):
-        spyral.Sprite.__init__(self, camera)
+    """
+    Only one RadioButton in a RadioGroup can be selected at a time.
+    """
+    def __init__(self, buttons, selected = None):
+        spyral.Sprite.__init__(self, scene)
     
 class Form(spyral.AggregateSprite):
-    def __init__(self, name, manager, style = None, camera = None):
+    def __init__(self, scene, name):
         """
-        [INSERT DESCRIPTION HERE]
         
-        `manager` is an `EventManager` which relevant events will be
-        sent to. The event types will be
-        "%(form_name)s_%(field_name)_%(event_type)" where event_type is
-        from [INSERT LINK TO DOCUMENTATION FOR FORM EVENTS].
         """
-        spyral.AggregateSprite.__init__(self, camera)
+        spyral.AggregateSprite.__init__(self, scene)
         class Fields(object):
             pass
         self.fields = Fields()
@@ -138,7 +147,6 @@ class Form(spyral.AggregateSprite):
         self._labels = {}
         self._current_focus = None
         self._name = name
-        self._manager = manager        
         self._mouse_currently_over = None
         self._mouse_down_on = None
         
@@ -169,14 +177,14 @@ class Form(spyral.AggregateSprite):
                     e.form = self
                     e.widget = self._widgets[self._mouse_currently_over]
                     e.widget_name = self._mouse_currently_over
-                    self._manager.send_event(e)
+                    #self._manager.send_event(e)
                 self._mouse_currently_over = now_hover
                 if now_hover is not None:
                     e = spyral.Event("%s_%s" % (self._name, "on_mouse_over"))
                     e.form = self
                     e.widget = self._widgets[self._mouse_currently_over]
                     e.widget_name = self._mouse_currently_over
-                    self._manager.send_event(e)
+                    #self._manager.send_event(e)
             return
         if event.type == 'KEYDOWN' or event.type == 'KEYUP':
             if self._current_focus is None:
@@ -227,7 +235,7 @@ class Form(spyral.AggregateSprite):
         e = spyral.Event("%s_%s_%s" % (self._name, name, "on_blur"))
         e.widget = self._widgets[name]
         e.form = self
-        self._manager.send_event(e)
+        #self._manager.send_event(e)
 
     def focus(self, name = None):
         """
@@ -241,12 +249,12 @@ class Form(spyral.AggregateSprite):
         if self._current_focus is not None:
             self._blur(self._current_focus)
         self._current_focus = name
-        e = spyral.Event("focused")
-        self._widgets[name].handle_event(e)
-        e = spyral.Event("%s_%s_%s" % (self._name, name, "on_focus"))
-        e.widget = self._widgets[name]
-        e.form = self
-        self._manager.send_event(e)
+        #e = spyral.Event("focused")
+        #self._widgets[name].handle_event(e)
+        #e = spyral.Event("%s_%s_%s" % (self._name, name, "on_focus"))
+        #e.widget = self._widgets[name]
+        #e.form = self
+        #self._manager.send_event(e)
         return
         
     def blur(self):
@@ -303,8 +311,8 @@ class Form(spyral.AggregateSprite):
 
 
 class TextInputWidget(spyral.AggregateSprite):            
-    def __init__(self, width, value = '', default_value = True, max_length = None, style = None, validator = None, camera = None):
-        spyral.AggregateSprite.__init__(self, camera)
+    def __init__(self, scene, width, value = '', default_value = True, max_length = None, validator = None):
+        spyral.AggregateSprite.__init__(self, scene)
         
         if style is None:
             style = get_default_style()
