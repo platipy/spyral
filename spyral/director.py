@@ -3,7 +3,6 @@ import pygame
 
 _initialized = False
 _stack = []
-_camera = None
 _screen = None
 _tick = 0
 _max_fps = None
@@ -15,7 +14,6 @@ def init(size=(0, 0),
          fullscreen = False,
          caption = "spyral"):
     global _initialized
-    global _camera
     global _screen
     global _max_fps
     global _max_ups
@@ -48,18 +46,10 @@ def init(size=(0, 0),
     _screen = pygame.display.set_mode(size, flags)
 
     _initialized = True
-
-    _camera = spyral._camera.Camera(virtual_size=size, root=True)
     pygame.display.set_caption(caption)
 
     _max_ups = max_ups
     _max_fps = max_fps
-
-def _get_camera():
-    """
-    Returns the root camera for the display.
-    """
-    return _camera
 
 def get_scene():
     """
@@ -87,9 +77,7 @@ def replace(scene):
         spyral.event.handle('director.scene.exit', _scene = _stack[-1])
         old = _stack.pop()
         spyral.sprite._switch_scene()
-        _camera._exit_scene(old)
     _stack.append(scene)
-    _camera._enter_scene(scene)
     spyral.event.handle('director.scene.enter', _scene = scene)
     pygame.event.get()
 
@@ -106,10 +94,8 @@ def pop():
     spyral.event.handle('director.scene.exit', _scene = _stack[-1])
     scene = _stack.pop()
     spyral.sprite._switch_scene()
-    _camera._exit_scene(scene)
     if _stack:
         scene = _stack[-1]
-        _camera._enter_scene(scene)
         spyral.event.handle('director.scene.enter', _scene = scene)
     else:
         exit(0)
@@ -126,9 +112,7 @@ def push(scene):
         spyral.event.handle('director.scene.exit', _scene = _stack[-1])
         old = _stack[-1]
         spyral.sprite._switch_scene()
-        _camera._exit_scene(old)
     _stack.append(scene)
-    _camera._enter_scene(scene)
     spyral.event.handle('director.scene.enter', _scene = scene)
     pygame.event.get()
 
@@ -147,7 +131,6 @@ def run(sugar=False, profiling=False, scene=None):
         return
     old_scene = None
     scene = get_scene()
-    camera = _camera
     clock = scene.clock
     stack = _stack
     while True:
@@ -161,7 +144,7 @@ def run(sugar=False, profiling=False, scene=None):
             def frame_callback(interpolation):
                 scene._handle_event("director.pre_render")
                 scene._handle_event("director.render")
-                camera._draw()
+                scene._draw()
                 scene._handle_event("director.post_render")
 
             def update_callback(dt):
@@ -170,7 +153,7 @@ def run(sugar=False, profiling=False, scene=None):
                     while gtk.events_pending():
                         gtk.main_iteration()
                 if len(pygame.event.get([pygame.VIDEOEXPOSE])) > 0:
-                    camera.redraw()
+                    scene.redraw()
                     scene._handle_event("director.redraw")
 
                 scene._event_source.tick()

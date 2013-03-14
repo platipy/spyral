@@ -64,7 +64,6 @@ class Sprite(object):
         self._scale = spyral.Vec2D(1.0, 1.0)
         self._scaled_image = None
         self._scene = scene
-        self._camera = scene._camera
         self._angle = 0
         self._crop = None
         self._transform_image = None
@@ -85,7 +84,7 @@ class Sprite(object):
         # Expire static is part of the private API which must
         # be implemented by Sprites that wish to be static.
         if self._static:
-            spyral.director._get_camera()._remove_static_blit(self)
+            self._scene._remove_static_blit(self)
         self._static = False
         self._age = 0
         return True
@@ -334,7 +333,7 @@ class Sprite(object):
         """
         This documentation is wrong now. Fix it later.
 
-        Draws this sprite to the camera specified. Called automatically in
+        Draws this sprite  Called automatically in
         the render loop. This should only be overridden in extreme
         circumstances.
         """
@@ -365,16 +364,17 @@ class Sprite(object):
             clipping = ( (0, 0), ((0, 0), self._transform_image.get_rect().size))
 
         if self._make_static or self._age > 4:
-            self._camera._static_blit(self,
+            self._scene._static_blit(self,
                                     self._transform_image,
-                                    k,
+                                    (self._pos[0] - self._offset[0] + offset[0],
+                                    self._pos[1] - self._offset[1] + offset[1]),
                                     self._layer,
                                     self._blend_flags,
                                     clipping)
             self._make_static = False
             self._static = True
             return
-        self._camera._blit(self._transform_image,
+        self._scene._blit(self._transform_image,
                         (self._pos[0] - self._offset[0] + offset[0],
                         self._pos[1] - self._offset[1] + offset[1]),
                         self._layer,
@@ -383,7 +383,7 @@ class Sprite(object):
         self._age += 1
 
     def __del__(self):
-        spyral.director._get_camera()._remove_static_blit(self)
+        scene._remove_static_blit(self)
         
     def animate(self, animation):
         """
@@ -492,7 +492,7 @@ class AggregateSprite(Sprite):
     
     def draw(self, offset = spyral.Vec2D(0,0), crop = None):
         """
-        Draws this sprite and all children to the camera. Should be
+        Draws this sprite and all children. Should be
         overridden only in extreme circumstances.
         """
         if self._age == 0:
@@ -579,7 +579,7 @@ class ViewPort(Sprite):
     
     def draw(self, offset = spyral.Vec2D(0,0)):
         """
-        Draws this sprite and all children to the camera. Should be
+        Draws this sprite and all children. Should be
         overridden only in extreme circumstances.
         """
         if self._age == 0:

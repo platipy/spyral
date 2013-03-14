@@ -1,4 +1,6 @@
+from __future__ import division
 import spyral
+import pygame
 import time
 import collections
 import operator
@@ -6,7 +8,31 @@ import itertools
 import greenlet
 import inspect
 import sys
+import math
 from collections import defaultdict
+
+@spyral.memoize._ImageMemoize
+def _scale(s, factor):
+    if factor == (1.0, 1.0):
+        return s
+    size = s.get_size()
+    new_size = (int(math.ceil(size[0] * factor[0])),
+                int(math.ceil(size[1] * factor[1])))
+    t = pygame.transform.smoothscale(s,
+                               new_size,
+                               pygame.Surface(new_size, pygame.SRCALPHA).convert_alpha())
+    return t
+
+class _Blit(object):
+    __slots__ = ['surface', 'rect', 'layer', 'flags', 'static', 'clipping']
+    def __init__(self, surface, rect, layer, flags, static, clipping):
+        self.surface = surface
+        self.rect = rect
+        self.layer = layer
+        self.flags = flags
+        self.static = static
+        self.clipping = clipping
+
 
 class Scene(object):
     """
@@ -26,9 +52,6 @@ class Scene(object):
             max_ups=max_ups or spyral.director._max_ups)
         self.clock.use_wait = True
 
-        self._camera_ = None
-        if size is not None:
-            self._camera_ = spyral.director._get_camera().make_child(size)
         self._handlers = collections.defaultdict(lambda: [])
         self._namespaces = set()
         self._event_source = spyral.event.LiveEventHandler() # Gotta go rename this now
@@ -49,30 +72,27 @@ class Scene(object):
         
         self._style_functions['TestingBox'] = TestingBox
 
+
+        self._size = None
+        self._scale = None
+        self._surface = pygame.display.get_surface()
+        if size is not None:
+            self._set_size(size)
+        self._background = pygame.surface.Surface(self._surface.get_size())
+        self._background.fill((255, 255, 255))
+        self._surface.blit(self._background, (0, 0))
+        self._blits = []
+        self._dirty_rects = []
+        self._clear_this_frame = []
+        self._clear_next_frame = []
+        self._soft_clear = []
+        self._static_blits = {}
+        self._rect = self._surface.get_rect()
+
         self.register('director.update', self.handle_events)
         self.register('director.update', self.run_actors, ('dt',))
     
-    @property
-    def _camera(self):
-        if self._camera_ is None:
-            raise spyral.SceneHasNoSizeException("You should specify a size in the constructor or in a style file before other operations.")
-        return self._camera_
-
-    def __stylize__(self, properties):
-        if 'size' in properties:
-            size = properties.pop('size')
-            self._camera_ = spyral.director._get_camera().make_child(size)
-        if 'background' in properties:
-            background = properties.pop('background')
-            if isinstance(background, (tuple, list)):
-                bg = spyral.Image(size=self._camera.get_size())
-                bg.fill(background)
-            else:
-                bg = spyral.Image(backgronud)
-            self.set_background(bg)
-
-    # Internal Methods
-    
+    # Actor Handling
     def _register_actor(self, actor, greenlet):
         self._greenlets[actor] = greenlet
                     
@@ -83,7 +103,18 @@ class Scene(object):
                 dt, rerun = greenlet.switch(dt)
         return False
 
+    def run_actors(self, dt):
+        g = greenlet.greenlet(self._run_actors_greenlet)
+        while True:
+            d = g.switch(dt, False)
+            if d is True:
+                continue
+            if d is False:
+                break
+            g.switch(d, True)
     
+
+    # Event Handling
     def _queue_event(self, type, event = None):
         if self._handling_events:
             self._pending.append((type, event))
@@ -153,8 +184,6 @@ class Scene(object):
             if self._send_event_to_handler(event, *handler_info):
                 break
                     
-    # External methods
-
     def handle_events(self):
         self._handling_events = True
         do = True
@@ -164,17 +193,7 @@ class Scene(object):
                 self._handle_event(type, event)
             self._events = self._pending
             self._pending = []
-            
-    def run_actors(self, dt):
-        g = greenlet.greenlet(self._run_actors_greenlet)
-        while True:
-            d = g.switch(dt, False)
-            if d is True:
-                continue
-            if d is False:
-                break
-            g.switch(d, True)
-            
+
     def register(self, event_namespace, handler, args = None, kwargs = None, priority = 0):
         """
         I'm gonna pop some tags.
@@ -211,6 +230,21 @@ class Scene(object):
     def set_event_source(self, source):
         self._event_source = source
 
+
+    # Style Handling
+    def __stylize__(self, properties):
+        if 'size' in properties:
+            size = properties.pop('size')
+            self._set_size(size)
+        if 'background' in properties:
+            background = properties.pop('background')
+            if isinstance(background, (tuple, list)):
+                bg = spyral.Image(size=self.size)
+                bg.fill(background)
+            else:
+                bg = spyral.Image(backgronud)
+            self.set_background(bg)
+
     def load_style(self, path):
         spyral._style.parse(open(path, "r").read(), self)
         self.apply_style(self)
@@ -233,5 +267,176 @@ class Scene(object):
     def add_style_function(self, name, function):
         self._style_functions[name] = function
 
+
+    # Rendering
+    def _get_size(self):
+        if self._size is None:
+            raise spyral.SceneHasNoSizeException("You should specify a size in the constructor or in a style file before other operations.")
+        return self._size
+
+    def _set_size(self, size):
+        rsize = self._surface.get_size()
+        self._size = size
+        self._scale = (rsize[0] / size[0],
+                       rsize[1] / size[1])
+
+    size = property(_get_size, _set_size)
+
     def set_background(self, image):
-        self._camera.set_background(image)
+        surface = image._surf
+        scene = spyral._get_executing_scene()
+        if surface.get_size() != self.size:
+            raise spyral.BackgroundSizeError("Background size must match the scene's size.")
+        self._background = pygame.transform.smoothscale(surface, self._surface.get_size())
+        self._clear_this_frame.append(surface.get_rect())
+
+    def _blit(self, surface, position, layer, flags, clipping):
+        position = spyral.point.scale(position, self._scale)
+        new_surface = _scale(surface, self._scale)
+        r = pygame.Rect(position, new_surface.get_size())
+
+        if self._rect.contains(r):
+            pass
+        elif self._rect.colliderect(r):
+            x = r.clip(self._rect)
+            y = x.move(-r.left, -r.top)
+            new_surface = new_surface.subsurface(y)
+            r = x
+        else:
+            return
+        self._blits.append(_Blit(new_surface, r, layer, flags, False, clipping))
+
+    def _static_blit(self, sprite, surface, position, layer, flags, clipping):
+        position = spyral.point.scale(position, self._scale)
+        redraw = sprite in self._static_blits
+        if redraw:
+            r2 = self._static_blits[sprite][1]
+        new_surface = _scale(surface, self._scale)
+        r = pygame.Rect(position, new_surface.get_size())
+        if self._rect.contains(r):
+            pass
+        elif self._rect.colliderect(r):
+            x = r.clip(self._rect)
+            y = x.move(-r.left, -r.top)
+            new_surface = new_surface.subsurface(y)
+            r = x
+        else:
+            return
+        self._static_blits[sprite] = _Blit(new_surface, r, layer, flags, True, clipping)
+        if redraw:
+            self._clear_this_frame.append(r2.union(r))
+        else:
+            self._clear_this_frame.append(r)
+
+    def _remove_static_blit(self, sprite):
+        try:
+            x = self._static_blits.pop(sprite)
+            self._clear_this_frame.append(x.rect)
+        except:
+            pass
+
+    def _draw(self):
+        """
+        Called by the director at the end of every .render() call to do
+        the actual drawing.
+        """
+
+        # This function sits in a potential hot loop
+        # For that reason, some . lookups are optimized away
+        screen = self._surface
+
+        # Let's finish up any rendering from the previous frame
+        # First, we put the background over all blits
+        x = self._background.get_rect()
+        for i in self._clear_this_frame + self._soft_clear:
+            i = x.clip(i)
+            b = self._background.subsurface(i)
+            screen.blit(b, i)
+
+        # Now, we need to blit layers, while simultaneously re-blitting
+        # any static blits which were obscured
+        static_blits = len(self._static_blits)
+        dynamic_blits = len(self._blits)
+        blits = self._blits + list(self._static_blits.values())
+        blits.sort(key=operator.attrgetter('layer'))
+        
+        # Clear this is a list of things which need to be cleared
+        # on this frame and marked dirty on the next
+        clear_this = self._clear_this_frame
+        # Clear next is a list which will become clear_this on the next
+        # draw cycle. We use this for non-static blits to say to clear
+        # That spot on the next frame
+        clear_next = self._clear_next_frame
+        # Soft clear is a list of things which need to be cleared on
+        # this frame, but unlike clear_this, they won't be cleared
+        # on future frames. We use soft_clear to make things static
+        # as they are drawn and then no longer cleared
+        soft_clear = self._soft_clear
+        self._soft_clear = []
+        screen_rect = screen.get_rect()
+        drawn_static = 0
+        
+        blit_flags_available = pygame.version.vernum < (1, 8)
+        
+        for blit in blits:
+            blit_clipping_offset, blit_clipping_region = blit.clipping
+            blit_rect = blit.rect.move(blit_clipping_offset)
+            blit_flags = blit.flags if blit_flags_available else 0
+            # If a blit is entirely off screen, we can ignore it altogether
+            if not screen_rect.contains(blit_rect) and not screen_rect.colliderect(blit_rect):
+                continue
+            if blit.static:
+                skip_soft_clear = False
+                for rect in clear_this:
+                    if blit_rect.colliderect(rect):
+                        screen.blit(blit.surface, blit_rect, blit_clipping_region, blit_flags)
+                        skip_soft_clear = True
+                        clear_this.append(blit_rect)
+                        self._soft_clear.append(blit_rect)
+                        drawn_static += 1
+                        break
+                if skip_soft_clear:
+                    continue
+                for rect in soft_clear:
+                    if blit_rect.colliderect(rect):
+                        screen.blit(blit.surface, blit_rect, blit_clipping_region, blit_flags)
+                        soft_clear.append(blit.rect)
+                        drawn_static += 1
+                        break
+            else:                
+                if screen_rect.contains(blit_rect):
+                    r = screen.blit(blit.surface, blit_rect, blit_clipping_region, blit_flags)
+                    clear_next.append(r)
+                elif screen_rect.colliderect(blit_rect):
+                    x = blit.rect.clip(screen_rect)
+                    y = x.move(-blit_rect.left, -blit_rect.top)
+                    b = blit.surf.subsurface(y)
+                    r = screen.blit(blit.surface, blit_rect, blit_clipping_region, blit_flags)
+                    clear_next.append(r)
+
+        pygame.display.set_caption("%d / %d static, %d dynamic. %d ups, %d fps" %
+                                   (drawn_static, static_blits,
+                                    dynamic_blits, self.clock.ups,
+                                    self.clock.fps))
+        # Do the display update
+        pygame.display.update(self._clear_next_frame + self._clear_this_frame)
+        # Get ready for the next call
+        self._clear_this_frame = self._clear_next_frame
+        self._clear_next_frame = []
+        self._blits = []
+
+    def redraw(self):
+        self._clear_this_frame.append(pygame.Rect((0,0), self._vsize))
+
+    def set_layers(self, layers):
+        pass
+
+    def world_to_local(self, pos):
+        """
+        Rename, decide if necessary, perhaps auto-scale the event coordinates inside the scene.
+        """
+        pos = spyral.Vec2D(pos)
+        if self._rect.collidepoint(pos):
+            pos = pos / self._scale
+            return pos
+        return None
