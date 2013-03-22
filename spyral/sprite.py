@@ -47,9 +47,14 @@ class Sprite(object):
         if 'image' in properties:
             image = properties.pop('image')
             setattr(self, 'image', image)
-        simple = ['scale', 'flip_x', 'flip_y', 'angle', 'visible', 'layer']
-        for property, value in properties.iteritems(): 
-            setattr(self, property, value)
+        simple = ['pos', 'x', 'y', 'position', 'anchor', 'layer', 'visible',
+                  'scale', 'scale_x', 'scale_y', 'flip_x', 'flip_y', 'angle']
+        for property in simple:
+            if property in properties:
+                value = properties.pop(property)
+                setattr(self, property, value)
+        if len(properties) > 0:
+            spyral.exceptions.unused_style_warning(self, properties.iterkeys())
 
     def __init__(self, scene):
         _all_sprites.append(_wref(self))

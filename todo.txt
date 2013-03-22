@@ -1,12 +1,11 @@
 Next Week Deadline:
-    - Kill colors
     - Fix views
     - Finish Forms
     - Fix Animations (At least Animator naming)
-    - Add warnings on unused styles
     - More style functionality in general (e.g. pass a filename as an image parameter to use it)
     - Finish view transformation pipeline (including pivot_angle, and test tree of animation with views/agg sprites, especially talking about ordering of pipeline with regards to a tall tree of height greater than 2)
     - Caps in keyboard event handling needs to be checked, especially with regards to non-english keyboards
+    - Changes to the sprites so that size is now settable, get rid of read-only properties
 Following Week Deadline:
     - All docs
 Before semester:

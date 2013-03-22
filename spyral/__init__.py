@@ -27,7 +27,7 @@ all_by_module = {
     'spyral.form' : ['TextInputWidget', 'Form', 'ButtonWidget', 'CheckboxWidget', 'RadioButtonWidget', 'RadioGroup'],
     'spyral.dev' : ['_get_spyral_path'],
     'spyral.actor' : ['Actor'],
-    'spyral.exceptions': ['SceneHasNoSizeError', 'NotStylableError', 'NoImageError', 'BackgroundSizeError', 'LayersAlreadySetError']
+    'spyral.exceptions': ['SceneHasNoSizeError', 'NotStylableError', 'NoImageError', 'BackgroundSizeError', 'LayersAlreadySetError', 'UnusedStyleWarning']
 }
 
 attribute_modules = frozenset(['memoize', 'point', 'exceptions', 'animator', 'event', '_lib', 'font', 'form', 'director', 'sprite', '_style'])
