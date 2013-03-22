@@ -1,5 +1,18 @@
+Next Week Deadline:
+    - Kill colors
+    - Fix views
+    - Finish Forms
+    - Fix Animations (At least Animator naming)
+    - Add warnings on unused styles
+    - More style functionality in general (e.g. pass a filename as an image parameter to use it)
+    - Finish view transformation pipeline (including pivot_angle, and test tree of animation with views/agg sprites, especially talking about ordering of pipeline with regards to a tall tree of height greater than 2)
+    - Caps in keyboard event handling needs to be checked, especially with regards to non-english keyboards
+Following Week Deadline:
+    - All docs
+Before semester:
+    - Translations
+
 Spyral:
-    * Can director.run consume an optional Scene? How often do you not want to run the game without one?
     * Let Scenes be actors
     * Fix clock bug
     * Namespace Memoization
@@ -25,6 +38,15 @@ Spyral:
     * How about AggregateSprite.remove? Does it kill?
     * Figure out if we need two ways to run animations
     * Rename animator, it seems shitty.
+    * Text View
+        - Bold, Italic, Underline
+        - Links - clicking or hovering over a bit of text
+        - Hovertext - hovering over a bit of text 
+        - Newlines
+        - Text-wrapping - break on overflow, break on space
+        - Images/icons in text
+        - Color/background
+        -  
 
 Documentation:
     * Pending results of other crap
@@ -46,6 +68,7 @@ Platipy:
         - Measuring performance
         - Translation/internationalization
  
+Empyre
 Example.activity:
     - Add flag for popping into pdb upon crash
     - Saving stack traces into a directory on crashes
