@@ -29,9 +29,10 @@ Spyral:
 Documentation:
     * Pending results of other crap
         * Clarify difference between running animations on sprite (non-blocking, backgrounded) vs actors (blocks the actor for the animation time)
-    * Diagram showing controll flow in the game
+    * Diagram showing control flow in the game
     * Good explanation of Actors and events
     * Tables showing all the stylable parameters for different stylable objects.
+    * Diagram showing the transformation hierarchy (positioning -> scaling -> rotating -> clipping)
 
         
     

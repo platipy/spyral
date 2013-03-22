@@ -5,123 +5,121 @@ import pygame
 import math
 import string
 
-
-
-class ButtonWidget(spyral.AggregateSprite):
+            
+class MultiStateWidget(spyral.AggregateSprite):
+    def __init__(self, scene, states):
+        self._states = states
+        self._state = self._states[0]
+        
+        spyral.AggregateSprite.__init__(self, scene)
+        
+        self._images = {}
+        self._content_size = (0, 0)
+        
+    def _render_images(self):
+        for state in self._states:
+            if self._nine_slice:
+                size = spyral.Vec2D(self._padding, self._padding) + self._content_size
+                nine_slice_image = spyral.Image(self._image_locations[state])
+                self._images[state] = spyral.Image.render_nine_slice(nine_slice_image, size)
+            else:
+                self._images[state] = spyral.Image(self._image_locations[state])
+        self.image = self._images[self._state]
+        self._on_size_change()
+    
+    def _set_state(self, state):
+        self._state = state
+        self.image = self._images[state]
+        
+    def _get_state(self):
+        return self._state
+        
+    def _set_nine_slice(self, nine_slice):
+        self._nine_slice = nine_slice
+        self._render_images()
+        
+    def _get_nine_slice(self):
+        return self._nine_slice
+        
+    def _set_padding(self, padding):
+        self._padding = padding
+        self._render_images()
+        
+    def _get_padding(self):
+        return self._padding
+        
+    def _set_content_size(self, size):
+        self._content_size = size
+        self._render_images()
+        
+    def _get_content_size(self):
+        return self._get_content_size
+        
+    def _on_size_change(self):
+        pass
+    
+    nine_slice = property(_get_nine_slice, _set_nine_slice)
+    state = property(_get_state, _set_state)
+    content_size = property(_get_content_size, _set_content_size)
+    
+    def __stylize__(self, properties):
+        self._padding = properties.pop('padding', 4)
+        self._nine_slice = properties.pop('nine_slice', False)
+        self._image_locations = {}
+        for state in self._states:
+            # TODO: try/catch to ensure that the property is set?
+            self._image_locations[state] = properties.pop('image_%s' % (state,))
+        spyral.AggregateSprite.__stylize__(self, properties)
+        
+class ButtonWidget(MultiStateWidget):
     """
     A ButtonWidget is a simple button that can be pressed. It can have some
     text. If you don't specify an explicit width, then it will be sized
     according to it's text.
     """
     def __init__(self, scene, text = "Okay"):
-        spyral.AggregateSprite.__init__(self, scene)
+        spyral.MultiStateWidget.__init__(self, scene, ['up', 'down', 'focused', 'hovered'])
         
-        self.text_sprite = spyral.Sprite(scene)
-        self.add_child(self.text_sprite)
-        
-        self._focused = False
-        self._hovered = False
-        self._state = True
+        self._text_sprite = spyral.Sprite(scene)
+        self.add_child(self._text_sprite)
+
         self.text = text
-        
-        
-    def _set_state(self, state):
-        self._state = state
-        self._focused = False
-        self._hovered = False
-        self._draw()
-        
-    def _get_state(self):
-        return self._state
-        
-    def _set_focused(self, focused):
-        self._focused = focused
-        self._draw()
-        
-    def _get_focused(self):
-        return self._focused
-        
-    def _set_hovered(self, hovered):
-        self._hovered = hovered
-        self._focused = False
-        self._draw()
-        
-    def _get_hovered(self):
-        return self._hovered
         
     def _get_text(self):
         return self._text
     
     def _set_text(self, text):
         self._text = text
-        self._rebuild_nine_slice()
-        self._draw()
+        self._text_sprite.image = self.font.render(self._text)
+        self._content_size = self._text_sprite.image.get_size()
+        self._render_images()
         
-    def _get_nine_slice(self):
-        return self._nine_slice
-    
-    def _set_nine_slice(self, nine_slice):
-        self._nine_slice = nine_slice
-        self._draw()
-        
+    def _on_size_change(self):
+        self._text_sprite.pos = spyral.Vec2D(self._padding, self._padding) / 2
+                
     text = property(_get_text, _set_text)
-    focused = property(_get_focused, _set_focused)
-    hovered = property(_get_hovered, _set_hovered)
-    state = property(_get_state, _set_state)
-    nine_slice = property(_get_nine_slice, _set_nine_slice)
-    
-    def _draw(self):
-        self.image = self._backs[self._nine_slice, self._state, self._hovered, self._focused]
-        if self.state:
-            self.text_sprite.pos = (2,2)
-        else:
-            self.text_sprite.pos = (3,3)
-        self.text_sprite.image = self.font.render(self._text)
-    
-    def _rebuild_nine_slice(self):
-        size = spyral.Vec2D(self.font.get_size(self._text)) + (4,4)
-        for flags in self._backs.keys()[:]:
-            slice, state, hovered, focused = flags
-            if not slice:
-                original_image = self._backs[flags]
-                new_flags = True, state, hovered, focused
-                self._backs[new_flags] = spyral.Image.render_nine_slice(original_image, size)
     
     def handle_mouse_up(self, event):
-        self.state = True
+        self.state = 'up'
         
     def handle_mouse_down(self, event):
-        self.state = False
+        self.state = 'down'
         
     def handle_mouse_motion(self, event):
-        self.hovered = False
+        self.state = 'hovered'
         
     def handle_focus(self, event):
-        self.focused = True
+        self.state = 'focused'
     
     def handle_blur(self, event):
-        self.focused = False
+        self.state = 'up'
         
     def __stylize__(self, properties):
         self.font = spyral.Font(*properties.pop('font'))
         self._text = properties.pop('text', "Button")
-            
-        i = spyral.Image
-                       #9slice, state, hovered, focused
-        self._backs = {(False, True, False, False): i(properties.pop('image_up')),
-                       (False, True, True, False) : i(properties.pop('image_up_hovered')),
-                       (False, True, False, True) : i(properties.pop('image_up_focused')),
-                       (False, False, False, False) : i(properties.pop('image_down')),
-                       (False, False, True, False)  : i(properties.pop('image_down_hovered')),
-                       (False, False, False, True)  : i(properties.pop('image_down_focused'))}
-        self._nine_slice = properties.pop('nine_slice', False)
-        
-        spyral.Sprite.__stylize__(self, properties)
+
+        spyral.MultiStateWidget.__stylize__(self, properties)
     
-            
-class MultiButtonStateWidget(spyral.Sprite):
-    def __init__(self, scene):
-        spyral.Sprite.__init__(self, scene)
         
 class ToggleButtonWidget(spyral.Sprite):
     """

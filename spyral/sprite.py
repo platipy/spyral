@@ -236,15 +236,24 @@ class Sprite(object):
     def _get_width(self):
         if self._transform_image:
             return self._transform_image.get_width()
+            
+    def _set_width(self, width):
+        self._set_scale((width / self._get_width(), self._scale[1]))
 
     def _get_height(self):
         if self._transform_image:
             return self._transform_image.get_height()
+            
+    def _set_height(self, height):
+        self._set_scale((self._scale[0], height / self._get_height()))
 
     def _get_size(self):
         if self._transform_image:
             return spyral.Vec2D(self._transform_image.get_size())
         return spyral.Vec2D(0, 0)
+        
+    def _set_size(self, size):
+        self._set_scale((width / self._get_width(), height / self._get_height()))
 
     def _get_scale(self):
         return self._scale
@@ -278,7 +287,7 @@ class Sprite(object):
             return
         self._angle = angle
         self._recalculate_transforms()
-        
+
     def _get_flip_x(self):
         return self._flip_x
     
@@ -316,9 +325,9 @@ class Sprite(object):
     scale = property(_get_scale, _set_scale)
     scale_x = property(_get_scale_x, _set_scale_x)
     scale_y = property(_get_scale_y, _set_scale_y)
-    width = property(_get_width)
-    height = property(_get_height)
-    size = property(_get_size)
+    width = property(_get_width, _set_width)
+    height = property(_get_height, _set_height)
+    size = property(_get_size, _set_size)
     angle = property(_get_angle, _set_angle)
     flip_x = property(_get_flip_x, _set_flip_x)
     flip_y = property(_get_flip_y, _set_flip_y)
