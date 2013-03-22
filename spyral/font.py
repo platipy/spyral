@@ -19,6 +19,7 @@ class Font(object):
     def __init__(self, font_path, size, default_color):
         self.size = int(size)
         self.font = pygame.font.Font(font_path, size)
+        self.default_color = default_color
         
     def render(self, text, color = None, underline = False, italic = False, bold = False):
         """

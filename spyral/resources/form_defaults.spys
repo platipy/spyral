@@ -1,8 +1,5 @@
 MultiStateWidget {
     font: ("../spyral/resources/fonts/DejaVuSans.ttf", 14, (0, 0, 0))
-    image_normal: "../spyral/resources/images/button.up.png"
-    image_focused: "../spyral/resources/images/button.up.focused.png"
-    image_hovered: "../spyral/resources/images/button.up.hovered.png"
     nine_slice: True
     padding: 5
 }
