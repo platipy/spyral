@@ -47,7 +47,6 @@ class Image(object):
         """
         Fills the entire image with the specified color.
         """
-        color = spyral.color._determine(color)
         self._surf.fill(color)
         self._version += 1
         spyral.scene._scale.clear(self._surf)
@@ -64,7 +63,6 @@ class Image(object):
         """
         # We'll try to make sure that everything is okay later
         
-        color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor, size)
         pygame.draw.rect(self._surf, color, (position + offset, size), border_width)
         self._version += 1
@@ -80,7 +78,6 @@ class Image(object):
         If closed is True, the first and last point will be connected.
         If closed is True and width is 0, the shape will be filled.
         """
-        color = spyral.color._determine(color)
         if width == 1:
             pygame.draw.aalines(self._surf, color, closed, points)
         else:
@@ -96,7 +93,6 @@ class Image(object):
         0, the circle is filled. The anchor parameter is an :ref:`anchor 
         position <anchors>`.
         """
-        color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor)
         pygame.draw.circle(self._surf, color, position + offset, radius, width)
         self._version += 1
@@ -114,7 +110,6 @@ class Image(object):
         """
         # We'll try to make sure that everything is okay later
         
-        color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor, size)
         pygame.draw.ellipse(self._surf, color, (position + offset, size), border_width)
         self._version += 1
@@ -127,7 +122,6 @@ class Image(object):
         the position of the point. The anchor parameter is an :ref:`anchor 
         position <anchors>`.
         """
-        color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor)
         self._surf.set_at(position + offset, color)
         self._version += 1
@@ -144,7 +138,6 @@ class Image(object):
         filled with the color specified. The anchor parameter is an :ref:`anchor 
         position <anchors>`.
         """
-        color = spyral.color._determine(color)
         offset = self._calculate_offset(anchor, size)
         pygame.draw.arc(self._surf, color, (position + offset, size), start_angle, end_angle, border_width)
         self._version += 1

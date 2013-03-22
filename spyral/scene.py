@@ -250,6 +250,8 @@ class Scene(object):
         if 'layers' in properties:
             layers = properties.pop('layers')
             self.set_layers(layers)
+        if len(properties) > 0:
+            spyral.exceptions.unused_style_warning(self, properties.iterkeys())
 
     def load_style(self, path):
         spyral._style.parse(open(path, "r").read(), self)

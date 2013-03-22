@@ -19,7 +19,6 @@ class Font(object):
     def __init__(self, font_path, size, default_color):
         self.size = int(size)
         self.font = pygame.font.Font(font_path, size)
-        self.default_color = spyral.color._determine(default_color)
         
     def render(self, text, color = None, underline = False, italic = False, bold = False):
         """
@@ -33,8 +32,6 @@ class Font(object):
         """
         if color is None:
             color = self.default_color
-        else:
-            color = spyral.color._determine(color)
         self.font.set_underline(underline)
         self.font.set_bold(bold)
         self.font.set_italic(italic)
