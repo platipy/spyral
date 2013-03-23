@@ -56,7 +56,7 @@ class Sprite(object):
         if len(properties) > 0:
             spyral.exceptions.unused_style_warning(self, properties.iterkeys())
 
-    def __init__(self, scene):
+    def __init__(self, view):
         _all_sprites.append(_wref(self))
         self._age = 0
         self._static = False
@@ -71,7 +71,8 @@ class Sprite(object):
         self._offset = spyral.Vec2D(0, 0)
         self._scale = spyral.Vec2D(1.0, 1.0)
         self._scaled_image = None
-        self._scene = scene
+        self._view = view
+        self._scene = view.scene
         self._angle = 0
         self._crop = None
         self._transform_image = None
@@ -457,8 +458,9 @@ class AggregateSprite(Sprite):
     Child sprites do not need to worry about being in a Group, the
     AggregateSprite will handle that for them.
     """
-    def __init__(self, scene):
-        Sprite.__init__(self, scene)
+    def __init__(self, view):
+        Sprite.__init__(self, view)
+        self.scene = view.scene
         self._internal_group = set()
         self._child_anchor = spyral.Vec2D(0, 0)
         
