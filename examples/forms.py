@@ -30,31 +30,32 @@ class Game(spyral.Scene):
         self.set_background(bg)
         
         # More setup here
-        form = spyral.form.Form(self, 'Forms')
+        # form = spyral.form.Form(self, 'Forms')
         
-        name_entry = spyral.TextInputWidget(self, 500, 'is so awesome', default_value=False)
-        name_entry.pos = (30,30)
-        form.add_widget("name_entry",name_entry)
+        # name_entry = spyral.TextInputWidget(self, 500, 'is so awesome', default_value=False)
+        # name_entry.pos = (30,30)
+        # form.add_widget("name_entry",name_entry)
         
         #email_entry = spyral.TextInputWidget(self, 200, 'acbart', default_value=True, max_length = 10)
         #email_entry.pos = (30, 100)
         #form.add_widget("email_entry",email_entry)
         
-        # class RegisterForm(spyral.Form):
-            # name = spyral.TextInputWidget(self)
-            # password = spyral.TextInputWidget(self)
-            # user_type = spyral.RadioGroup(self, map(partial(spyral.RadioButtonWidget, self), ["Admin", "User", "Guest"]))
-            # remember_me = spyral.CheckboxWidget(self)
-            # okay = spyral.ButtonWidget(self, "Okay")
-            # cancel = spyral.ButtonWidget(self, "Cancel")
-            # def submit(self):
-                # print name.value, password.value
-            # def reset(self):
-                # print "Cancelled"
+        class RegisterForm(spyral.Form):
+            name = spyral.TextInputWidget(self, 50, "Name")
+            password = spyral.TextInputWidget(self, 50, "Pass")
+            user_type = spyral.RadioGroup(self, map(partial(spyral.RadioButtonWidget, self), ["Admin", "User", "Guest"]))
+            remember_me = spyral.CheckboxWidget(self)
+            okay = spyral.ButtonWidget(self, "Okay")
+            cancel = spyral.ButtonWidget(self, "Cancel")
+            def submit(self):
+                print name.value, password.value
+            def reset(self):
+                print "Cancelled"
                 
-        # my_form = RegisterForm()
-        # self.register("form.RegisterForm.okay.click", my_form.submit)
-        # self.register("form.RegisterForm.cancel.click", my_form.cancel)
+        my_form = RegisterForm(self)
+        my_form.focus()
+        self.register("form.RegisterForm.okay.click", my_form.submit)
+        self.register("form.RegisterForm.cancel.click", my_form.cancel)
         
         # a_button = spyral.ButtonWidget(self, "A regular button")
         # a_button.pos = (30, 150)
@@ -74,8 +75,6 @@ class Game(spyral.Scene):
             # radio.pos = (30 + 30 * index, 300)
             
             # form.add_widget("radio1",radio)
-        
-        form.focus()
         
         self.register("system.quit", sys.exit)
         

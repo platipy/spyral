@@ -181,7 +181,7 @@ class RadioGroup(object):
         pass
     
 class Form(spyral.AggregateSprite):
-    def __init__(self, scene, name):
+    def __init__(self, scene):
         """
         
         """
@@ -193,7 +193,7 @@ class Form(spyral.AggregateSprite):
         self._tab_orders = {}
         self._labels = {}
         self._current_focus = None
-        self._name = name
+        self._name = "Get rid of the name"
         self._mouse_currently_over = None
         self._mouse_down_on = None
         
