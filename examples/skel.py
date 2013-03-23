@@ -22,9 +22,6 @@ class Game(spyral.Scene):
         scene, and other structures which are needed for the scene
         """
         spyral.Scene.__init__(self, SIZE)
-        bg = spyral.Image(size=SIZE)
-        bg.fill(BG_COLOR)
-        self.set_background(bg)
         
         self.register("system.quit", sys.exit)
 
