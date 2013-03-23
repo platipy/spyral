@@ -94,6 +94,9 @@ class Scene(object):
 
         self.register('director.update', self.handle_events)
         self.register('director.update', self.run_actors, ('dt',))
+
+        # View interface
+        self.scene = self
     
     # Actor Handling
     def _register_actor(self, actor, greenlet):
@@ -471,6 +474,8 @@ class Scene(object):
         # for a frame, static ones wrong until they expire
         if self._layers == ['all']:
             self._layers = layers
+        elif self._layers == layers:
+            pass
         else:
             raise spyral.LayersAlreadySetError("You can only define the layers for a scene once.")
 

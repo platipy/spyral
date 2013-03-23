@@ -28,6 +28,12 @@ class Game(spyral.Scene):
         
         self.register("system.quit", sys.exit)
 
+print spyral.widgets
+spyral.widgets.register('Testing', 'a')
+print spyral.widgets.Testing(1,2,3)
+print spyral.widgets.TextInputWidget
+
+
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes
     spyral.director.run(scene=Game()) # This will run your game. It will not return.
