@@ -67,7 +67,6 @@ def _pygame_to_spyral(event):
         setattr(e, "type", type.split(".")[-1])
     if type.startswith('input.keyboard'):
         k = pygame.key.name(event.key).replace(' ', '_').replace('.', 'dot')
-        print k
         type += '.' + k
         
     return (type, e)
