@@ -683,7 +683,7 @@ class TextInputWidget(spyral.AggregateSprite):
             if key not in TextInputWidget._non_printable_keys:
                 if self._selecting:
                     self._delete()
-                unicode = chr(event.key)
+                unicode = event.unicode
                 if self.validate(unicode):
                     self._insert_char(self.cursor_pos, unicode)
                     self.cursor_pos+= 1

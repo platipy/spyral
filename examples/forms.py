@@ -41,17 +41,16 @@ class Game(spyral.Scene):
         #form.add_widget("email_entry",email_entry)
         
         class RegisterForm(spyral.Form):
-            name = spyral.TextInputWidget(self, 50, "Name")
-            password = spyral.TextInputWidget(self, 50, "Pass")
-            user_type = spyral.RadioGroup(self, map(partial(spyral.RadioButtonWidget, self), ["Admin", "User", "Guest"]))
-            remember_me = spyral.CheckboxWidget(self)
-            okay = spyral.ButtonWidget(self, "Okay")
-            cancel = spyral.ButtonWidget(self, "Cancel")
+            name = spyral.TextInputWidget(50, "Name")
+            password = spyral.TextInputWidget(50, "Pass")
+            user_type = spyral.RadioGroup(map(partial(spyral.RadioButtonWidget, self), ["Admin", "User", "Guest"]))
+            remember_me = spyral.CheckboxWidget()
+            okay = spyral.ButtonWidget("Okay")
+            cancel = spyral.ButtonWidget("Cancel")
             def submit(self):
-                print name.value, password.value
+                print self.name.value, self.password.value
             def reset(self):
                 print "Cancelled"
-                
         my_form = RegisterForm(self)
         my_form.focus()
         self.register("form.RegisterForm.okay.click", my_form.submit)
