@@ -59,6 +59,7 @@ class MultiStateWidget(spyral.AggregateSprite):
     def _on_size_change(self):
         pass
     
+    padding = property(_get_padding, _set_padding)
     nine_slice = property(_get_nine_slice, _set_nine_slice)
     state = property(_get_state, _set_state)
     content_size = property(_get_content_size, _set_content_size)
@@ -368,52 +369,60 @@ class Form(spyral.AggregateSprite):
         self.focus(name)
 
 
-# Default Value stuff
 class TextInputWidget(spyral.AggregateSprite):            
-    def __init__(self, scene, width = 10, value = '', default_value = True, text_length = None, validator = None):
+    def __init__(self, scene, width, value = '', default_value = True, text_length = None, validator = None):
         spyral.AggregateSprite.__init__(self, scene)
-
-        # Make text cursor
+    
         child_anchor = (self._padding, self._padding)
         self._cursor = spyral.Sprite(scene)
         self._cursor.anchor = child_anchor
-        self._cursor._time = 0.
-        self._cursor_pos = 0
-        self.add_child(self._cursor)
-        
-        # Make text viewport/sprite
         self._text = spyral.Sprite(scene)
-        self._text_viewport = spyral.ViewPort(scene)
-        self._text_viewport.pos = child_anchor
-        self._text_viewport.crop = spyral.Rect(0, 0, width - 2 * self._padding, int(math.ceil(self.font.get_linesize())))
-        self._text_viewport.add(self._text)
-        self.add_child(self._text_viewport)
+        self._text.pos = child_anchor
+        self.add_child(self._cursor)
+        self.add_child(self._text)
         
-        # Focusing
-        self.focused = False
-        
-        # Selection
+        self._focused = False
+        self._cursor.visible = False
         self._selection_pos = 0
         self._selecting = False
         self._shift_was_down = False
+        self._mouse_is_down = False
+        
+        self._cursor_time = 0.
+        self._cursor_blink_interval = self._cursor_blink_interval
+        
+        self.default_value = default_value
+        self._default_value_permanant = default_value
 
-        # Validation
+        self._view_x = 0
+        self.box_width = width - 2*self._padding
+        self.text_length = text_length
+        
+        self._box_height = int(math.ceil(self.font.get_linesize()))
+
+        self._cursor.image = spyral.Image(size=(2,self._box_height))
+        self._cursor.image.fill(self._cursor_color)
+
         if validator is None:
             self.validator = string.printable
         else:
             self.validator = validator
         
-        # Text value
-        self.default_value = self._default_value_permanant = default_value
-        self.text_length = text_length
         if text_length is not None and len(value) < text_length:
             value = value[:text_length]
         self.value = value
-        self.cursor_pos = 0
         
-        # Rendering
-        self._render_cursor()
         self._render_backs()
+        self.image = self._image_plain
+        
+    def _render_backs(self):
+        padding = self._padding
+        width = self.box_width + 2 * padding
+        self._image_plain = spyral.Image(self._image_locations['focused'])
+        self._image_focused = spyral.Image(self._image_locations['unfocused'])
+        if self._nine_slice:
+            self._image_plain = spyral.Image.render_nine_slice(self._image_plain, (width, self._box_height + 2*padding))
+            self._image_focused = spyral.Image.render_nine_slice(self._image_focused, (width, self._box_height + 2*padding))
         
     def __stylize__(self, properties):
         self._padding = properties.pop('padding', 4)
@@ -430,15 +439,13 @@ class TextInputWidget(spyral.AggregateSprite):
         spyral.AggregateSprite.__stylize__(self, properties)
             
     def _compute_letter_widths(self):
-        self._letter_widths = [0]
-        for index, value in enumerate(self._value, 1):
-            width, height= self.font.get_size(self._value[:index])
-            self._letter_widths.append(width)
+        self._letter_widths = []
+        running_sum = 0
+        for index in range(len(self._value)+1):
+            running_sum= self.font.get_size(self._value[:index])[0]
+            self._letter_widths.append(running_sum)
             
     def _insert_char(self, position, char):
-        """
-        Insert a character into this textbox at the position.
-        """
         if position == len(self._value):
             self._value += char
             new_width= self.font.get_size(self._value)[0]
@@ -449,10 +456,6 @@ class TextInputWidget(spyral.AggregateSprite):
         self._render_text()
         
     def _remove_char(self, position, end = None):
-        """
-        Remove the character at position, or from position to end if the
-        optional parameter is given.
-        """
         if end is None:
             end = position+1
         if position == len(self._value): 
@@ -461,98 +464,11 @@ class TextInputWidget(spyral.AggregateSprite):
             self._value = self._value[:position]+self._value[end:]
             self._compute_letter_widths()
         self._render_text()
-        self.cursor = self.cursor
-        
-    def _get_value(self):
-        return self._value
-        
-    def _set_value(self, value):
-        self._value = value
-        self._compute_letter_widths()
-        self._render_text()
-        self.cursor_pos = 0
-    
-    def _get_cursor_pos(self):
-        return self._cursor_pos
-    
-    def _set_cursor_pos(self, position):
-        self._cursor_pos = position
-        crop = self._move_viewport()
-        left, top = crop.topleft
-        width, height = crop.size
-        self._cursor.x = min(max(self._letter_widths[self.cursor_pos] - left, 0), width)
-        self._cursor.y = 0
-        
-    def validate(self, char):
-        valid_length = self.text_length is None or (self.text_length is not None and len(self._value) < self.text_length)
-        valid_char = str(char) in self.validator
-        return valid_length and valid_char
-        
-    def _get_padding(self):
-        return self._padding
-    
-    def _set_padding(self, padding):
-        self._padding = padding
         self._render_cursor()
-        self._render_backs()
-        
-    def _get_focused(self):
-        return self._focused
-        
-    def _set_focused(self, focused):
-        self._focused = focused
-        self._cursor.visible = focused
-
-    focused = property(_get_focused, _set_focused)
-    value = property(_get_value, _set_value)
-    cursor_pos = property(_get_cursor_pos, _set_cursor_pos)
-    padding = property(_get_padding, _set_padding)
-    
-    # Text
-        
-    def _render_text(self):
-        if self._selecting and (self._cursor_pos != self._selection_pos):
-            start, end = sorted((self._cursor_pos, self._selection_pos))
+                
             
-            pre = self.font.render(self._value[:start])
-            highlight = self.font.render(self._value[start:end], color=self._highlight_color)
-            post = self.font.render(self._value[end:])
-            
-            pre_missed = self.font.get_size(self._value[:end])[0] - pre.get_width() - highlight.get_width() + 1
-            if self._value[:start]:
-                post_missed = self.font.get_size(self._value)[0] - post.get_width() - pre.get_width() - highlight.get_width() - 1
-                self._text.image = spyral.Image.from_sequence((pre, highlight, post), 'right', [pre_missed, post_missed])
-            else:
-                post_missed = self.font.get_size(self._value)[0] - post.get_width() - highlight.get_width()
-                self._text.image = spyral.Image.from_sequence((highlight, post), 'right', [post_missed])
-
-        else:
-            self._text.image = self.font.render(self._value)
-        self._move_viewport()
-        
-    def _move_viewport(self):
-        width = self._letter_widths[self.cursor_pos]
-        max_width = self._letter_widths[-1]
-        cursor_width = 2
-        left, top = self._text_viewport.crop.topleft
-        view_width, view_height = self._text_viewport.crop.size
-        x = width - left
-        if x < 0: 
-            left += x
-        if x+cursor_width > view_width:
-            left += x + cursor_width - view_width
-        if left+view_width> max_width and max_width > view_width:
-            left = max_width - view_width
-        self._text_viewport.crop = spyral.Rect(left, top, view_width, view_height)
-        return self._text_viewport.crop
-    # Cursor
-        
-    def _render_cursor(self):
-        self._cursor.image = spyral.Image(size=(2,self._text_viewport.crop.height))
-        self._cursor.image.fill(self._cursor_color)
-        
     def _compute_cursor_pos(self, mouse_pos):
-        x = mouse_pos[0] + self._text_viewport.crop.left - self.x - self._padding
+        x = mouse_pos[0] + self._view_x - self.x - self._padding
         index = bisect_right(self._letter_widths, x)
         if index >= len(self._value):
             return len(self._value)
@@ -565,22 +481,97 @@ class TextInputWidget(spyral.AggregateSprite):
                 return index
         else:
             return 0
-    
-                
     def _stop_blinking(self):
-        self._cursor._time = 0
+        self._cursor_time = 0
         self._cursor.visible = True
-    
-    # Backs
         
-    def _render_backs(self):
-        self._images = {}
-        self._images['unfocused'] = spyral.Image(self._image_locations['unfocused'])
-        self._images['focused'] = spyral.Image(self._image_locations['focused'])
-        if self._nine_slice:
-            size = (self._text_viewport.crop.width + 2*self.padding, self._text_viewport.crop.height + 2*self.padding)
-            self._images['unfocused'] = spyral.Image.render_nine_slice(self._images['unfocused'], size)
-            self._images['focused'] = spyral.Image.render_nine_slice(self._images['focused'], size)
+    def _get_value(self):
+        return self._value
+        
+    def _set_value(self, value):
+        self._value = value
+        self._compute_letter_widths()
+        self._cursor_pos = 0#len(value)
+        self._render_text()
+        self._render_cursor()
+    
+    def _get_cursor_pos(self):
+        return self._cursor_pos
+    
+    def _set_cursor_pos(self, position):
+        self._cursor_pos = position
+        self._move_rendered_text()
+        self._render_cursor()
+        
+    def validate(self, char):
+        valid_length = self.text_length is None or (self.text_length is not None and len(self._value) < self.text_length)
+        valid_char = str(char) in self.validator
+        return valid_length and valid_char
+    
+    def _set_nine_slice(self, nine_slice):
+        self._nine_slice = nine_slice
+        self._render_backs()
+        
+    def _get_nine_slice(self):
+        return self._nine_slice
+        
+    def _set_padding(self, padding):
+        self._padding = padding
+        self._render_backs()
+        
+    def _get_padding(self):
+        return self._padding
+
+    value = property(_get_value, _set_value)
+    cursor_pos = property(_get_cursor_pos, _set_cursor_pos)
+    padding = property(_get_padding, _set_padding)
+    nine_slice = property(_get_nine_slice, _set_nine_slice)
+        
+    def _render_text(self):
+        if self._selecting and (self._cursor_pos != self._selection_pos):
+            start, end = sorted((self._cursor_pos, self._selection_pos))
+            
+            pre = self.font.render(self._value[:start])
+            highlight = self.font.render(self._value[start:end], color=self._highlight_color)
+            post = self.font.render(self._value[end:])
+            
+            pre_missed = self.font.get_size(self._value[:end])[0] - pre.get_width() - highlight.get_width() + 1
+            if self._value[:start]:
+                post_missed = self.font.get_size(self._value)[0] - post.get_width() - pre.get_width() - highlight.get_width() - 1
+                self._rendered_text = spyral.Image.from_sequence((pre, highlight, post), 'right', [pre_missed, post_missed])
+            else:
+                post_missed = self.font.get_size(self._value)[0] - post.get_width() - highlight.get_width()
+                self._rendered_text = spyral.Image.from_sequence((highlight, post), 'right', [post_missed])
+
+        else:
+            self._rendered_text = self.font.render(self._value)
+        self._move_rendered_text()
+        
+    def _move_rendered_text(self):
+        width = self._letter_widths[self.cursor_pos]
+        max_width = self._letter_widths[len(self._value)]
+        cursor_width = 2
+        x = width - self._view_x
+        if x < 0: 
+            self._view_x += x
+        if x+cursor_width > self.box_width:
+            self._view_x += x + cursor_width - self.box_width
+        if self._view_x+self.box_width> max_width and max_width > self.box_width:
+            self._view_x = max_width - self.box_width
+        image = self._rendered_text.copy()
+        image.crop((self._view_x, 0), 
+                   (self.box_width, self._box_height))
+        self._text.image = image
+        # if highlighting
+        #   print first segment of non-highlight
+        #   print highlight text
+        #   print second segment of non-highlight
+        # else:
+        #   print regular text
+        
+    def _render_cursor(self):
+        self._cursor.x = min(max(self._letter_widths[self.cursor_pos] - self._view_x, 0), self.box_width)
+        self._cursor.y = 0
         
     _non_insertable_keys =(spyral.keys.up, spyral.keys.down, 
                            spyral.keys.left, spyral.keys.right,
@@ -658,11 +649,10 @@ class TextInputWidget(spyral.AggregateSprite):
             
     def update(self, dt):
         if self._focused:
-            self._cursor._time += dt
-            if self._cursor._time > self._cursor_blink_interval:
-                self._cursor._time -= self._cursor_blink_interval
+            self._cursor_time += dt
+            if self._cursor_time > self._cursor_blink_interval:
+                self._cursor_time -= self._cursor_blink_interval
                 self._cursor.visible = not self._cursor.visible
-    
     
     def handle_key_down(self, event):
         key = event.key
@@ -693,8 +683,9 @@ class TextInputWidget(spyral.AggregateSprite):
             if key not in TextInputWidget._non_printable_keys:
                 if self._selecting:
                     self._delete()
-                if self.validate(event.unicode):
-                    self._insert_char(self.cursor_pos, event.unicode)
+                unicode = chr(event.key)
+                if self.validate(unicode):
+                    self._insert_char(self.cursor_pos, unicode)
                     self.cursor_pos+= 1
                 
         if not shift_is_down or (shift_is_down and key not in TextInputWidget._non_insertable_keys):
@@ -702,16 +693,13 @@ class TextInputWidget(spyral.AggregateSprite):
             self._render_text()
         if self._selecting:
             self._render_text()
-            
-    def handle_key_up(self, event):
-        pass
-        
-    def handle_mouse_over(self, event):
-        pass
-        
-    def handle_mouse_out(self, event):
-        pass
-        
+    
+    def handle_mouse_over(self, event): pass
+    def handle_mouse_out(self, event): pass
+    def handle_key_up(self, event): pass
+    
+    def handle_mouse_up(self, event):
+        self.cursor_pos = self._compute_cursor_pos(event.pos)
     def handle_mouse_down(self, event):
         if not self._selecting:
             if pygame.key.get_mods() & pygame.KMOD_SHIFT:
@@ -726,21 +714,18 @@ class TextInputWidget(spyral.AggregateSprite):
             self.default_value = False
         self._render_text()
         self._stop_blinking()
-        
-    def handle_mouse_up(self, event):
-        self.cursor_pos = self._compute_cursor_pos(event.pos)
-        
     def handle_mouse_motion(self, event):
-        if not self._selecting:
-            self._selecting = True
-            self._selection_pos = self.cursor_pos
-        self.cursor_pos = self._compute_cursor_pos(event.pos)
-        self._render_text()
-        self._stop_blinking()
-        
+        left, center, right = event.buttons
+        if left:
+            if not self._selecting:
+                self._selecting = True
+                self._selection_pos = self.cursor_pos
+            self.cursor_pos = self._compute_cursor_pos(event.pos)
+            self._render_text()
+            self._stop_blinking()
     def handle_focus(self, event):
         self._focused = True
-        self.image = self._images['focused']
+        self.image = self._image_focused
         if self.default_value:
             self._selecting = True
             self._selection_pos = 0
@@ -748,9 +733,8 @@ class TextInputWidget(spyral.AggregateSprite):
             self._selecting = False
         self.cursor_pos= len(self._value)
         self._render_text()
-        
     def handle_blur(self, event):
+        self.image = self._image_plain
         self._focused = False
-        self.image = self._images['unfocused']
         self._cursor.visible = False
         self.default_value = self._default_value_permanant
