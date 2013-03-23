@@ -6,6 +6,7 @@ Next Week Deadline:
     - Finish view transformation pipeline (including pivot_angle, and test tree of animation with views/agg sprites, especially talking about ordering of pipeline with regards to a tall tree of height greater than 2)
     - Caps in keyboard event handling needs to be checked, especially with regards to non-english keyboards
     - Changes to the sprites so that size is now settable, get rid of read-only properties
+    - Move all print statements to warnings
 Following Week Deadline:
     - All docs
 Before semester:
