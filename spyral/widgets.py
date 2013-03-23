@@ -188,7 +188,6 @@ class RadioGroupWidget(object):
 class TextInputWidget(spyral.AggregateSprite):            
     def __init__(self, view, width, value = '', default_value = True, text_length = None, validator = None):
         spyral.AggregateSprite.__init__(self, view)
-        print view
     
         child_anchor = (self._padding, self._padding)
         self._cursor = spyral.Sprite(view)
