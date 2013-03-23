@@ -554,7 +554,7 @@ class ViewPort(Sprite):
             self._child_anchor = anchor
             
     def _get_crop(self):
-        return _crop
+        return self._crop
     
     def _set_crop(self, region):
         self._crop = region
@@ -598,7 +598,7 @@ class ViewPort(Sprite):
             r = r.union(s.get_rect().move(*i_offset))
         return r       
     
-    def draw(self, offset = spyral.Vec2D(0,0)):
+    def draw(self, offset = spyral.Vec2D(0,0), crop = None):
         """
         Draws this sprite and all children. Should be
         overridden only in extreme circumstances.

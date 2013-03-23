@@ -7,10 +7,43 @@ MultiStateWidget {
 ButtonWidget {
 	font: ("../spyral/resources/fonts/DejaVuSans.ttf", 14, (0, 0, 0))
     image_up: "../spyral/resources/images/button.up.png"
-    image_hovered: "../spyral/resources/images/button.up.hovered.png"
-    image_focused: "../spyral/resources/images/button.up.focused.png"
+    image_up_hovered: "../spyral/resources/images/button.up.hovered.png"
+    image_up_focused: "../spyral/resources/images/button.up.focused.png"
     image_down: "../spyral/resources/images/button.down.png"
+    image_down_hovered: "../spyral/resources/images/button.down.hovered.png"
+    image_down_focused: "../spyral/resources/images/button.down.focused.png"
     nine_slice: True
     text: "Button"
     padding: 10
+}
+
+CheckboxWidget {
+    text: ""
+    nine_slice: False
+    image_up: "../spyral/resources/images/check.up.png"
+    image_up_hovered: "../spyral/resources/images/check.up.hovered.png"
+    image_up_focused: "../spyral/resources/images/check.up.hovered.png"
+    image_down: "../spyral/resources/images/check.down.png"
+    image_down_hovered: "../spyral/resources/images/check.down.hovered.png"
+    image_down_focused: "../spyral/resources/images/check.down.hovered.png"
+}
+
+RadioButtonWidget {
+    text: ""
+    nine_slice: False
+    image_up: "../spyral/resources/images/radio.on.png"
+    image_up_hovered: "../spyral/resources/images/radio.on.hovered.png"
+    image_up_focused: "../spyral/resources/images/radio.on.hovered.png"
+    image_down: "../spyral/resources/images/radio.off.png"
+    image_down_hovered: "../spyral/resources/images/radio.off.hovered.png"
+    image_down_focused: "../spyral/resources/images/radio.off.hovered.png"
+}
+
+TextInputWidget {
+    font: ("../spyral/resources/fonts/DejaVuSans.ttf", 14, (0, 0, 0))
+    nine_slice: True
+    image_unfocused: "../spyral/resources/images/input.unfocused.png"
+    image_focused: "../spyral/resources/images/input.focused.png"
+    highlight_color: (0, 140, 255)
+    highlight_background_color: (255, 255, 255, 0)
 }
