@@ -31,8 +31,8 @@ class Form(spyral.AggregateSprite):
         scene.register("input.mouse.motion", self.handle_mouse_motion)
         scene.register("input.keyboard.down.tab", self.handle_tab)
         scene.register("input.keyboard.up.tab", self.handle_tab)
-        scene.register("input.keyboard.up", self.handle_key_down)
-        scene.register("input.keyboard.down", self.handle_key_up)
+        scene.register("input.keyboard.up", self.handle_key_up)
+        scene.register("input.keyboard.down", self.handle_key_down)
         
 
         fields = self.fields
