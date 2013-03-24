@@ -64,13 +64,13 @@ class Form(spyral.AggregateSprite):
         for name, widget in self._widgets.iteritems():
             if widget.get_rect().collide_point(event.pos):
                 widget.handle_mouse_motion(event)
-                now_hover = name
-            if now_hover != self._mouse_currently_over:
-                if self._mouse_currently_over is not None:
-                    widget.handle_mouse_out(event)
-                self._mouse_currently_over = now_hover
-                if now_hover is not None:
-                    widget.handle_mouse_over(event)
+                now_hover = widget
+        if now_hover != self._mouse_currently_over:
+            if self._mouse_currently_over is not None:
+                self._mouse_currently_over.handle_mouse_out(event)
+            self._mouse_currently_over = now_hover
+            if now_hover is not None:
+                now_hover.handle_mouse_over(event)
                 
     def handle_tab(self, event):
         if self._current_focus is None:
