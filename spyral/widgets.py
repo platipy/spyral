@@ -16,9 +16,10 @@ class BaseWidget(spyral.AggregateSprite):
 
 class MultiStateWidget(BaseWidget):
     def __init__(self, form, name, states):
-        BaseWidget.__init__(self, form, name)
         self._states = states
         self._state = self._states[0]
+        
+        BaseWidget.__init__(self, form, name)
                 
         self._images = {}
         self._content_size = (0, 0)
@@ -144,7 +145,7 @@ class ButtonWidget(MultiStateWidget):
         self.font = spyral.Font(*properties.pop('font'))
         self._text = properties.pop('text', "Button")
 
-        spyral.MultiStateWidget.__stylize__(self, properties)
+        MultiStateWidget.__stylize__(self, properties)
     
         
 class ToggleButtonWidget(ButtonWidget):
