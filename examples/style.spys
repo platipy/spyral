@@ -26,6 +26,6 @@ Blue {
 	layer: '2'
 }
 
-RegisterForm.pass {
+RegisterForm.password {
 	pos: (30, 30)
 }
