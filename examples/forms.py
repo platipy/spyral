@@ -29,7 +29,7 @@ class Game(spyral.Scene):
             password = spyral.widgets.TextInput(50, "Pass")
         #     user_type = spyral.RadioGroup(self, map(partial(spyral.RadioButtonWidget, self), ["Admin", "User", "Guest"]))
             remember_me = spyral.widgets.Checkbox()
-        #     okay = spyral.ButtonWidget(self, "Okay")
+            okay = spyral.widgets.Button("Okay")
         #     cancel = spyral.ButtonWidget(self, "Cancel")
         #     def submit(self):
         #         print name.value, password.value
