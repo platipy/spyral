@@ -29,3 +29,7 @@ Blue {
 RegisterForm.password {
 	pos: (30, 30)
 }
+
+RegisterForm.okay {
+    pos: (0, 200)
+}
