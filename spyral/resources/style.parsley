@@ -50,12 +50,13 @@ muldiv = ws (mul | div)
 arithmetic = arithmetic2:left addsub*:right -> parser.calculate(left, right)
 arithmetic2 = simple_expression:left muldiv*:right -> parser.calculate(left, right)
 
+dotted_identifier = identifier:s '.' identifier:f -> '%s.%s' % (s,f)
+block_identifier = dotted_identifier | identifier
 
+comma_block_identifier = ws ',' ws block_identifier:i -> i
+csv_block_identifiers = ws block_identifier:i (comma_block_identifier*):l -> [i] + l
 
-comma_identifier = ws ',' ws identifier:i -> i
-csv_identifiers = ws identifier:i (comma_identifier*):l -> [i] + l
-
-block = ws csv_identifiers:idents ws !(parser.push(idents)) '{' (newline | property_set | block)*:props ws '}' !(parser.pop()) -> ('block', idents, props)
+block = ws csv_block_identifiers:idents ws !(parser.push(idents)) '{' (newline | property_set | block)*:props ws '}' !(parser.pop()) -> ('block', idents, props)
 
 
 all = (newline | assignment | comment | block)*

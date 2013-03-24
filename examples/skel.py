@@ -22,17 +22,8 @@ class Game(spyral.Scene):
         scene, and other structures which are needed for the scene
         """
         spyral.Scene.__init__(self, SIZE)
-        bg = spyral.Image(size=SIZE)
-        bg.fill(BG_COLOR)
-        self.set_background(bg)
         
         self.register("system.quit", sys.exit)
-
-print spyral.widgets
-spyral.widgets.register('Testing', 'a')
-print spyral.widgets.Testing(1,2,3)
-print spyral.widgets.TextInputWidget
-
 
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes

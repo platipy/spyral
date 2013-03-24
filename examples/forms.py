@@ -23,7 +23,6 @@ class Game(spyral.Scene):
         """
         spyral.Scene.__init__(self)
         self.load_style("style.spys")
-        self.load_style("../spyral/resources/form_defaults.spys")
 
         class RegisterForm(spyral.Form):
             name = spyral.widgets.TextInput(50, "Name")
