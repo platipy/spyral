@@ -38,7 +38,7 @@ class Form(spyral.AggregateSprite):
         fields = self.fields
         self.fields = Fields()
         for name, widget in fields:
-            w = widget(self)
+            w = widget(self, name)
             setattr(self, name, w)
             self.add_widget(name, w)
 

@@ -25,3 +25,7 @@ Blue {
 	image: TestingBox((30, 30), (0, 0, 255))
 	layer: '2'
 }
+
+RegisterForm.pass {
+	pos: (30, 30)
+}

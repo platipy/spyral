@@ -7,15 +7,19 @@ import string
 import pygame
 from bisect import bisect_right
 
+class BaseWidget(spyral.AggregateSprite):
+    def __init__(self, form, name):
+        self.__style__ = form.__class__.__name__ + '.' + name
+        spyral.AggregateSprite.__init__(self, form)
+
 # Widget Implementations
 
-class MultiStateWidget(spyral.AggregateSprite):
-    def __init__(self, view, states):
+class MultiStateWidget(BaseWidget):
+    def __init__(self, form, name, states):
+        BaseWidget.__init__(self, form, name)
         self._states = states
         self._state = self._states[0]
-        
-        spyral.AggregateSprite.__init__(self, view)
-        
+                
         self._images = {}
         self._content_size = (0, 0)
         
@@ -83,10 +87,10 @@ class ButtonWidget(MultiStateWidget):
     text. If you don't specify an explicit width, then it will be sized
     according to it's text.
     """
-    def __init__(self, view, text = "Okay"):
-        MultiStateWidget.__init__(self, view, ['up', 'down', 'down_focused', 'down_hovered', 'up_focused', 'up_hovered'])
+    def __init__(self, form, name, text = "Okay"):
+        MultiStateWidget.__init__(self, form, name, ['up', 'down', 'down_focused', 'down_hovered', 'up_focused', 'up_hovered'])
         
-        self._text_sprite = spyral.Sprite(view)
+        self._text_sprite = spyral.Sprite(form)
         self.add_child(self._text_sprite)
 
         self.text = text
@@ -148,8 +152,8 @@ class ToggleButtonWidget(ButtonWidget):
     A ToggleButtonWidget is similar to a Button, except that it will stay down
     after it's been clicked, until it is clicked again.
     """
-    def __init__(self, view, text = "Okay"):
-        ButtonWidget.__init__(self, view, text)
+    def __init__(self, form, name, text = "Okay"):
+        ButtonWidget.__init__(self, form, name, text)
         
     def handle_mouse_up(self, event):
         pass
@@ -165,8 +169,8 @@ class CheckboxWidget(ToggleButtonWidget):
     """
     A CheckboxWidget is similar to a ToggleButtonWidget, only it doesn't have text.
     """
-    def __init__(self, view):
-        ToggleButtonWidget.__init__(self, view, "")
+    def __init__(self, form, name):
+        ToggleButtonWidget.__init__(self, form, name, "")
 
 class RadioButtonWidget(ToggleButtonWidget):
     """
@@ -174,8 +178,8 @@ class RadioButtonWidget(ToggleButtonWidget):
     RadioGroup, which will ensure that only one RadioButton in it's group is
     selected at a time.
     """
-    def __init__(self, view, group):
-        ToggleButtonWidget.__init__(self, _view_x)
+    def __init__(self, form, name, group):
+        ToggleButtonWidget.__init__(self, form, name, _view_x)
         
 class RadioGroupWidget(object):
     """
@@ -185,9 +189,10 @@ class RadioGroupWidget(object):
         pass
 
 
-class TextInputWidget(spyral.AggregateSprite):            
-    def __init__(self, view, width, value = '', default_value = True, text_length = None, validator = None):
-        spyral.AggregateSprite.__init__(self, view)
+class TextInputWidget(BaseWidget):            
+    def __init__(self, form, name, width, value = '', default_value = True, text_length = None, validator = None):
+        BaseWidget.__init__(self, form, name)
+        view = form
     
         child_anchor = (self._padding, self._padding)
         self._cursor = spyral.Sprite(view)
@@ -553,7 +558,7 @@ class TextInputWidget(spyral.AggregateSprite):
         self.image = self._image_plain
         self._focused = False
         self._cursor.visible = False
-        self.default_value = self._default_value_permanant	
+        self.default_value = self._default_value_permanant  
 
 
 # Module Magic
@@ -561,19 +566,19 @@ class TextInputWidget(spyral.AggregateSprite):
 old = sys.modules[__name__]
 
 class _WidgetWrapper(object):
-	creation_counter = 0
-	def __init__(self, cls, *args, **kwargs):
-		_WidgetWrapper.creation_counter += 1
-		self.cls = cls
-		self.args = args
-		self.kwargs = kwargs
+    creation_counter = 0
+    def __init__(self, cls, *args, **kwargs):
+        _WidgetWrapper.creation_counter += 1
+        self.cls = cls
+        self.args = args
+        self.kwargs = kwargs
 
-	def __call__(self, form):
-		return self.cls(form, *self.args, **self.kwargs)
+    def __call__(self, form, name):
+        return self.cls(form, name, *self.args, **self.kwargs)
 
 class module(types.ModuleType):
-	def register(self, name, cls):
-		setattr(self, name, functools.partial(_WidgetWrapper, cls))
+    def register(self, name, cls):
+        setattr(self, name, functools.partial(_WidgetWrapper, cls))
 
 # Keep the refcount from going to 0
 widgets = module(__name__)
