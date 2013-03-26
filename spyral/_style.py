@@ -28,7 +28,7 @@ class StyleParser(object):
         self.scene._style_symbols[identifier] = value
 
     def lookup(self, identifier):
-        if identifier not in self.scene._style_.symbols:
+        if identifier not in self.scene._style_symbols:
             raise NameError("%s is not a previously defined name in the styles" % identifier)
         return self.scene._style_symbols[identifier]
 

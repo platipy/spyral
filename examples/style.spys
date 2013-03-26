@@ -33,3 +33,7 @@ RegisterForm.password {
 RegisterForm.okay {
     pos: (0, 200)
 }
+
+RegisterForm.togglodyte {
+    pos: (100, 200)
+}
