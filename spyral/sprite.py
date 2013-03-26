@@ -45,7 +45,9 @@ class Sprite(object):
 
     def __stylize__(self, properties):
         if 'image' in properties:
-            image = properties.pop('image')
+            image = properties.pop('image') 
+            if isinstance(image, str):
+                image = spyral.Image(image)
             setattr(self, 'image', image)
         simple = ['pos', 'x', 'y', 'position', 'anchor', 'layer', 'visible',
                   'scale', 'scale_x', 'scale_y', 'flip_x', 'flip_y', 'angle']
