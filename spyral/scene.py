@@ -74,7 +74,7 @@ class Scene(object):
 
 
         self._size = None
-        self._scale = None
+        self._scale = (1.0, 1.0) #None
         self._surface = pygame.display.get_surface()
         if size is not None:
             self._set_size(size)
