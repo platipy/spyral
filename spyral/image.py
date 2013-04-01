@@ -12,9 +12,9 @@ class Image(object):
 
     | *size*: If *size* is passed, creates a new blank image of
       that size to draw on. Size should be an iterable with two
-      elements
+      elements, e.g. a two-tuple like (10, 10).
     | *filename*: If *filename* is set, the file with that name
-      is loaded.
+      is loaded. :ref:`Valid image formats<image_formats>`. The image will be relative to your current working directory.
     """
     
     def __init__(self, filename = None, size = None):
@@ -32,20 +32,28 @@ class Image(object):
         self._version = 1
     
     def get_width(self):
+        """
+        Returns the width of the image.
+        """
         return self._surf.get_width()
         
     def get_height(self):
+        """
+        Returns the height of the image.
+        """
         return self._surf.get_height()
         
     def get_size(self):
         """
-        Returns the (width, height) of the image.
+        Returns the (width, height) of the image as a Vec2D.
         """
         return spyral.Vec2D(self._surf.get_size())
     
     def fill(self, color):
         """
         Fills the entire image with the specified color.
+        
+        | *color*: a three-tuple of RGB values ranging from 0-255. Example: (255, 128, 0) is orange.
         """
         self._surf.fill(color)
         self._version += 1

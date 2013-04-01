@@ -25,12 +25,12 @@ class Game(spyral.Scene):
         self.load_style("style.spys")
 
         class RegisterForm(spyral.Form):
-            name = spyral.widgets.TextInput(50, "Name")
-            password = spyral.widgets.TextInput(50, "Pass")
+            name = spyral.widgets.TextInput(50, "Current Name")
+            password = spyral.widgets.TextInput(50, "*Pass*")
         #     user_type = spyral.RadioGroup(self, map(partial(spyral.RadioButtonWidget, self), ["Admin", "User", "Guest"]))
             remember_me = spyral.widgets.Checkbox()
             togglodyte = spyral.widgets.ToggleButton("Toggle me!")
-            okay = spyral.widgets.Button("Okay")
+            okay = spyral.widgets.Button("Okay Button")
         #     cancel = spyral.ButtonWidget(self, "Cancel")
         #     def submit(self):
         #         print name.value, password.value
@@ -40,7 +40,11 @@ class Game(spyral.Scene):
         my_form.name.pos = (100, 100)
         my_form.focus()
         
+        def test_print(event):
+            print "Focused", event.form, event.name, event.widget
+        
         self.register("system.quit", sys.exit)
+        self.register("form.RegisterForm.name.focused", test_print)
         
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes

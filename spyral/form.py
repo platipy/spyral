@@ -5,7 +5,9 @@ import inspect
 class FormFieldMeta(type):
     def __new__(meta, name, bases, dict):
         cls = type.__new__(meta, name, bases, dict)
-        cls.fields = sorted(inspect.getmembers(cls, lambda o: isinstance(o, spyral.widgets._WidgetWrapper)), key=lambda i:i[1].creation_counter)
+        cls.fields = sorted(inspect.getmembers(cls, 
+                                               lambda o: isinstance(o, spyral.widgets._WidgetWrapper)), 
+                            key=lambda i:i[1].creation_counter)
         return cls
 
 class Form(spyral.AggregateSprite):
@@ -18,12 +20,18 @@ class Form(spyral.AggregateSprite):
         spyral.AggregateSprite.__init__(self, scene)
         class Fields(object):
             pass
-        self._widgets = {}
+            
+        # Maintain a list of all the widget instances
+        self._widgets = []
+        # Map each widget instance to its tab order
         self._tab_orders = {}
+        # Maintain a mapping of each label from its name
         self._labels = {}
+        # The instance of the currently focused widget
         self._current_focus = None
-        self._name = "Get rid of the name"
+        # The instance of the currently mouse-overed widget
         self._mouse_currently_over = None
+        # The instance of the currently mouse-downed widget
         self._mouse_down_on = None
         
         scene.register("input.mouse.up", self.handle_mouse_up)
@@ -34,34 +42,34 @@ class Form(spyral.AggregateSprite):
         scene.register("input.keyboard.up", self.handle_key_up)
         scene.register("input.keyboard.down", self.handle_key_down)
         
-
         fields = self.fields
         self.fields = Fields()
         for name, widget in fields:
             w = widget(self, name)
+            setattr(w, "name", name)
             setattr(self, name, w)
             self.add_widget(name, w)
 
     def handle_mouse_up(self, event):
         if self._mouse_down_on is None:
             return False
-        self._widgets[self._mouse_down_on].handle_mouse_up(event)
+        self._mouse_down_on.handle_mouse_up(event)
         self._mouse_down_on = None
         
     def handle_mouse_down(self, event):
-        for name, widget in self._widgets.iteritems():
+        for widget in self._widgets:
             if widget.get_rect().collide_point(event.pos):
-                self.focus(name)
-                self._mouse_down_on = name
+                self.focus(widget)
+                self._mouse_down_on = widget
                 widget.handle_mouse_down(event)
                 return True
         return False
     
     def handle_mouse_motion(self, event):
         if self._mouse_down_on is not None:
-            self._widgets[self._mouse_down_on].handle_mouse_motion(event)
+            self._mouse_down_on.handle_mouse_motion(event)
         now_hover = None
-        for name, widget in self._widgets.iteritems():
+        for widget in self._widgets:
             if widget.get_rect().collide_point(event.pos):
                 widget.handle_mouse_motion(event)
                 now_hover = widget
@@ -84,27 +92,27 @@ class Form(spyral.AggregateSprite):
             self.next()
             return True
         if self._current_focus is not None:
-            self._widgets[self._current_focus].handle_focus(event)
+            self._current_focus.handle_focus(event)
             
     def handle_key_down(self, event):
         if self._current_focus is not None:
-            self._widgets[self._current_focus].handle_key_down(event)
+            self._current_focus.handle_key_down(event)
     def handle_key_up(self, event):
         if self._current_focus is not None:
-            self._widgets[self._current_focus].handle_key_up(event)
+            self._current_focus.handle_key_up(event)
             
 
     def add_widget(self, name, widget, tab_order = None):
         """
         If tab-order is None, it is set to one higher than the highest tab order.
         """
-        self._widgets[name] = widget
         if tab_order is None:
             if len(self._tab_orders) > 0:
                 tab_order = max(self._tab_orders.itervalues())+1
             else:
                 tab_order = 0
-            self._tab_orders[name] = tab_order
+            self._tab_orders[widget] = tab_order
+        self._widgets.append(widget)
         self.add_child(widget)
         setattr(self.fields, name, widget)
         
@@ -120,37 +128,47 @@ class Form(spyral.AggregateSprite):
         """
         Returns a dictionary of the values for all the fields.
         """
-        return dict((name, widget.value) for (name, widget) in self._widgets.iteritems())
+        return dict((widget.name, widget.value) for widget in self._widgets)
         
-    def _blur(self, name):
+    def _blur(self, widget):
         e = spyral.Event()
         e.name = "blurred"
-        self._widgets[name].handle_blur(e)
-        e = spyral.Event()
-        e.name= "%s_%s_%s" % (self._name, name, "on_blur")
-        e.widget = self._widgets[name]
+        e.widget = widget
         e.form = self
-        #self._manager.send_event(e)
+        self.scene._queue_event("form.%(form_name)s.%(widget)s.blurred" %
+                                    {"form_name": self.__class__.__name__, 
+                                     "widget": widget.name}, 
+                                e)
+        widget.handle_blur(e)
 
-    def focus(self, name = None):
+    def focus(self, widget = None):
         """
         Sets the focus to be on a specific widget. Focus by default goes
         to the first widget added to the form.
         """
-        if name is None:
-            if len(self._widgets) == 0:
+        # By default, we focus on the first widget added to the form
+        if widget is None:
+            if not self._widgets:
                 return
-            name = min(self._tab_orders.iteritems(), key=operator.itemgetter(1))[0]
+            widget = min(self._tab_orders.iteritems(), key=operator.itemgetter(1))[0]
+            
+        # If we'd focused on something before, we blur it
         if self._current_focus is not None:
             self._blur(self._current_focus)
-        self._current_focus = name
+        
+        # We keep track of our newly focused thing
+        self._current_focus = widget
+        
+        # Make and send the "focused" event
         e = spyral.Event()
         e.name = "focused"
-        self._widgets[name].handle_focus(e)
-        #e = spyral.Event("%s_%s_%s" % (self._name, name, "on_focus"))
-        #e.widget = self._widgets[name]
-        #e.form = self
-        #self._manager.send_event(e)
+        e.widget = widget
+        e.form = self
+        self.scene._queue_event("form.%(form_name)s.%(widget)s.focused" %
+                                    {"form_name": self.__class__.__name__, 
+                                     "widget": widget.name}, 
+                                e)
+        widget.handle_focus(e)
         return
         
     def blur(self):
@@ -168,20 +186,20 @@ class Form(spyral.AggregateSprite):
         if self._current_focus is None:
             self.focus()
             return
-        if len(self._widgets) == 0:
+        if not self._widgets:
             return
         cur = self._tab_orders[self._current_focus]
-        candidates = [(name, order) for (name, order) in self._tab_orders.iteritems() if order > cur]
+        candidates = [(widget, order) for (widget, order) in self._tab_orders.iteritems() if order > cur]
         if len(candidates) == 0:
             if not wrap:
                 return
-            name = None
+            widget = None
         else:
-            name = min(candidates, key=operator.itemgetter(1))[0]
+            widget = min(candidates, key=operator.itemgetter(1))[0]
         
         self._blur(self._current_focus)
         self._current_focus = None
-        self.focus(name)
+        self.focus(widget)
         
     def previous(self, wrap = True):
         """
@@ -190,17 +208,17 @@ class Form(spyral.AggregateSprite):
         if self._current_focus is None:
             self.focus()
             return
-        if len(self._widgets) == 0:
+        if not self._widgets:
             return
         cur = self._tab_orders[self._current_focus]
-        candidates = [(name, order) for (name, order) in self._tab_orders.iteritems() if order < cur]
+        candidates = [(widget, order) for (widget, order) in self._tab_orders.iteritems() if order < cur]
         if len(candidates) == 0:
             if not wrap:
                 return
-            name = max(self._tab_orders.iteritems(), key=operator.itemgetter(1))[0]
+            widget = max(self._tab_orders.iteritems(), key=operator.itemgetter(1))[0]
         else:
-            name = max(candidates, key=operator.itemgetter(1))[0]
+            widget = max(candidates, key=operator.itemgetter(1))[0]
         
         self._blur(self._current_focus)
         self._current_focus = None
-        self.focus(name)
+        self.focus(widget)
