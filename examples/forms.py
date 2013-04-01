@@ -41,7 +41,7 @@ class Game(spyral.Scene):
         my_form.focus()
         
         def test_print(event):
-            print "Focused", event.form, event.name, event.widget
+            print "Focused", event.form.__name__, event.name, event.widget.name
         
         self.register("system.quit", sys.exit)
         self.register("form.RegisterForm.name.focused", test_print)
