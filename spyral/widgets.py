@@ -39,7 +39,6 @@ class MultiStateWidget(BaseWidget):
     def _set_state(self, state):
         old_value = self.value
         self._state = state
-        print old_value, self.value
         if self.value != old_value:
             e = spyral.Event(name="changed", widget=self, form=self.form, value=self._get_value())
             self.scene._queue_event("form.%(form_name)s.%(widget)s.changed" %
@@ -50,7 +49,6 @@ class MultiStateWidget(BaseWidget):
         self._on_state_change()
         
     def _get_value(self):
-        print "DA FUDGE"
         return self._state
         
     def _get_state(self):
@@ -127,7 +125,8 @@ class ButtonWidget(MultiStateWidget):
         
     def _on_state_change(self):
         self._text_sprite.pos = spyral.Vec2D(self._padding, self._padding) / 2
-                
+    
+    value = property(_get_value)
     text = property(_get_text, _set_text)
     
     def handle_mouse_up(self, event):

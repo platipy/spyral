@@ -41,7 +41,8 @@ class Game(spyral.Scene):
         my_form.focus()
         
         def test_print(event):
-            print "Changed", event.value
+            if event.value == "down":
+                print "Pressed!", event.widget.name
         
         self.register("system.quit", sys.exit)
         self.register("form.RegisterForm.okay.changed", test_print)
