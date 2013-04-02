@@ -10,6 +10,7 @@ from bisect import bisect_right
 class BaseWidget(spyral.AggregateSprite):
     def __init__(self, form, name):
         self.__style__ = form.__class__.__name__ + '.' + name
+        self.form = form
         spyral.AggregateSprite.__init__(self, form)
 
 # Widget Implementations
@@ -36,9 +37,21 @@ class MultiStateWidget(BaseWidget):
         self._on_state_change()
     
     def _set_state(self, state):
+        old_value = self.value
         self._state = state
+        print old_value, self.value
+        if self.value != old_value:
+            e = spyral.Event(name="changed", widget=self, form=self.form, value=self._get_value())
+            self.scene._queue_event("form.%(form_name)s.%(widget)s.changed" %
+                                        {"form_name": self.form.__class__.__name__, 
+                                         "widget": self.name}, 
+                                    e)
         self.image = self._images[state]
         self._on_state_change()
+        
+    def _get_value(self):
+        print "DA FUDGE"
+        return self._state
         
     def _get_state(self):
         return self._state
@@ -67,6 +80,7 @@ class MultiStateWidget(BaseWidget):
     def _on_size_change(self):
         pass
     
+    value = property(_get_value)
     padding = property(_get_padding, _set_padding)
     nine_slice = property(_get_nine_slice, _set_nine_slice)
     state = property(_get_state, _set_state)
@@ -95,6 +109,12 @@ class ButtonWidget(MultiStateWidget):
         self.add_child(self._text_sprite)
 
         self.text = text
+    
+    def _get_value(self):
+        if "up" in self._state:
+            return "up"
+        else:
+            return "down"
         
     def _get_text(self):
         return self._text
@@ -232,6 +252,7 @@ class TextInputWidget(BaseWidget):
         
         if text_length is not None and len(value) < text_length:
             value = value[:text_length]
+        self._value = None
         self.value = value
         
         self._render_backs()
@@ -276,6 +297,11 @@ class TextInputWidget(BaseWidget):
             self._value = self._value[:position] + char + self._value[position:]
             self._compute_letter_widths()
         self._render_text()
+        e = spyral.Event(name="changed", widget=self, form=self.form, value=self._value)
+        self.scene._queue_event("form.%(form_name)s.%(widget)s.changed" %
+                                    {"form_name": self.form.__class__.__name__, 
+                                     "widget": self.name}, 
+                                e)
         
     def _remove_char(self, position, end = None):
         if end is None:
@@ -287,6 +313,11 @@ class TextInputWidget(BaseWidget):
             self._compute_letter_widths()
         self._render_text()
         self._render_cursor()
+        e = spyral.Event(name="changed", widget=self, form=self.form, value=self._value)
+        self.scene._queue_event("form.%(form_name)s.%(widget)s.changed" %
+                                    {"form_name": self.form.__class__.__name__, 
+                                     "widget": self.name}, 
+                                e)
                 
             
     def _compute_cursor_pos(self, mouse_pos):
@@ -303,6 +334,7 @@ class TextInputWidget(BaseWidget):
                 return index
         else:
             return 0
+            
     def _stop_blinking(self):
         self._cursor_time = 0
         self._cursor.visible = True
@@ -311,6 +343,12 @@ class TextInputWidget(BaseWidget):
         return self._value
         
     def _set_value(self, value):
+        if self._value is not None:
+            e = spyral.Event(name="changed", widget=self, form=self.form, value=value)
+            self.scene._queue_event("form.%(form_name)s.%(widget)s.changed" %
+                                        {"form_name": self.form.__class__.__name__, 
+                                         "widget": self.name}, 
+                                    e)
         self._value = value
         self._compute_letter_widths()
         self._cursor_pos = 0#len(value)

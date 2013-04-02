@@ -131,10 +131,7 @@ class Form(spyral.AggregateSprite):
         return dict((widget.name, widget.value) for widget in self._widgets)
         
     def _blur(self, widget):
-        e = spyral.Event()
-        e.name = "blurred"
-        e.widget = widget
-        e.form = self
+        e = spyral.Event(name="blurred", widget=widget, form=self)
         self.scene._queue_event("form.%(form_name)s.%(widget)s.blurred" %
                                     {"form_name": self.__class__.__name__, 
                                      "widget": widget.name}, 
@@ -160,10 +157,7 @@ class Form(spyral.AggregateSprite):
         self._current_focus = widget
         
         # Make and send the "focused" event
-        e = spyral.Event()
-        e.name = "focused"
-        e.widget = widget
-        e.form = self
+        e = spyral.Event(name="focused", widget=widget, form = self)
         self.scene._queue_event("form.%(form_name)s.%(widget)s.focused" %
                                     {"form_name": self.__class__.__name__, 
                                      "widget": widget.name}, 

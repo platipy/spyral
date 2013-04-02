@@ -41,10 +41,10 @@ class Game(spyral.Scene):
         my_form.focus()
         
         def test_print(event):
-            print "Focused", event.form.__name__, event.name, event.widget.name
+            print "Changed", event.value
         
         self.register("system.quit", sys.exit)
-        self.register("form.RegisterForm.name.focused", test_print)
+        self.register("form.RegisterForm.okay.changed", test_print)
         
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes
