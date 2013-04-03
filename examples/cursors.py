@@ -7,7 +7,7 @@ import spyral
 import sys
 
 SIZE = (640, 480)
-BG_COLOR = (0, 0, 0)
+BG_COLOR = (0, 128, 64)
 
 class Game(spyral.Scene):
     """
@@ -16,7 +16,14 @@ class Game(spyral.Scene):
     """
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
-        
+        back = spyral.Image(size=SIZE)
+        back.fill(BG_COLOR)
+        self.set_background(back)
+        try:
+            spyral.cursor.set_cursor(spyral.cursor.MonochromeCursor("external_cursor.xbm"))
+        except ValueError, error:
+            print "Correctly failed to load the bad cursor (%s)" % (error,)
+        spyral.cursor.set_cursor(spyral.cursor.MonochromeCursor("valid_cursor.xbm"))
         self.register("system.quit", sys.exit)
 
 if __name__ == "__main__":

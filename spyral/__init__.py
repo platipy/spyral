@@ -21,6 +21,7 @@ all_by_module = {
     'spyral.rect' : ['Rect'],
     'spyral.animation' : ['Animation'],
     'spyral.core' : ['init', 'quit', '_get_executing_scene'],
+    'spyral.cursor' : ['set_cursor', 'MonochromeCursor', 'ColorCursor', 'cursors'],
     'spyral.font' : ['Font'],
     'spyral.clock' : ['GameClock'],
     'spyral.event' : ['keys', 'mods', 'queue', 'Event', 'EventHandler', 'LiveEventHandler'],
@@ -30,7 +31,7 @@ all_by_module = {
     'spyral.exceptions': ['SceneHasNoSizeError', 'NotStylableError', 'NoImageError', 'BackgroundSizeError', 'LayersAlreadySetError', 'UnusedStyleWarning']
 }
 
-attribute_modules = frozenset(['memoize', 'point', 'exceptions', 'animator', 'event', '_lib', 'font', 'form', 'director', 'sprite', '_style', 'widgets'])
+attribute_modules = frozenset(['memoize', 'point', 'exceptions', 'animator', 'event', '_lib', 'font', 'form', 'director', 'sprite', '_style', 'widgets', 'cursor'])
 
 object_origins = {}
 for module, items in all_by_module.iteritems():
