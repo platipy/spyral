@@ -5,6 +5,9 @@ import inspect
 _inited = False
 
 def init():
+    """
+    TODO
+    """
     global _inited
     if _inited:
         return
@@ -15,6 +18,9 @@ def init():
     pygame.font.init()
 
 def quit():
+    """
+    TODO
+    """
     pygame.quit()
     spyral.director._stack = []
     

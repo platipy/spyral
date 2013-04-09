@@ -64,14 +64,21 @@ def get_tick():
     """
     Returns the current tick number, where ticks happen on each update,
     not on each frame.
+    
+    A tick is a "tick of the clock", and will happen many (usually 30) times
+    per second. TODO: Do I know what I'm talking about?
     """
     return _tick
 
 def replace(scene):
     """
     Replace the currently running scene on the stack with *scene*.
-    This does return control, so remember to return immediately after 
-    calling it.
+    
+    Execution will continue after this is called, so make sure you return::
+        spyral.director.replace(Scene())
+        print "This will be printed!"
+        return
+    TODO: Do I know what I'm talking about?
     """
     if _stack:
         spyral.event.handle('director.scene.exit', _scene = _stack[-1])
@@ -118,10 +125,13 @@ def push(scene):
 
 def run(sugar=False, profiling=False, scene=None):
     """
-    Runs the scene as dictated by the stack.
+    Begins running the game, starting with the scene on top of the stack. You
+    can also pass in a *scene* to push that scene on top of the stack.
 
-    If profiling is enabled, this function will return on every
+    If *profiling* is enabled, this function will return on every
     scene change so that scenes can be profiled independently.
+    
+    The *sugar* argument is used by the Launcher, it can be safely ignored.
     """
     if scene is not None:
         push(scene)

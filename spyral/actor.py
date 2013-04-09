@@ -2,17 +2,26 @@ import greenlet
 import spyral
 
 class Actor(object):
+    """
+    TODO
+    """
     def __init__(self):
         self._greenlet = greenlet.greenlet(self.main)
         scene = spyral._get_executing_scene()
         scene._register_actor(self, self._greenlet)
             
     def wait(self, dt = 0):
+        """
+        TODO
+        """
         if dt == 0:
             return self._greenlet.parent.switch(True)
         return self._greenlet.parent.switch(dt)
         
     def run_animation(self, animation):
+        """
+        TODO
+        """
         progress = 0.0
         dt = 0.0
         while progress < animation.duration:
@@ -30,4 +39,7 @@ class Actor(object):
             dt = self.wait(extra)
         
     def main(self, dt):
+        """
+        TODO
+        """
         pass

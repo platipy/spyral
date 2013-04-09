@@ -1,0 +1,26 @@
+
+Topics:
+
+Directors, Scenes, and Sprites
+    <image of director managing scenes with sprites in them>
+    A game in Spyral is managed by the *Director*. There is only one Director in the game. 
+    It maintains a `stack <http://en.wikipedia.org/wiki/Stack_(abstract_data_type)>`_ of 
+    *Scenes* and manages transitions between them. 
+
+Sprites and Images
+    
+Events
+
+Views
+
+Actors
+
+Drawing
+
+Styles
+
+Animations
+
+Forms and Widgets
+
+Rects and Vec2Ds

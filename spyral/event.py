@@ -13,6 +13,12 @@ _type_to_attrs = None
 _type_to_type = None
 
 class Event(object):
+    """
+    A simple representation of an event. Properties of the event will be named
+    attributes of the Event::
+        event = Event(value = 5, arbitrary_property="Something")
+        print event.value, event.arbitrary_property
+    """
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
@@ -48,6 +54,14 @@ def init():
     }
     
 def queue(type, event = None, _scene = None):
+    """
+    Queues a new event in the system. You must specify the *type* of the string,
+    e.g. "system.quit", "ball.collides.paddle.", or "input.mouse.up". You can
+    create an *Event* object to pass into the *event* parameter, which can store
+    properties of the event::
+        collision_event = Event(ball=ball, paddle=paddle)
+        spyral.event.queue("ball.collides.paddle", collision_event)
+    """
     if _scene is None:
         _scene = spyral._get_executing_scene()
     _scene._queue_event(type, event)

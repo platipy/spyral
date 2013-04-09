@@ -1,10 +1,8 @@
 Next Week Deadline:
     - Fix views
-    - Finish Forms
     - Fix Animations (At least Animator naming)
     - More style functionality in general (e.g. pass a filename as an image parameter to use it)
     - Finish view transformation pipeline (including pivot_angle, and test tree of animation with views/agg sprites, especially talking about ordering of pipeline with regards to a tall tree of height greater than 2)
-    - Caps in keyboard event handling needs to be checked, especially with regards to non-english keyboards
     - Changes to the sprites so that size is now settable, get rid of read-only properties
     - Move all print statements to warnings
 Following Week Deadline:
@@ -13,19 +11,13 @@ Before semester:
     - Translations
 
 Spyral:
+    * Save screen method
+    * Debug folder
     * Let Scenes be actors
     * Fix clock bug
     * Namespace Memoization
     * Reinvestigate event sources
-    * Add key to keyboard event types
-        - I think this is done, but we need to investigate with caps and all kinds of special cases
     * Unit/Integration Testing
-    * Forms
-        - Button needs to not have its text dissappear
-        - ToggleButtons
-        - Checkboxes
-        - RadioBoxes
-        - A complete example
     spyral.config
         - Do I still like this idea?
             - If I do, can the style parser be used?
@@ -55,7 +47,9 @@ Documentation:
     * Good explanation of Actors and events
     * Tables showing all the stylable parameters for different stylable objects.
     * Diagram showing the transformation hierarchy (positioning -> scaling -> rotating -> clipping)
-
+    * Explanation of colors
+    * Table with pictures showing anchors
+    
         
     
 Platipy:

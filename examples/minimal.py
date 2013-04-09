@@ -3,17 +3,24 @@ try:
 except NameError:
     pass
 import spyral
-import sys
 
 resolution = (640, 480)
 
-if __name__ == "__main__":
-    spyral.director.init(resolution) # the director is the manager for your scenes
-    
-    my_scene = spyral.Scene(resolution)
-    my_sprite = spyral.Sprite(my_scene)
-    my_sprite.image = spyral.Image(size=(50,50))
-    
-    my_scene.register("system.quit", sys.exit)
-    
-    spyral.director.run(scene=my_scene) # This will run your game. It will not return.
+# the director is the manager for your scenes
+spyral.director.init(resolution)
+
+# A Scene will hold sprites
+my_scene = spyral.Scene(resolution)
+
+# A Sprite is the simplest drawable item in Spyral
+my_sprite = spyral.Sprite(my_scene)
+
+# A Sprite needs to have an Image
+my_sprite.image = spyral.Image(size=(50,50))
+
+# You register events with functions
+import sys
+my_scene.register("system.quit", sys.exit)
+
+# This will run your game. Execution will stop here until the game ends.
+spyral.director.run(scene=my_scene) 
