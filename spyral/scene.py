@@ -432,8 +432,16 @@ class Scene(object):
         self._scale = (rsize[0] / size[0],
                        rsize[1] / size[1])
 
+    def _get_width(self):
+        return self._get_size()[0]
+
+    def _get_height(self):
+        return self._get_size()[1]
+
     #: 
     size = property(_get_size)
+    width = property(_get_width)
+    height = property(_get_height)
 
     def set_background(self, image):
         surface = image._surf
