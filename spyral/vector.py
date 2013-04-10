@@ -48,7 +48,6 @@ class Vec2D(object):
     __slots__ = ['x', 'y']
     
     def __init__(self, *args):
-
         if len(args) == 1:
             self.x, self.y = args[0]
         elif len(args) == 2:

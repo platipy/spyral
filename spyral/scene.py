@@ -407,13 +407,14 @@ class Scene(object):
                     ...
                     self.load_style("my_style.spys")
                     self.add_style_function("randint", random.randint)
+                    # inside of style file you can now use the randint function!
                     ...
                 
         
-        :param name: 
-        :type name:
-        :param function:
-        :type function:
+        :param name: The name the function will go by in the style file.
+        :type name: string
+        :param function: The actual function to add to the style file.
+        :type function: function
         """
         self._style_functions[name] = function
 
@@ -425,12 +426,14 @@ class Scene(object):
         return self._size
 
     def _set_size(self, size):
+        # TODO: Ensure that this is only called once
         rsize = self._surface.get_size()
         self._size = size
         self._scale = (rsize[0] / size[0],
                        rsize[1] / size[1])
 
-    size = property(_get_size, _set_size)
+    #: 
+    size = property(_get_size)
 
     def set_background(self, image):
         surface = image._surf

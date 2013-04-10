@@ -28,10 +28,11 @@ all_by_module = {
     'spyral.form' : ['Form'],
     'spyral.dev' : ['_get_spyral_path'],
     'spyral.actor' : ['Actor'],
+    'spyral.util' : ['anchor_offset'],
     'spyral.exceptions': ['SceneHasNoSizeError', 'NotStylableError', 'NoImageError', 'BackgroundSizeError', 'LayersAlreadySetError', 'UnusedStyleWarning']
 }
 
-attribute_modules = frozenset(['memoize', 'point', 'exceptions', 'animator', 'event', '_lib', 'font', 'form', 'director', 'sprite', '_style', 'widgets', 'cursor'])
+attribute_modules = frozenset(['memoize', 'point', 'exceptions', 'animator', 'event', '_lib', 'font', 'form', 'director', 'sprite', '_style', 'widgets', 'cursor', 'util'])
 
 object_origins = {}
 for module, items in all_by_module.iteritems():

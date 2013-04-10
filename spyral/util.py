@@ -1,6 +1,6 @@
 import spyral
 
-def anchor_offset(anchor, width, height)
+def anchor_offset(anchor, width, height):
     w = width
     h = height
     a = anchor
@@ -24,4 +24,4 @@ def anchor_offset(anchor, width, height)
         offset = (w / 2., h / 2.)
     else:
         offset = a * spyral.Vec2D(-1, -1)
-    return spyral.Vec2D(a)
+    return spyral.Vec2D(offset)
