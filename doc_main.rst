@@ -8,3 +8,6 @@ Scenes are the basic units that are executed by spyral for your game, and should
     
 .. autoclass:: spyral.Sprite
     :members:
+    
+.. autoclass:: spyral.Vec2D
+    :members:

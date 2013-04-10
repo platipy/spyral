@@ -86,7 +86,6 @@ class Scene(object):
         
         self._style_functions['TestingBox'] = TestingBox
 
-        self.layers = 10 #: this is a test
         self._size = None
         self._scale = (1.0, 1.0) #None
         self._surface = pygame.display.get_surface()
@@ -159,6 +158,7 @@ class Scene(object):
 
     def _reg_internal(self, namespace, handlers, args, kwargs, priority, dynamic):
         """
+        TODO: Convenience method for registering a new event?
         """
         if namespace.endswith(".*"):
             namespace = namespace[:-2]
@@ -168,9 +168,16 @@ class Scene(object):
         self._handlers[namespace].sort(key=operator.itemgetter(3))
         
     def _get_namespaces(self, namespace):
+        """
+        Internal method for returning all the registered namespaces that are in
+        the given namespace. TODO: Could we document what exactly a namespace is?
+        """
         return [n for n in self._namespaces if namespace.startswith(n)]
         
     def _send_event_to_handler(self, event, handler, args, kwargs, priority, dynamic):
+        """
+        Internal method to dispatch events to their handlers.
+        """
         fillval = "__spyral_itertools_fillvalue__"
         def _get_arg_val(arg, default = fillval):
             if arg == 'event':
@@ -218,11 +225,17 @@ class Scene(object):
             handler(*args, **kwargs)
     
     def _handle_event(self, type, event = None):
+        """
+        TODO: Why did I think I could document this?
+        """
         for handler_info in itertools.chain.from_iterable(self._handlers[namespace] for namespace in self._get_namespaces(type)):
             if self._send_event_to_handler(event, *handler_info):
                 break
                     
     def handle_events(self):
+        """
+        TODO: Is this an internal method? What circumstance requires the user to call it?
+        """
         self._handling_events = True
         do = True
         while do or len(self._pending) > 0:
@@ -234,22 +247,61 @@ class Scene(object):
 
     def register(self, event_namespace, handler, args = None, kwargs = None, priority = 0):
         """
-        I'm gonna pop some tags.
+        Registers an event handler to a namespace. Whenever an event in that namespace is fired, the event handler
+        will execute with that event.
+        
+        :param event_namespace: the namespace of the event, e.g. "input.mouse.left.click" or "ball.collides.paddle".
+        :type event_namespace: string
+        :param handler: A function that will handle the event. The first argument to the function will be the event.
+        :type handler: function
+        :param args: any additional arguments that need to be passed in to the handler.
+        :type args: sequence TODO: Is this correct?
+        :param kwargs: any additional keyword arguments that need to be passed into the handler.
+        :type kwargs: dict
+        :param priority: the higher the priority, the sooner this handler will be called in reaction to the event
+        :type priority: int
         """
         self._reg_internal(event_namespace, (handler,), args, kwargs, priority, False)
 
     def register_dynamic(self, event_namespace, handler_string, args = None, kwargs = None, priority = 0):
+        """
+        Similar to :func:`spyral.Scene.register` function, except that instead of passing in a function, you pass in the name of a
+        property of this scene that holds a function.
+        
+        Example::
+        
+            class MyScene(Scene):
+                def __init__(self):
+                    ...
+                    self.register_dynamic("orc.dies", "something") #TODO: I can't think of a good example...
+                    ...
+                    
+        TODO: Also, we need to mention how you can have multiple dots in the handler_string!
+        """
         self._reg_internal(event_namespace, (handler_string,), args, kwargs, priority, True)
 
     def register_multiple(self, event_namespace, handlers, args = None, kwargs = None, priority = 0):
+        """
+        Similar to :func:`spyral.Scene.register` function, except a sequence of handlers can be given
+        instead of just one.
+        """
         self._reg_internal(event_namespace, handlers, args, kwargs, priority, False)
 
     def register_multiple_dynamic(self, event_namespace, handler_strings, args = None, kwargs = None, priority = 0):
+        """
+        Similar to :func:`spyral.Scene.register` function, except a sequence of strings representing handlers can be given
+        instead of just one.
+        """
         self._reg_internal(event_namespace, handler_strings, args, kwargs, priority, True)
         
     def unregister(self, event_namespace, handler):
         """
-        Unregisters a registered handler. Dynamic handler strings are supported as well.
+        Unregisters a registered handler for that namespace. Dynamic handler strings are supported as well.
+        
+        :param event_namespace: An event namespace
+        :type event_namespace: string
+        :param handler: The handler to unregister.
+        :type handler: a function or string.
         """
         if event_namespace.endswith(".*"):
             event_namespace = event_namespace[:-2]
@@ -258,6 +310,9 @@ class Scene(object):
     def clear_namespace(self, namespace):
         """
         Clears all handlers from namespaces that are at least as specific as the provided namespace.
+        TODO: We need an Appendix on event namespaces
+        :param namespace: The complete namespace.
+        :type namespace: string
         """
         if namespace.endswith(".*"):
             namespace = namespace[:-2]
@@ -266,11 +321,21 @@ class Scene(object):
             self._handlers[namespace] = []
         
     def set_event_source(self, source):
+        """
+        TODO: What's the status on this?
+        """
         self._event_source = source
 
 
     # Style Handling
     def __stylize__(self, properties):
+        """
+        Applies the *properties* to this scene. This is called when a style
+        is applied.
+
+        :param properties: a mapping of property names (strings) to values.
+        :type properties: dict
+        """
         if 'size' in properties:
             size = properties.pop('size')
             self._set_size(size)
@@ -289,10 +354,32 @@ class Scene(object):
             spyral.exceptions.unused_style_warning(self, properties.iterkeys())
 
     def load_style(self, path):
+        """
+        Loads the style file in *path* and applies it to this Scene and any Sprites that it contains.
+        TODO: Should we move this to its own appendix?
+        
+        
+        Common Scene Style Properties
+
+        ===========    ===============
+        Property       Value
+        ===========    ===============
+        size           A tuple or :class:spyral.Vec2D: (width,height) for the virtual, or  "internal", size
+        background     Either a string (indiciating the filename of the background) or a color three-tuple.
+        layers         A sequence of strings representing the layers of the scene.
+        ===========    ===============
+        
+        :param path: the location of the style file to load. Usually has the extension ".spys".
+        :type path: string
+        """
         spyral._style.parse(open(path, "r").read(), self)
         self.apply_style(self)
 
     def apply_style(self, object):
+        """
+        TODO: Should this be an internal method?
+        Applies any loaded styles to this scene.
+        """
         if not hasattr(object, "__stylize__"):
             raise spyral.NotStylableError("%r is not an object which can be styled." % object)
         properties = {}
@@ -309,6 +396,25 @@ class Scene(object):
             object.__stylize__(properties)
 
     def add_style_function(self, name, function):
+        """
+        Adds a new function that will then be available to be used in a stylesheet file.
+        
+        Example::
+        
+            import random
+            class MyScene(spyral.Scene):
+                def __init__(self):
+                    ...
+                    self.load_style("my_style.spys")
+                    self.add_style_function("randint", random.randint)
+                    ...
+                
+        
+        :param name: 
+        :type name:
+        :param function:
+        :type function:
+        """
         self._style_functions[name] = function
 
 

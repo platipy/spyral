@@ -1,5 +1,5 @@
 .. toctree::
    :maxdepth: 2
 
-   spyral_docs
-   ...
+   doc_main
+   README

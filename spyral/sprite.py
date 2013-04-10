@@ -23,18 +23,18 @@ class Sprite(object):
     ============    ============
     Attribute       Description
     ============    ============
-    pos             The position of a sprite in 2D coordinates, represented as a :ref:`Vec2D <spyral_Vec2D>`
-    x               The x coordinate of the sprite, which will remain synced with the :ref:`Vec2D <spyral_Vec2D>`
-    y               The y coordinate of the sprite, which will remain synced with the :ref:`Vec2D <spyral_Vec2D>`
+    pos             The position of a sprite in 2D coordinates, represented as a :class:`Vec2D <spyral.Vec2D>`
+    x               The x coordinate of the sprite, which will remain synced with the :class:`Vec2D <spyral.Vec2D>`
+    y               The y coordinate of the sprite, which will remain synced with the :class:`Vec2D <spyral.Vec2D>`
     position        An alias for pos
-    anchor          Defines an :ref:`anchor point <anchors>` where coordinates are relative to on the image.
-    layer           The name of the layer this sprite belongs to. See :ref:`layering <spyral_layering>` for more.
+    anchor          Defines an `anchor point <anchors>` where coordinates are relative to on the image.
+    layer           The name of the layer this sprite belongs to. See `layering <spyral_layering>` for more.
     image           The image for this sprite
     visible         A boolean that represents whether this sprite should be drawn.
     width           Width of the image after all transforms. Read-only
     height          Height of the image after all transforms. Read-only
     size            (width, height) of the image after all transforms. Read-only
-    scale           A scale factor for resizing the image. It will always contain a :ref:`Vec2D <spyral_Vec2D>` with an x factor and a y factor, but it can be set to a numeric value which will be set for both coordinates.
+    scale           A scale factor for resizing the image. It will always contain a :class:`spyral.Vec2D` with an x factor and a y factor, but it can be set to a numeric value which will be set for both coordinates.
     scale_x         The x factor of the scaling. Kept in sync with scale
     scale_y         The y factor of the scaling. Kept in sync with scale
     flip_x          A boolean that determines whether the image should be flipped horizontally
@@ -327,7 +327,7 @@ class Sprite(object):
 
     def get_rect(self):
         """
-        Returns a :ref:`rect <spyral_Rect>` representing where this
+        Returns a :class:`rect <spyral.Rect>` representing where this
         sprite will be drawn.
         """
         return spyral.Rect(
@@ -395,7 +395,7 @@ class Sprite(object):
         
     def animate(self, animation):
         """
-        Animates this sprite given an animation. Read more about :ref:`animation <spyral_animation>`.
+        Animates this sprite given an animation. Read more about :class:`animation <spyral.animation>`.
         """
         for a in self._animations:
             if a.properties.intersection(animation.properties):
