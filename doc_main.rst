@@ -11,3 +11,27 @@ Scenes are the basic units that are executed by spyral for your game, and should
     
 .. autoclass:: spyral.Vec2D
     :members:
+    
+=========================
+View size and Window size
+=========================
+The size of the View is the "internal" or "virtual" size, whereas the window size is the "external" or "real" size.
+
+===================
+Stylable Properties
+===================
+
+Scenes:
+
+===========    ===============
+Property       Value
+===========    ===============
+size           A tuple or :class:spyral.Vec2D: (width,height) for the virtual, or  "internal", size
+background     Either a string (indiciating the filename of the background) or a color three-tuple.
+layers         A sequence of strings representing the layers of the scene.
+===========    ===============
+
+================
+Event Namespaces
+================
+Something about event namespaces

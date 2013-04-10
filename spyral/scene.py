@@ -14,7 +14,7 @@ from collections import defaultdict
 @spyral.memoize._ImageMemoize
 def _scale(s, factor):
     """
-    Internal method to scale a surface *s* by a float *factor*. Uses memoization
+    Internal method to scale a surface `s` by a float `factor`. Uses memoization
     to improve performance.
     """
     if factor == (1.0, 1.0):
@@ -29,8 +29,8 @@ def _scale(s, factor):
 
 class _Blit(object):
     """
-    An internal class to represent a drawable surface with additional data (e.g.
-    location on screen, whether its static).
+    An internal class to represent a drawable `surface` with additional data (e.g.
+    `rect` representing its location on screen, whether it's `static`).
     """
     __slots__ = ['surface', 'rect', 'layer', 'flags', 'static', 'clipping']
     def __init__(self, surface, rect, layer, flags, static, clipping):
@@ -47,14 +47,12 @@ class Scene(object):
     Creates a new Scene. When a scene is not active, no events will be processed 
         for it.
     
-    :param size: The size of the scene internally (or "virtually"). If this
-            size is different from the size of the window (the "real" or
-            "external" size), everything drawn in it will be scaled to fit.
+    :param size: The `size` of the scene internally (or "virtually"). See `View size and Window size`_ for more details.
     :type size: width, height
-    :param max_ups: Maximum updates to process per second. By default, max_ups 
+    :param max_ups: Maximum updates to process per second. By default, `max_ups`
         is pulled from the director.
     :type max_ups: int
-    :param max_fps: Maximum frames to draw per second. By default, max_fps is 
+    :param max_fps: Maximum frames to draw per second. By default, `max_fps` is 
         pulled from the director.
     :type max_fps: int
     """
@@ -117,7 +115,7 @@ class Scene(object):
     # Actor Handling
     def _register_actor(self, actor, greenlet):
         """ 
-        Internal method to add a new actor to this scene.
+        Internal method to add a new `actor` to this scene.
         """
         self._greenlets[actor] = greenlet
                     
@@ -149,7 +147,7 @@ class Scene(object):
     # Event Handling
     def _queue_event(self, type, event = None):
         """
-        Internal method to add a new event to be handled by this scene.
+        Internal method to add a new `event` to be handled by this scene.
         """
         if self._handling_events:
             self._pending.append((type, event))
@@ -226,7 +224,7 @@ class Scene(object):
     
     def _handle_event(self, type, event = None):
         """
-        TODO: Why did I think I could document this?
+        TODO: Why did I think I could document this? What does this do??
         """
         for handler_info in itertools.chain.from_iterable(self._handlers[namespace] for namespace in self._get_namespaces(type)):
             if self._send_event_to_handler(event, *handler_info):
@@ -247,26 +245,25 @@ class Scene(object):
 
     def register(self, event_namespace, handler, args = None, kwargs = None, priority = 0):
         """
-        Registers an event handler to a namespace. Whenever an event in that namespace is fired, the event handler
-        will execute with that event.
+        Registers an event `handler` to a namespace. Whenever an event in that `event_namespace` is fired, the event `handler`
+        will execute with that event. For more information, see `Event Namespaces`_.
         
         :param event_namespace: the namespace of the event, e.g. "input.mouse.left.click" or "ball.collides.paddle".
         :type event_namespace: string
         :param handler: A function that will handle the event. The first argument to the function will be the event.
         :type handler: function
         :param args: any additional arguments that need to be passed in to the handler.
-        :type args: sequence TODO: Is this correct?
+        :type args: sequence
         :param kwargs: any additional keyword arguments that need to be passed into the handler.
         :type kwargs: dict
-        :param priority: the higher the priority, the sooner this handler will be called in reaction to the event
+        :param priority: the higher the `priority`, the sooner this handler will be called in reaction to the event
         :type priority: int
         """
         self._reg_internal(event_namespace, (handler,), args, kwargs, priority, False)
 
     def register_dynamic(self, event_namespace, handler_string, args = None, kwargs = None, priority = 0):
         """
-        Similar to :func:`spyral.Scene.register` function, except that instead of passing in a function, you pass in the name of a
-        property of this scene that holds a function.
+        Similar to :func:`spyral.Scene.register` function, except that instead of passing in a function, you pass in the name of a property of this scene that holds a function. For more information, see `Event Namespaces`_.
         
         Example::
         
@@ -282,8 +279,8 @@ class Scene(object):
 
     def register_multiple(self, event_namespace, handlers, args = None, kwargs = None, priority = 0):
         """
-        Similar to :func:`spyral.Scene.register` function, except a sequence of handlers can be given
-        instead of just one.
+        Similar to :func:`spyral.Scene.register` function, except a sequence of `handlers` are be given
+        instead of just one. For more information, see `Event Namespaces`_.
         """
         self._reg_internal(event_namespace, handlers, args, kwargs, priority, False)
 
@@ -296,7 +293,7 @@ class Scene(object):
         
     def unregister(self, event_namespace, handler):
         """
-        Unregisters a registered handler for that namespace. Dynamic handler strings are supported as well.
+        Unregisters a registered handler for that namespace. Dynamic handler strings are supported as well. For more information, see `Event Namespaces`_.
         
         :param event_namespace: An event namespace
         :type event_namespace: string
@@ -309,7 +306,7 @@ class Scene(object):
 
     def clear_namespace(self, namespace):
         """
-        Clears all handlers from namespaces that are at least as specific as the provided namespace.
+        Clears all handlers from namespaces that are at least as specific as the provided `namespace`. For more information, see `Event Namespaces`_.
         TODO: We need an Appendix on event namespaces
         :param namespace: The complete namespace.
         :type namespace: string
@@ -346,7 +343,7 @@ class Scene(object):
                 bg.fill(background)
             else:
                 bg = spyral.Image(backgronud)
-            self.set_background(bg)
+            self._set_background(bg)
         if 'layers' in properties:
             layers = properties.pop('layers')
             self.set_layers(layers)
@@ -355,19 +352,7 @@ class Scene(object):
 
     def load_style(self, path):
         """
-        Loads the style file in *path* and applies it to this Scene and any Sprites that it contains.
-        TODO: Should we move this to its own appendix?
-        
-        
-        Common Scene Style Properties
-
-        ===========    ===============
-        Property       Value
-        ===========    ===============
-        size           A tuple or :class:spyral.Vec2D: (width,height) for the virtual, or  "internal", size
-        background     Either a string (indiciating the filename of the background) or a color three-tuple.
-        layers         A sequence of strings representing the layers of the scene.
-        ===========    ===============
+        Loads the style file in *path* and applies it to this Scene and any Sprites that it contains. See `Stylable Properties`_ for more details.
         
         :param path: the location of the style file to load. Usually has the extension ".spys".
         :type path: string
@@ -426,31 +411,46 @@ class Scene(object):
         return self._size
 
     def _set_size(self, size):
-        # TODO: Ensure that this is only called once
+        # This can only be called once.
         rsize = self._surface.get_size()
         self._size = size
         self._scale = (rsize[0] / size[0],
                        rsize[1] / size[1])
 
-    #: 
+    #: Read-only property that returns a :class:`Vec2D <spyral.Vec2D>` of the width and height of the Scene's size. See `View size and Window size`_ for more details.
     size = property(_get_size)
 
-    def set_background(self, image):
+    def _set_background(self, image):
         surface = image._surf
         scene = spyral._get_executing_scene()
         if surface.get_size() != self.size:
             raise spyral.BackgroundSizeError("Background size must match the scene's size.")
         self._background = pygame.transform.smoothscale(surface, self._surface.get_size())
         self._clear_this_frame.append(surface.get_rect())
+        
+    def _get_background(self):
+        return self._background
+        
+    #: Sets the background of this scene to the `image` (:class:`Image <spyral.Image>`). The `image` must be the same size as the background. A background will be handled intelligently by Spyral; it knows to only redraw portions of it rather than the whole thing.
+    background = property(_get_background, _set_background)
 
     def _register_sprite(self, sprite):
+        """
+        Internal method to add this sprite to the scene
+        """
         self._sprites.add(sprite)
 
     def _unregister_sprite(self, sprite):
+        """
+        Internal method to remove this sprite from the scene
+        """
         if sprite in self._sprites:
             self._sprites.remove(sprite)
 
     def _blit(self, surface, position, layer, flags, clipping):
+        """
+        Adds the given `surface` to the list of :class:`_Blit`s to be drawn to the screen.
+        """
         layer = self._compute_layer(layer)
         position = spyral.point.scale(position, self._scale)
         new_surface = _scale(surface, self._scale)
@@ -468,6 +468,9 @@ class Scene(object):
         self._blits.append(_Blit(new_surface, r, layer, flags, False, clipping))
 
     def _static_blit(self, sprite, surface, position, layer, flags, clipping):
+        """
+        Identifies that this sprite will be statically blit from now. I forget what that even means, to be honest.
+        """
         layer = self._compute_layer(layer)
         position = spyral.point.scale(position, self._scale)
         redraw = sprite in self._static_blits
@@ -491,6 +494,9 @@ class Scene(object):
             self._clear_this_frame.append(r)
 
     def _remove_static_blit(self, sprite):
+        """
+        Removes this sprite from the static blit list? TODO: WHAT DO.
+        """
         try:
             x = self._static_blits.pop(sprite)
             self._clear_this_frame.append(x.rect)
@@ -499,7 +505,7 @@ class Scene(object):
 
     def _draw(self):
         """
-        Called by the director at the end of every .render() call to do
+        Internal method that is called by the :class:`Director <spyral.Director>` at the end of every .render() call to do
         the actual drawing.
         """
 
@@ -588,10 +594,18 @@ class Scene(object):
         self._blits = []
 
     def redraw(self):
+        """
+        Force the entire visible window to be completely redrawn.
+        
+        This is particularly useful for Sugar, which loves to put artifacts over
+        our window.
+        """
         self._clear_this_frame.append(pygame.Rect((0,0), self._vsize))
 
-
     def _compute_layer(self, layer):
+        """
+        Computes the numerical index of `layer` (in reference to the other layers).
+        """
         # This should be optimized at some point.
         if type(layer) in (int, long, float):
             return layer
@@ -611,6 +625,9 @@ class Scene(object):
         return layer
 
     def set_layers(self, layers):
+        """
+        TODO: Should this be internal?
+        """
         # Potential caveat: If you change layers after blitting, previous blits may be wrong
         # for a frame, static ones wrong until they expire
         if self._layers == ['all']:
@@ -619,10 +636,16 @@ class Scene(object):
             pass
         else:
             raise spyral.LayersAlreadySetError("You can only define the layers for a scene once.")
+            
+    def _get_layers(self):
+        return self._layers
+        
+    #: Returns the list of layers for this Scene, which are represented by strings. The first layer is at the bottom, and the last is at the top.
+    layers = property(_get_layers)
 
     def world_to_local(self, pos):
         """
-        Rename, decide if necessary, perhaps auto-scale the event coordinates inside the scene.
+        TODO: Rename, decide if necessary, perhaps auto-scale the event coordinates inside the scene.
         """
         pos = spyral.Vec2D(pos)
         if self._rect.collidepoint(pos):
