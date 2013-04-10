@@ -8,6 +8,11 @@ import pygame
 from bisect import bisect_right
 
 class BaseWidget(spyral.AggregateSprite):
+    """
+    The BaseWidget is the simplest possible widget that all other widgets
+    must subclass. It handles tracking its owning form and the styling that
+    should be applied.
+    """
     def __init__(self, form, name):
         self.__style__ = form.__class__.__name__ + '.' + name
         self.form = form
@@ -16,6 +21,17 @@ class BaseWidget(spyral.AggregateSprite):
 # Widget Implementations
 
 class MultiStateWidget(BaseWidget):
+    """
+    The MultiStateWidget is an abstract widget with multiple states. It is can
+    be subclassed and implemented to have different behavior based on its
+    states.
+    
+    In addition, it supports having a Nine Slice image; it will cut a given
+    image into a 3x3 grid of images that can be stretched into a button. This
+    is a boolean property.
+    
+    *states* should be a list of the possible states that the widget can be in.
+    """
     def __init__(self, form, name, states):
         self._states = states
         self._state = self._states[0]
@@ -26,9 +42,14 @@ class MultiStateWidget(BaseWidget):
         self._content_size = (0, 0)
         
     def _render_images(self):
+        """
+        Recreates the cached images of this widget (based on the 
+        **self._image_locations** internal variabel) and sets the widget's image
+        based on its current state.
+        """
         for state in self._states:
             if self._nine_slice:
-                size = spyral.Vec2D(self._padding, self._padding) + self._content_size
+                size = self._padding + self._content_size
                 nine_slice_image = spyral.Image(self._image_locations[state])
                 self._images[state] = spyral.Image.render_nine_slice(nine_slice_image, size)
             else:
@@ -62,13 +83,22 @@ class MultiStateWidget(BaseWidget):
         return self._nine_slice
         
     def _set_padding(self, padding):
-        self._padding = padding
+        if isinstance(padding, spyral.Vec2D):
+            self._padding = padding
+        else:
+            self._padding = spyral.Vec2D(padding, padding)
         self._render_images()
         
     def _get_padding(self):
+        """
+        TODO: _get_padding documentation
+        """
         return self._padding
         
     def _set_content_size(self, size):
+        """
+        TODO: _set_content_size documentation
+        """
         self._content_size = size
         self._render_images()
         

@@ -294,6 +294,9 @@ class Sprite(object):
         self._recalculate_transforms()
         
     def _get_visible(self):
+        """
+        Determines whether this Sprite will be drawn, either True or ``False``.
+        """
         return self._visible
         
     def _set_visible(self, visible):
@@ -302,7 +305,9 @@ class Sprite(object):
         self._visible = visible
         self._expire_static()
 
+    #: Determines where this Sprite is drawn in the Scene (or View).
     position = property(_get_pos, _set_pos)
+    #: Alias for position
     pos = property(_get_pos, _set_pos)
     layer = property(_get_layer, _set_layer)
     image = property(_get_image, _set_image)

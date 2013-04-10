@@ -13,6 +13,10 @@ from collections import defaultdict
 
 @spyral.memoize._ImageMemoize
 def _scale(s, factor):
+    """
+    Internal method to scale a surface *s* by a float *factor*. Uses memoization
+    to improve performance.
+    """
     if factor == (1.0, 1.0):
         return s
     size = s.get_size()
@@ -24,27 +28,37 @@ def _scale(s, factor):
     return t
 
 class _Blit(object):
+    """
+    An internal class to represent a drawable surface with additional data (e.g.
+    location on screen, whether its static).
+    """
     __slots__ = ['surface', 'rect', 'layer', 'flags', 'static', 'clipping']
     def __init__(self, surface, rect, layer, flags, static, clipping):
-        self.surface = surface
-        self.rect = rect
-        self.layer = layer
-        self.flags = flags
-        self.static = static
-        self.clipping = clipping
+        self.surface = surface   #pygame surface
+        self.rect = rect         #position and size of the image on screen
+        self.layer = layer       #layer in scene
+        self.flags = flags       #any drawing flags (currently unusued)
+        self.static = static     #static blits haven't changed
+        self.clipping = clipping #whether the surface should be cropped
 
 
 class Scene(object):
     """
-    Represents a state of the game as it runs.
-
-    *self.clock* will contain an instance of GameClock which can be replaced
-    or changed as is needed.
+    Creates a new Scene. When a scene is not active, no events will be processed 
+        for it.
+    
+    :param size: The size of the scene internally (or "virtually"). If this
+            size is different from the size of the window (the "real" or
+            "external" size), everything drawn in it will be scaled to fit.
+    :type size: width, height
+    :param max_ups: Maximum updates to process per second. By default, max_ups 
+        is pulled from the director.
+    :type max_ups: int
+    :param max_fps: Maximum frames to draw per second. By default, max_fps is 
+        pulled from the director.
+    :type max_fps: int
     """
     def __init__(self, size = None, max_ups=None, max_fps=None):
-        """
-        By default, max_ups and max_fps are pulled from the director.
-        """
         time_source = time.time
         self.clock = spyral.GameClock(
             time_source=time_source,
@@ -72,7 +86,7 @@ class Scene(object):
         
         self._style_functions['TestingBox'] = TestingBox
 
-
+        self.layers = 10 #: this is a test
         self._size = None
         self._scale = (1.0, 1.0) #None
         self._surface = pygame.display.get_surface()
@@ -103,9 +117,15 @@ class Scene(object):
     
     # Actor Handling
     def _register_actor(self, actor, greenlet):
+        """ 
+        Internal method to add a new actor to this scene.
+        """
         self._greenlets[actor] = greenlet
                     
     def _run_actors_greenlet(self, dt, _):
+        """
+        Helper method for run_actors to TODO: What does this do?
+        """
         for actor, greenlet in self._greenlets.iteritems():
             dt, rerun = greenlet.switch(dt)
             while rerun:
@@ -113,6 +133,10 @@ class Scene(object):
         return False
 
     def run_actors(self, dt):
+        """
+        TODO: Is this an internal method? What circumstances warrant it being called explicitly?
+        Main loop for running actors (until they TODO: What causes the loop to stop?
+        """
         g = greenlet.greenlet(self._run_actors_greenlet)
         while True:
             d = g.switch(dt, False)
@@ -125,12 +149,17 @@ class Scene(object):
 
     # Event Handling
     def _queue_event(self, type, event = None):
+        """
+        Internal method to add a new event to be handled by this scene.
+        """
         if self._handling_events:
             self._pending.append((type, event))
         else:
             self._events.append((type, event))
 
     def _reg_internal(self, namespace, handlers, args, kwargs, priority, dynamic):
+        """
+        """
         if namespace.endswith(".*"):
             namespace = namespace[:-2]
         self._namespaces.add(namespace)
