@@ -35,3 +35,19 @@ layers         A sequence of strings representing the layers of the scene.
 Event Namespaces
 ================
 Something about event namespaces
+
+===================
+Anchor Offset Lists
+===================
+
+TODO: Image using these anchors
+
+* topleft
+* midtop
+* topright
+* midleft
+* center
+* midright
+* bottomleft
+* midbottom
+* bottomright

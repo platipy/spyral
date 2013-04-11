@@ -13,7 +13,7 @@ class Vec2D(object):
             
     >>> from spyral import Vec2D
     >>> v1 = Vec2D(1,0)
-    >>> v2 = Vec2D(0,1)
+    >>> v2 = Vec2D((0,1))    # Note 2-tuple argument!
 
     Tuple access, or x,y attribute access
     
