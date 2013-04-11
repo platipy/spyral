@@ -1,3 +1,6 @@
+import pygame
+import spyral
+
 class Rect(object):
     """
     Rect represents a rectangle and provides some useful features.
@@ -227,6 +230,9 @@ class Rect(object):
         # This could probably be optimized as well
         return point[0] > self.left and point[0] < self.right and \
             point[1] > self.top and point[1] < self.bottom
+
+    def _to_pygame(self):
+        return pygame.Rect(((self.top, self.left), (self.width, self.height)))
         
     def __str__(self):
         return ''.join(['<rect(',
