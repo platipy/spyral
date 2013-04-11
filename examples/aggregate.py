@@ -14,7 +14,7 @@ class Game(spyral.Scene):
         spyral.Scene.__init__(self, SIZE)
         bg = spyral.Image(size=SIZE)
         bg.fill(color)
-        self.set_background(bg)
+        self.background = bg
         
         s = spyral.AggregateSprite(self)
         s.image = spyral.Image(size=(20,20)).draw_circle((255, 255, 255), (10,10), 10)
