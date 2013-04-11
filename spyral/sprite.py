@@ -389,6 +389,7 @@ class Sprite(object):
 
     def kill(self):
         self._scene._unregister_sprite(self)
+        self._scene._remove_static_blit(self)
 
     def __del__(self):
         self._scene._remove_static_blit(self)

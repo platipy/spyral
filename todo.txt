@@ -11,6 +11,8 @@ Before semester:
     - Translations
 
 Spyral:
+    * Fix drawing functions to use Vec2D.to_int()
+    * Add Vec2D.to_int()
     * Save screen method
     * Debug folder
     * Let Scenes be actors
