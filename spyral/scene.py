@@ -417,8 +417,18 @@ class Scene(object):
         self._scale = (rsize[0] / size[0],
                        rsize[1] / size[1])
 
+    def _get_width(self):
+        return self._get_size()[0]
+
+    def _get_height(self):
+        return self._get_size()[1]
+
     #: Read-only property that returns a :class:`Vec2D <spyral.Vec2D>` of the width and height of the Scene's size. See `View size and Window size`_ for more details.
     size = property(_get_size)
+    #: Read-only property that returns the width of the Scene (int).
+    width = property(_get_width)
+    #: Read-only property that returns the height of the Scene (int).
+    height = property(_get_height)
 
     def _set_background(self, image):
         surface = image._surf
