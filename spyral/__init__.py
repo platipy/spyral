@@ -29,7 +29,8 @@ all_by_module = {
     'spyral.dev' : ['_get_spyral_path'],
     'spyral.actor' : ['Actor'],
     'spyral.util' : ['anchor_offset'],
-    'spyral.exceptions': ['SceneHasNoSizeError', 'NotStylableError', 'NoImageError', 'BackgroundSizeError', 'LayersAlreadySetError', 'UnusedStyleWarning']
+    'spyral.exceptions': ['SceneHasNoSizeError', 'NotStylableError', 'NoImageError', 'BackgroundSizeError', 'LayersAlreadySetError', 'UnusedStyleWarning'],
+    'spyral.view': ['View']
 }
 
 attribute_modules = frozenset(['memoize', 'point', 'exceptions', 'animator', 'event', '_lib', 'font', 'form', 'director', 'sprite', '_style', 'widgets', 'cursor', 'util'])
