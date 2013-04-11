@@ -11,37 +11,6 @@ import sys
 import math
 from collections import defaultdict
 
-@spyral.memoize._ImageMemoize
-def _scale(s, factor):
-    """
-    Internal method to scale a surface `s` by a float `factor`. Uses memoization
-    to improve performance.
-    """
-    if factor == (1.0, 1.0):
-        return s
-    size = s.get_size()
-    new_size = (int(math.ceil(size[0] * factor[0])),
-                int(math.ceil(size[1] * factor[1])))
-    t = pygame.transform.smoothscale(s,
-                               new_size,
-                               pygame.Surface(new_size, pygame.SRCALPHA).convert_alpha())
-    return t
-
-class _Blit(object):
-    """
-    An internal class to represent a drawable `surface` with additional data (e.g.
-    `rect` representing its location on screen, whether it's `static`).
-    """
-    __slots__ = ['surface', 'rect', 'layer', 'flags', 'static', 'clipping']
-    def __init__(self, surface, rect, layer, flags, static, clipping):
-        self.surface = surface   #pygame surface
-        self.rect = rect         #position and size of the image on screen
-        self.layer = layer       #layer in scene
-        self.flags = flags       #any drawing flags (currently unusued)
-        self.static = static     #static blits haven't changed
-        self.clipping = clipping #whether the surface should be cropped
-
-
 class Scene(object):
     """
     Creates a new Scene. When a scene is not active, no events will be processed 
@@ -457,58 +426,28 @@ class Scene(object):
         if sprite in self._sprites:
             self._sprites.remove(sprite)
 
-    def _blit(self, surface, position, layer, flags, clipping):
-        """
-        Adds the given `surface` to the list of :class:`_Blit`s to be drawn to the screen.
-        """
-        layer = self._compute_layer(layer)
-        position = spyral.point.scale(position, self._scale)
-        new_surface = _scale(surface, self._scale)
-        r = pygame.Rect(position, new_surface.get_size())
+    def _blit(self, blit):
+        blit.apply_scale(self._scale)
+        blit.clip(self._rect)
+        blit.finalize()
+        self._blits.append(blit)
 
-        if self._rect.contains(r):
-            pass
-        elif self._rect.colliderect(r):
-            x = r.clip(self._rect)
-            y = x.move(-r.left, -r.top)
-            new_surface = new_surface.subsurface(y)
-            r = x
-        else:
-            return
-        self._blits.append(_Blit(new_surface, r, layer, flags, False, clipping))
-
-    def _static_blit(self, sprite, surface, position, layer, flags, clipping):
+    def _static_blit(self, key, blit):
         """
         Identifies that this sprite will be statically blit from now. I forget what that even means, to be honest.
         """
-        layer = self._compute_layer(layer)
-        position = spyral.point.scale(position, self._scale)
-        redraw = sprite in self._static_blits
-        if redraw:
-            r2 = self._static_blits[sprite][1]
-        new_surface = _scale(surface, self._scale)
-        r = pygame.Rect(position, new_surface.get_size())
-        if self._rect.contains(r):
-            pass
-        elif self._rect.colliderect(r):
-            x = r.clip(self._rect)
-            y = x.move(-r.left, -r.top)
-            new_surface = new_surface.subsurface(y)
-            r = x
-        else:
-            return
-        self._static_blits[sprite] = _Blit(new_surface, r, layer, flags, True, clipping)
-        if redraw:
-            self._clear_this_frame.append(r2.union(r))
-        else:
-            self._clear_this_frame.append(r)
+        blit.apply_scale(self._scale)
+        blit.clip(self._rect)
+        blit.finalize()
+        self._static_blits[key] = blit
+        self._clear_this_frame.append(blit.rect)
 
-    def _remove_static_blit(self, sprite):
+    def _remove_static_blit(self, key):
         """
         Removes this sprite from the static blit list? TODO: WHAT DO.
         """
         try:
-            x = self._static_blits.pop(sprite)
+            x = self._static_blits.pop(key)
             self._clear_this_frame.append(x.rect)
         except:
             pass
@@ -557,8 +496,7 @@ class Scene(object):
         blit_flags_available = pygame.version.vernum < (1, 8)
         
         for blit in blits:
-            blit_clipping_offset, blit_clipping_region = blit.clipping
-            blit_rect = blit.rect.move(blit_clipping_offset)
+            blit_rect = blit.rect
             blit_flags = blit.flags if blit_flags_available else 0
             # If a blit is entirely off screen, we can ignore it altogether
             if not screen_rect.contains(blit_rect) and not screen_rect.colliderect(blit_rect):
@@ -567,7 +505,7 @@ class Scene(object):
                 skip_soft_clear = False
                 for rect in clear_this:
                     if blit_rect.colliderect(rect):
-                        screen.blit(blit.surface, blit_rect, blit_clipping_region, blit_flags)
+                        screen.blit(blit.surface, blit_rect, None, blit_flags)
                         skip_soft_clear = True
                         clear_this.append(blit_rect)
                         self._soft_clear.append(blit_rect)
@@ -577,19 +515,20 @@ class Scene(object):
                     continue
                 for rect in soft_clear:
                     if blit_rect.colliderect(rect):
-                        screen.blit(blit.surface, blit_rect, blit_clipping_region, blit_flags)
+                        screen.blit(blit.surface, blit_rect, None, blit_flags)
                         soft_clear.append(blit.rect)
                         drawn_static += 1
                         break
             else:                
                 if screen_rect.contains(blit_rect):
-                    r = screen.blit(blit.surface, blit_rect, blit_clipping_region, blit_flags)
+                    r = screen.blit(blit.surface, blit_rect, None, blit_flags)
                     clear_next.append(r)
                 elif screen_rect.colliderect(blit_rect):
+                    # Todo: See if this is ever called. Shouldn't be.
                     x = blit.rect.clip(screen_rect)
                     y = x.move(-blit_rect.left, -blit_rect.top)
                     b = blit.surf.subsurface(y)
-                    r = screen.blit(blit.surface, blit_rect, blit_clipping_region, blit_flags)
+                    r = screen.blit(blit.surface, blit_rect, None, blit_flags)
                     clear_next.append(r)
 
         pygame.display.set_caption("%d / %d static, %d dynamic. %d ups, %d fps" %
@@ -616,23 +555,7 @@ class Scene(object):
         """
         Computes the numerical index of `layer` (in reference to the other layers).
         """
-        # This should be optimized at some point.
-        if type(layer) in (int, long, float):
-            return layer
-        try:
-            s = layer.split(':')
-            layer = s[0]
-            offset = 0
-            if len(s) > 1:
-                mod = s[1]
-                if mod == 'above':
-                    offset = 0.5
-                if mod == 'below':
-                    offset = -0.5
-            layer = self._layers.index(layer) + offset
-        except ValueError:
-            layer = len(self._layers)
-        return layer
+        return spyral.util.compute_layer(self._layers, layer)
 
     def set_layers(self, layers):
         """

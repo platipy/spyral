@@ -65,6 +65,7 @@ class Sprite(object):
         self._image = None
         self._image_version = None
         self._layer = '__default__'
+        self._computed_layer = 1
         self._make_static = False
         self._pos = spyral.Vec2D(0, 0)
         self._blend_flags = 0
@@ -185,6 +186,7 @@ class Sprite(object):
         if layer == self._layer:
             return
         self._layer = layer
+        self._computed_layer = self._view._compute_layer(layer)
         self._expire_static()
 
     def _get_image(self):
@@ -334,14 +336,7 @@ class Sprite(object):
             (self._pos[0] - self._offset[0], self._pos[1] - self._offset[1]),
             self.size)
 
-    def draw(self, offset = spyral.Vec2D(0, 0), crop = None):
-        """
-        This documentation is wrong now. Fix it later.
-
-        Draws this sprite  Called automatically in
-        the render loop. This should only be overridden in extreme
-        circumstances.
-        """
+    def draw(self):
         if not self.visible:
             return
         if self._image is None:
@@ -352,39 +347,23 @@ class Sprite(object):
             self._expire_static()
         if self._static:
             return
-        
-        if crop:
-            original = spyral.Rect(self._pos[0] - self._offset[0] + offset[0],
-                         self._pos[1] - self._offset[1] + offset[1],
-                         self._transform_image.get_rect().width,
-                         self._transform_image.get_rect().height)
-            cropped_region = original.clip(crop)
-            cropped_region.left -= original.left
-            cropped_region.top -= original.top
-            x_offset = (original.width - cropped_region.width) if cropped_region.x > 0 else 0
-            y_offset = (original.height - cropped_region.height) if cropped_region.y > 0 else 0
-            crop_offset = x_offset, y_offset
-            clipping = (crop_offset, (cropped_region.topleft, cropped_region.size))
-        else:
-            clipping = ( (0, 0), ((0, 0), self._transform_image.get_rect().size))
 
+        area = spyral.Rect(self._transform_image.get_rect())
+
+        b = spyral.util._Blit(self._transform_image,
+                              self._pos - self._offset,
+                              area,
+                              self._computed_layer,
+                              self._blend_flags,
+                              False)
+        
         if self._make_static or self._age > 4:
-            self._scene._static_blit(self,
-                                    self._transform_image,
-                                    (self._pos[0] - self._offset[0] + offset[0],
-                                    self._pos[1] - self._offset[1] + offset[1]),
-                                    self._layer,
-                                    self._blend_flags,
-                                    clipping)
+            b.static = True
             self._make_static = False
             self._static = True
+            self._view._static_blit(self, b)
             return
-        self._scene._blit(self._transform_image,
-                        (self._pos[0] - self._offset[0] + offset[0],
-                        self._pos[1] - self._offset[1] + offset[1]),
-                        self._layer,
-                        self._blend_flags,
-                        clipping)
+        self._view._blit(b)
         self._age += 1
 
     def kill(self):

@@ -57,7 +57,7 @@ class Image(object):
         """
         self._surf.fill(color)
         self._version += 1
-        spyral.scene._scale.clear(self._surf)
+        spyral.util.scale_surface.clear(self._surf)
         return self
         
     def draw_rect(self, color, position, size, border_width = 0, anchor= 'topleft'):
@@ -74,7 +74,7 @@ class Image(object):
         offset = self._calculate_offset(anchor, size)
         pygame.draw.rect(self._surf, color, (position + offset, size), border_width)
         self._version += 1
-        spyral.scene._scale.clear(self._surf)
+        spyral.util.scale_surface.clear(self._surf)
         return self
         
     def draw_lines(self, color, points, width = 1, closed = False):
@@ -91,7 +91,7 @@ class Image(object):
         else:
             pygame.draw.lines(self._surf, color, closed, points, width)
         self._version += 1
-        spyral.scene._scale.clear(self._surf)
+        spyral.util.scale_surface.clear(self._surf)
         return self
     
     def draw_circle(self, color, position, radius, width = 0, anchor= 'topleft'):
@@ -104,7 +104,7 @@ class Image(object):
         offset = self._calculate_offset(anchor)
         pygame.draw.circle(self._surf, color, position + offset, radius, width)
         self._version += 1
-        spyral.scene._scale.clear(self._surf)
+        spyral.util.scale_surface.clear(self._surf)
         return self
         
     def draw_ellipse(self, color, position, size, border_width = 0, anchor= 'topleft'):
@@ -121,7 +121,7 @@ class Image(object):
         offset = self._calculate_offset(anchor, size)
         pygame.draw.ellipse(self._surf, color, (position + offset, size), border_width)
         self._version += 1
-        spyral.scene._scale.clear(self._surf)
+        spyral.util.scale_surface.clear(self._surf)
         return self
     
     def draw_point(self, color, position, anchor= 'topleft'):
@@ -133,7 +133,7 @@ class Image(object):
         offset = self._calculate_offset(anchor)
         self._surf.set_at(position + offset, color)
         self._version += 1
-        spyral.scene._scale.clear(self._surf)
+        spyral.util.scale_surface.clear(self._surf)
         return self
     
     def draw_arc(self, color, position, size, start_angle, end_angle, border_width = 0, anchor = 'topleft'):
@@ -149,7 +149,7 @@ class Image(object):
         offset = self._calculate_offset(anchor, size)
         pygame.draw.arc(self._surf, color, (position + offset, size), start_angle, end_angle, border_width)
         self._version += 1
-        spyral.scene._scale.clear(self._surf)
+        spyral.util.scale_surface.clear(self._surf)
         return self
         
     def draw_image(self, image, position = (0, 0), anchor= 'topleft'):
@@ -160,7 +160,7 @@ class Image(object):
         offset = self._calculate_offset(anchor, image._surf.get_size())
         self._surf.blit(image._surf, position + offset)
         self._version += 1
-        spyral.scene._scale.clear(self._surf)
+        spyral.util.scale_surface.clear(self._surf)
         return self
         
     @classmethod

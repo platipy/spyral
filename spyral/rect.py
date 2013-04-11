@@ -1,3 +1,6 @@
+import pygame
+import spyral
+
 class Rect(object):
     """
     Rect represents a rectangle and provides some useful features.
@@ -27,6 +30,7 @@ class Rect(object):
             raise ValueError("You done goofed.")
                 
     def __getattr__(self, name):
+        v = spyral.Vec2D
         if name == "right":
             return self._x + self._w
         if name == "left" or name == "x":
@@ -36,29 +40,29 @@ class Rect(object):
         if name == "bottom":
             return self._y + self._h
         if name == "topright":
-            return (self._x + self._w, self._y)
+            return v(self._x + self._w, self._y)
         if name == "bottomleft":
-            return (self._x, self._y + self._h)
+            return v(self._x, self._y + self._h)
         if name == "topleft":
-            return (self._x, self._y)
+            return v(self._x, self._y)
         if name == "bottomright":
-            return (self._x + self._w, self._y + self._h)
+            return v(self._x + self._w, self._y + self._h)
         if name == "centerx":
             return (self._x + self._w / 2.)
         if name == "centery":
             return (self._y + self._h / 2.)
         if name == "center":
-            return (self._x + self._w / 2., self._y + self._h / 2.)
+            return v(self._x + self._w / 2., self._y + self._h / 2.)
         if name == "midleft":
-            return (self._x, self._y + self._h / 2.)
+            return v(self._x, self._y + self._h / 2.)
         if name == "midright":
-            return (self._x + self._w, self._y + self._h / 2.)
+            return v(self._x + self._w, self._y + self._h / 2.)
         if name == "midtop":
-            return (self._x + self._w / 2., self._y)
+            return v(self._x + self._w / 2., self._y)
         if name == "midbottom":
-            return (self._x + self._w / 2., self._y + self._h)
+            return v(self._x + self._w / 2., self._y + self._h)
         if name == "size":
-            return (self._w, self._h)
+            return v(self._w, self._h)
         if name == "width" or name == "w":
             return self._w
         if name == "height" or name == "h":
@@ -226,6 +230,9 @@ class Rect(object):
         # This could probably be optimized as well
         return point[0] > self.left and point[0] < self.right and \
             point[1] > self.top and point[1] < self.bottom
+
+    def _to_pygame(self):
+        return pygame.Rect(((self.top, self.left), (self.width, self.height)))
         
     def __str__(self):
         return ''.join(['<rect(',
