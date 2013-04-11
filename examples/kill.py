@@ -20,11 +20,14 @@ class Game(spyral.Scene):
         i = spyral.Image(size=(50,50))
         i.fill((255, 255, 255))
         
+        import objgraph
         for x in xrange(5):
             over = spyral.Sprite(self)
             self.pos = (0, 0)
             over.image = i
             over.kill()
+            objgraph.show_refs([over])
+            print sys.getrefcount(over)
         
         self.register("system.quit", sys.exit)
 
