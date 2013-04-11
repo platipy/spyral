@@ -367,6 +367,7 @@ class Sprite(object):
         self._age += 1
 
     def kill(self):
+        self._scene.unregister("director.render", self.draw)
         self._scene._unregister_sprite(self)
         self._scene._remove_static_blit(self)
 
