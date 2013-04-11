@@ -133,42 +133,62 @@ class Vec2D(object):
     def get_length(self):
         """
         Return the length of this vector.
+        
+        :rtype: float
         """
         return math.sqrt(self.x * self.x + self.y * self.y)
         
     def get_length_squared(self):
         """
         Return the squared length of this vector.
+        
+        :rtype: int
         """
         return self.x * self.x + self.y * self.y
         
     def get_angle(self):
         """
         Return the angle this vector makes with the positive x axis.
+        
+        :rtype: float
         """
         return math.atan2(self.y, self.x)
                 
     def perpendicular(self):
         """
-        Returns a vector perpendicular to this one.
+        Returns a new :class:`Vec2D <spyral.Vec2D>` perpendicular to this one.
+        
+        :rtype: :class:`Vec2D <spyral.Vec2D>`
         """
         return Vec2D(-self.y, self.x)
         
     def dot(self, other):
         """
-        Returns the dot product of this Vec2D with another.
+        Returns the `dot product <http://en.wikipedia.org/wiki/Dot_product>`_ of this point with another.
+        
+        :param other: the other point
+        :type other: 2-tuple or :class:`Vec2D <spyral.Vec2D>`
+        :rtype: int
         """
         return self.x * other[0] + self.y * other[1]
         
     def distance(self, other):
         """
-        Returns the distance from this Vec2D to the other point.
+        Returns the distance from this :class:`Vec2D <spyral.Vec2D>` to the other point.
+        
+        :param other: the other point
+        :type other: 2-tuple or :class:`Vec2D <spyral.Vec2D>`
+        :rtype: float
         """
         return (other - self).get_length()
         
     def angle(self, other):
         """
-        Returns the angle between this Vec2D and another.
+        Returns the angle between this point and another point.
+        
+        :param other: the other point
+        :type other: 2-tuple or :class:`Vec2D <spyral.Vec2D>`
+        :rtype: float
         """
         x = self.x*other[1] - self.y*other[0]
         d = self.x*other[0] + self.y*other[1]
@@ -176,7 +196,11 @@ class Vec2D(object):
         
     def projection(self, other):
         """
-        Returns the projection of this Vec2D onto another.
+        Returns the `projection <http://en.wikipedia.org/wiki/Vector_projection>`_ of this :class:`Vec2D <spyral.Vec2D>` onto another point.
+        
+        :param other: the other point
+        :type other: 2-tuple or :class:`Vec2D <spyral.Vec2D>`
+        :rtype: float
         """
         other = Vec2D(other)
         l2 = float(other.x*other.x + other.y*other.y)
@@ -185,7 +209,13 @@ class Vec2D(object):
             
     def rotated(self, angle, center = (0, 0)):
         """
-        Returns a vector rotated by *angle* radians about the optional center
+        Returns a new vector from the old point rotated by `angle` radians about the optional `center`.
+        
+        :param angle: angle in radians.
+        :type angle: float
+        :param center: an optional center
+        :type center: 2-tuple or :class:`Vec2D <spyral.Vec2D>`
+        :rtype: :class:`Vec2D <spyral.Vec2D>`
         """
         p = self - center
         c = math.cos(angle)
@@ -196,7 +226,10 @@ class Vec2D(object):
         
     def normalized(self):
         """
-        Returns a vector normalized to length 1.
+        Returns a new vector based on this one, normalized to length 1. That is,
+        it keeps the same angle, but its length is now 1.
+        
+        :rtype: :class:`Vec2D <spyral.Vec2D>`
         """
         l = self.get_length()
         if self.get_length() == 0:
@@ -205,14 +238,19 @@ class Vec2D(object):
         
     def to_polar(self):
         """
-        Returns Vec2D(r, theta) for this vector.
+        Returns `Vec2D(radius, theta)` for this vector, where `radius` is the length
+        and `theta` is the angle.
+        
+        :rtype: :class:`Vec2D <spyral.Vec2D>`
         """
         return Vec2D(self.get_length(), self.get_angle())
 
     @staticmethod
     def from_polar(*args):
         """
-        Takes in r, theta or (r, theta) and returns rectangular Vec2D.
+        Takes in radius, theta or (radius, theta) and returns rectangular :class:`Vec2D <spyral.Vec2D>`.
+        
+        :rtype: :class:`Vec2D <spyral.Vec2D>`
         """
         v = Vec2D(*args)
         return Vec2D(v.x*math.cos(v.y), v.x*math.sin(v.y))

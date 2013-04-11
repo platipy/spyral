@@ -256,7 +256,7 @@ class Scene(object):
         :type args: sequence
         :param kwargs: any additional keyword arguments that need to be passed into the handler.
         :type kwargs: dict
-        :param priority: the higher the `priority`, the sooner this handler will be called in reaction to the event
+        :param priority: the higher the `priority`, the sooner this handler will be called in reaction to the event, relative to the other event handlers registered.
         :type priority: int
         """
         self._reg_internal(event_namespace, (handler,), args, kwargs, priority, False)
