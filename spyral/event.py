@@ -80,7 +80,7 @@ def _pygame_to_spyral(event):
     if type.startswith("input"):
         setattr(e, "type", type.split(".")[-1])
     if type.startswith('input.keyboard'):
-        k = pygame.key.name(event.key).replace(' ', '_').replace('.', 'dot')
+        k = keys.reverse_map.get(event.key, 'unknown')
         type += '.' + k
         
     return (type, e)
@@ -218,6 +218,7 @@ class Mods(object):
 class Keys(object):
         
     def __init__(self):  
+      self.reverse_map = {}
       self.load_keys_from_file(spyral._get_spyral_path() + 'resources/default_key_mappings.txt')   
 
     def load_keys_from_file(self, filename):
@@ -229,8 +230,10 @@ class Keys(object):
             if len(mapping) == 2:
                 if mapping[1][0:2] == '0x':
                     setattr(self, mapping[0], int(mapping[1],16))
+                    self.reverse_map[int(mapping[1],16)] = mapping[0]
                 else:
                     setattr(self, mapping[0], int(mapping[1]))
+                    self.reverse_map[int(mapping[1])] = mapping[0]
 
     def add_key_mapping(self, name, number):
         setattr(self, name, number)
