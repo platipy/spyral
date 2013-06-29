@@ -47,7 +47,7 @@ class AnimationExamples(Scene):
         Scene.__init__(self, SIZE)
         bg = spyral.Image(size=SIZE)
         bg.fill(BG_COLOR)
-        self.set_background(bg)
+        self.background = bg
         
         font = spyral.Font(None, FONT_SIZE, FG_COLOR)
         
