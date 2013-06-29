@@ -2,7 +2,6 @@ try:
     import _path
 except NameError:
     pass
-import pygame
 import spyral
 import sys
 

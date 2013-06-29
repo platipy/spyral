@@ -24,9 +24,9 @@ class Sprite(object):
     Attribute       Description
     ============    ============
     pos             The position of a sprite in 2D coordinates, represented as a :class:`Vec2D <spyral.Vec2D>`
-    x               The x coordinate of the sprite, which will remain synced with the :class:`Vec2D <spyral.Vec2D>`
-    y               The y coordinate of the sprite, which will remain synced with the :class:`Vec2D <spyral.Vec2D>`
     position        An alias for pos
+    x               The x coordinate of the sprite, which will remain synced with the position`
+    y               The y coordinate of the sprite, which will remain synced with the position`
     anchor          Defines an `anchor point <anchors>` where coordinates are relative to on the image.
     layer           The name of the layer this sprite belongs to. See `layering <spyral_layering>` for more.
     image           The image for this sprite

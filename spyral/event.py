@@ -71,6 +71,9 @@ def handle(type, event = None, _scene = None):
         _scene = spyral._get_executing_scene()
     _scene._handle_event(type, event)
 
+def get_identifier(obj):
+    return obj.__class__.__name__ + str(id(obj))
+
 def _pygame_to_spyral(event):
     attrs = _type_to_attrs[event.type]
     type = _type_to_type[event.type]
@@ -84,7 +87,6 @@ def _pygame_to_spyral(event):
         type += '.' + k
         
     return (type, e)
-    
 
 class EventHandler(object):
     """
