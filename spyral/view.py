@@ -1,85 +1,211 @@
-# import spyral
-from functools import partial
-
-def source(f):
-    return partial(f, '')
-
-def dest(f):
-    return partial(f, '_dest')
+import spyral
 
 class View(object):
-    def __init__(self, view):
-        self.view = view
-        self.scene = view.scene
-        self._age = -1
+    def __init__(self, parent):
+        """
+        Creates a new view with a scene or view as a parent.
 
-        self._subviews = set()
+        Views have the following built-in attributes
+    
+        ============    ============
+        Attribute       Description
+        ============    ============
+        pos             The position of a sprite in 2D coordinates, represented as a :class:`Vec2D <spyral.Vec2D>`. (Default: (0, 0))
+        position        An alias for pos
+        x               The x coordinate of the sprite, which will remain synced with the position`
+        y               The y coordinate of the sprite, which will remain synced with the position`
+        size            The (width, height) of this view's coordinate space (:class:`Vec2D <spyral.Vec2d>`). (Default: size of the parent)
+        width           The width of the view.
+        height          The height of the view
+        output_size     The (width, height) of this view when drawn on the parent (:class:`Vec2D <spyral.Vec2d>`). (Default: size of the parent)
+        output_width    The width of this view when drawn on the parent.
+        output_height   The height of this view when drawn on the parent.
+        scale           A scale factor from the size to the output_size for the view. It will always contain a :class:`spyral.Vec2D` with an x factor and a y factor, but it can be set to a numeric value which will be set for both coordinates.
+        scale_x         The x factor of the scaling. Kept in sync with scale
+        scale_y         The y factor of the scaling. Kept in sync with scale
+        anchor          Defines an `anchor point <anchors>` where coordinates are relative to in the view.
+        layer           The name of the layer this view belongs to in it's parent. See `layering <spyral_layering>` for more.
+        layers          A list of layers that the children of this view can be in. See `layering <spyral_layering>` for more.
+        visible         A boolean that represents whether this view should be drawn (default: True).
+        crop            A boolean that determines whether the view should crop anything outside of it's size (default: True)
+        ============    ============
+        """
 
-        self._pos = (0, 0)
-        self._dest_pos = (0, 0)
-        self._width = view.width
-        self._dest_width = view.width
-        self._height = view.height
-        self._dest_height = view.height
+        self._size = spyral.Vec2D(parent.size)
+        self._output_size = spyral.Vec2D(parent.size)
+        self._pos = spyral.Vec2D(0,0)
+        self._crop = True
+        self._visible = True
+        self._parent = parent
         self._anchor = 'topleft'
-        self._dest_anchor = 'topleft'
-        self._offset = (0, 0)
-        self._dest_offset = (0, 0)
+        self._offset = spyral.Vec2D(0,0)
+        self._layers = ['all']
 
-    def _get_parents(self):
-        view = self.view
-        parents = []
-        while view is not self.scene:
-            parents.append(view)
-            view = view.view
-        return parents
+        self.scene = scene = parent.scene
 
-    def _get_size(s, self):
-        # Todo: Make these Vec2D
-        return (getattr(self, s + '_width'),
-                getattr(self, s + '_height'))
+        scene.register("spyral.internal.view.changed.%s" %
+                           (spyral.event.get_identifier(parent)),
+                       self._changed)
 
-    def _set_size(s, self, value):
-        if getattr(s, self + '_size') == value:
+    def _changed(self):
+        self._recalculate_offset()
+        spyral.event.handle("spyral.internal.view.changed.%s" %
+                                spyral.event.get_identifier(self))
+
+    def _recalculate_offset(self):
+        self._offset = spyral.util.anchor_offset(self._anchor, self._size[0], self._size[1])
+
+    # Properties
+    def _get_pos(self):
+        return self._pos
+
+    def _set_pos(self, pos):
+        if pos == self._pos:
             return
-        setattr(self, s + '_width', value[0])
-        setattr(self, s + '_height', value[1])
-        self._age = 0
+        self._pos = spyral.Vec2D(pos)
+        self._changed()
 
-    size = property(source(_get_size), source(_set_size))
-    dest_size = property(dest(_get_size), dest(_set_size))
+    def _get_layer(self):
+        return self._layer
 
-    def _get_anchor(s, self):
-        return getattr(self, s + '_anchor')
-
-    def _set_anchor(s, self, value):
-        a = getattr(self, s + '_anchor')
-        if a == value:
+    def _set_layer(self, layer):
+        if layer == self._layer:
             return
-        setattr(s, s + '_anchor', value[0])
-        setattr(s,
-                s + '_offset',
-                spyral.util.anchor_offset(
-                    a,
-                    getattr(self, s + '_width'),
-                    getattr(self, s + '_height')))
-        self._age = 0
+        self._layer = layer
+        self._computed_layer = self._view._compute_layer(layer)
+        self._changed()
 
-    def _compute_layer(self, layer):
-        # Stub
-        return 1
-#        spyral.util.compute_layer(self._layers, layer)
+    def _get_layers(self):
+        return tuple(self._layers)
 
+    def _set_layers(self, layers):
+        if self._layers == ['all']:
+            self._layers = layers[:]
+        elif self._layers == layers:
+            pass
+        else:
+            raise spyral.LayersAlreadySetError("You can only define the layers for a view once.")
 
-    def _static_blit(self, key, blit):
-        self.scene._static_blit(key, blit)
+    def _get_x(self):
+        return self._get_pos()[0]
 
-    def _blit(self, blit):
-        self.scene._blit(blit)
+    def _set_x(self, x):
+        self._set_pos((x, self._get_y()))
 
+    def _get_y(self):
+        return self._get_pos()[1]
 
+    def _set_y(self, y):
+        self._set_pos((self._get_x(), y))
 
+    def _get_anchor(self):
+        return self._anchor
 
+    def _set_anchor(self, anchor):
+        if anchor == self._anchor:
+            return
+        self._anchor = anchor
+        self._recalculate_offset()
+        self._changed()
 
-if __name__ == "__main__":
-    pass
+    def _get_width(self):
+        return self._size[0]
+            
+    def _set_width(self, width):
+        self._set_size(width, self._get_height())
+
+    def _get_height(self):
+        return self._size[1]
+            
+    def _set_height(self, height):
+        self._set_size(self._get_width(), height)
+
+    def _get_output_width(self):
+        return self._output_size[0]
+            
+    def _set_output_width(self, width):
+        self._set_output_size(width, self._get_output_height())
+
+    def _get_output_height(self):
+        return self._output_size[1]
+            
+    def _set_output_height(self, height):
+        self._set_output_size(self._get_output_width(), height)
+
+    def _get_size(self):
+        return self._size
+        
+    def _set_size(self, size):
+        if size == self._size:
+            return
+        self._size = spyral.Vec2D(size)
+        self._changed()
+
+    def _get_output_size(self):
+        return self._output_size
+        
+    def _set_output_size(self, size):
+        if size == self._output_size:
+            return
+        self._output_size = spyral.Vec2D(size)
+        self._changed()
+
+    def _get_scale(self):
+        return self._output_size / self._size
+
+    def _set_scale(self, scale):
+        if isinstance(scale, (int, float)):
+            scale = spyral.Vec2D(scale, scale)
+        if scale == self._get_scale():
+            return
+        self._output_size = self._size * spyral.Vec2D(scale)
+        self._changed()
+            
+    def _get_scale_x(self):
+        return self._get_scale()[0]
+        
+    def _get_scale_y(self):
+        return self._get_scale()[1]
+        
+    def _set_scale_x(self, x):
+        self._set_scale((x, self._scale[1]))
+
+    def _set_scale_y(self, y):
+        self._set_scale((self._scale[0], y))
+                
+    def _get_visible(self):
+        return self._visible
+        
+    def _set_visible(self, visible):
+        if self._visible == visible:
+            return
+        self._visible = visible
+        self._changed()
+
+    def _get_crop(self):
+        return self._crop
+
+    def _set_crop(self, crop):
+        if self._crop == crop:
+            return
+        self._crop = crop
+        self._changed()
+
+    position = property(_get_pos, _set_pos)
+    pos = property(_get_pos, _set_pos)
+    layer = property(_get_layer, _set_layer)
+    layers = property(_get_layers, _set_layers)
+    x = property(_get_x, _set_x)
+    y = property(_get_y, _set_y)
+    anchor = property(_get_anchor, _set_anchor)
+    scale = property(_get_scale, _set_scale)
+    scale_x = property(_get_scale_x, _set_scale_x)
+    scale_y = property(_get_scale_y, _set_scale_y)
+    width = property(_get_width, _set_width)
+    height = property(_get_height, _set_height)
+    size = property(_get_size, _set_size)
+    output_width = property(_get_output_width, _set_output_width)
+    output_height = property(_get_output_height, _set_output_height)
+    output_size = property(_get_output_size, _set_output_size)
+    visible = property(_get_visible, _set_visible)
+    crop = property(_get_crop, _set_crop)

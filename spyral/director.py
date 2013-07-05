@@ -5,8 +5,8 @@ _initialized = False
 _stack = []
 _screen = None
 _tick = 0
-_max_fps = None
-_max_ups = None
+_max_fps = 30
+_max_ups = 30
 
 def init(size=(0, 0),
          max_ups = 30,
@@ -19,7 +19,7 @@ def init(size=(0, 0),
     global _max_ups
     
     """
-    Initializes the director.
+    initializes the director.
 
     | *size* is the resolution of the display. (0,0) uses the screen resolution
     | *max_ups* sets the number of times scene.update() should be

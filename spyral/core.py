@@ -23,6 +23,7 @@ def quit():
     """
     pygame.quit()
     spyral.director._stack = []
+    spyral.director._initialized = False
     
 def _get_executing_scene():
     for frame, _, _, _, _, _ in inspect.stack():
