@@ -16,7 +16,7 @@ my_scene = spyral.Scene(resolution)
 my_sprite = spyral.Sprite(my_scene)
 
 # A Sprite needs to have an Image
-my_sprite.image = spyral.Image(size=(50,50))
+my_sprite.image = spyral.Image(size=(500,100))
 
 # You register events with functions
 import sys

@@ -349,7 +349,6 @@ class Sprite(object):
             return
 
         area = spyral.Rect(self._transform_image.get_rect())
-
         b = spyral.util._Blit(self._transform_image,
                               self._pos - self._offset,
                               area,
