@@ -67,6 +67,7 @@ class Scene(object):
         self._clear_next_frame = []
         self._soft_clear = []
         self._static_blits = {}
+        self._invalidating_views = {}
         self._rect = self._surface.get_rect()
 
         self._layers = ['all']
@@ -74,6 +75,7 @@ class Scene(object):
 
         self.register('director.update', self.handle_events)
         self.register('director.update', self.run_actors, ('dt',))
+        self.register('spyral.internal.view.changed.*', self._invalidate_views)
 
         # View interface
         self.scene = self
@@ -418,6 +420,13 @@ class Scene(object):
         Internal method to add this sprite to the scene
         """
         self._sprites.add(sprite)
+        # Add the view and its parents to the invalidating_views for the sprite
+        parent_view = sprite._view
+        while parent_view != self:
+            if parent_view not in self._invalidating_views:
+                self._invalidating_views[sprite] = set()
+            self._invalidating_views[parent_view].add(sprite)
+            parent_view = sprite._view
 
     def _unregister_sprite(self, sprite):
         """
@@ -425,6 +434,8 @@ class Scene(object):
         """
         if sprite in self._sprites:
             self._sprites.remove(sprite)
+        for view in self._invalidating_views.keys():
+            self._invalidating_views[view].pop(sprite)
 
     def _blit(self, blit):
         blit.apply_scale(self._scale)
@@ -434,13 +445,18 @@ class Scene(object):
 
     def _static_blit(self, key, blit):
         """
-        Identifies that this sprite will be statically blit from now. I forget what that even means, to be honest.
+        Identifies that this sprite will be statically blit from now.
         """
         blit.apply_scale(self._scale)
         blit.clip(self._rect)
         blit.finalize()
         self._static_blits[key] = blit
         self._clear_this_frame.append(blit.rect)
+        
+    def _invalidate_views(self, view):
+        # somehow transform the spyral.event.get_identifier into a proper instance
+        for sprite in self._invalidating_views.values():
+            sprite._expire_static()
 
     def _remove_static_blit(self, key):
         """

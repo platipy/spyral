@@ -209,3 +209,10 @@ class View(object):
     output_size = property(_get_output_size, _set_output_size)
     visible = property(_get_visible, _set_visible)
     crop = property(_get_crop, _set_crop)
+    
+    def _blit(self, blit):
+        #visible, anchor, position
+        blit.apply_scale(self._scale)
+        blit.clip(self._rect)
+        self._parent._blit(b)
+        
