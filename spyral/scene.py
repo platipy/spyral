@@ -79,6 +79,7 @@ class Scene(object):
 
         # View interface
         self.scene = self
+        self._view = self
 
         # Loading default styles
         self.load_style(spyral._get_spyral_path() + 'resources/form_defaults.spys')
@@ -424,9 +425,9 @@ class Scene(object):
         parent_view = sprite._view
         while parent_view != self:
             if parent_view not in self._invalidating_views:
-                self._invalidating_views[sprite] = set()
+                self._invalidating_views[parent_view] = set()
             self._invalidating_views[parent_view].add(sprite)
-            parent_view = sprite._view
+            parent_view = parent_view._view
 
     def _unregister_sprite(self, sprite):
         """
@@ -455,8 +456,9 @@ class Scene(object):
         
     def _invalidate_views(self, view):
         # somehow transform the spyral.event.get_identifier into a proper instance
-        for sprite in self._invalidating_views.values():
-            sprite._expire_static()
+        if view in self._invalidating_views:
+            for sprite in self._invalidating_views[view]:
+                sprite._expire_static()
 
     def _remove_static_blit(self, key):
         """

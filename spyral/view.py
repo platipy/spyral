@@ -28,6 +28,7 @@ class View(object):
         layers          A list of layers that the children of this view can be in. See `layering <spyral_layering>` for more.
         visible         A boolean that represents whether this view should be drawn (default: True).
         crop            A boolean that determines whether the view should crop anything outside of it's size (default: True)
+        parent          The View or Scene that this View belongs to
         ============    ============
         """
 
@@ -42,15 +43,19 @@ class View(object):
         self._layers = ['all']
 
         self.scene = scene = parent.scene
+        self._view = parent
 
-        scene.register("spyral.internal.view.changed.%s" %
-                           (spyral.event.get_identifier(parent)),
-                       self._changed)
+        # It seems like views don't need to notify children that they've moved. Aren't View positions relative to their parent? That's the entire point of passing the Blit up the view hierarchy.
+        #scene.register("spyral.internal.view.changed.%s" %
+        #                   (spyral.event.get_identifier(parent)),
+        #               self._changed)
 
     def _changed(self):
         self._recalculate_offset()
+        # Notify any listeners (probably children) that I have changed
+        e = spyral.Event(name="changed", view=self)
         spyral.event.handle("spyral.internal.view.changed.%s" %
-                                spyral.event.get_identifier(self))
+                                spyral.event.get_identifier(self), e)
 
     def _recalculate_offset(self):
         self._offset = spyral.util.anchor_offset(self._anchor, self._size[0], self._size[1])
@@ -168,10 +173,10 @@ class View(object):
         return self._get_scale()[1]
         
     def _set_scale_x(self, x):
-        self._set_scale((x, self._scale[1]))
+        self._set_scale((x, self._get_scale()[1]))
 
     def _set_scale_y(self, y):
-        self._set_scale((self._scale[0], y))
+        self._set_scale((self._get_scale()[0], y))
                 
     def _get_visible(self):
         return self._visible
@@ -190,6 +195,12 @@ class View(object):
             return
         self._crop = crop
         self._changed()
+        
+    
+    def _get_view(self):
+        return self._view
+    def _set_view(self, view):
+        self._view = view
 
     position = property(_get_pos, _set_pos)
     pos = property(_get_pos, _set_pos)
@@ -209,10 +220,18 @@ class View(object):
     output_size = property(_get_output_size, _set_output_size)
     visible = property(_get_visible, _set_visible)
     crop = property(_get_crop, _set_crop)
+    view = property(_get_view, _set_view)
     
     def _blit(self, blit):
         #visible, anchor, position
-        blit.apply_scale(self._scale)
-        blit.clip(self._rect)
-        self._parent._blit(b)
+        blit.position += self.position
+        blit.apply_scale(self.scale)
+        #blit.clip(self._rect) #TODO: Fix this, not sure what it should be instead of rect
+        self._parent._blit(blit)
         
+    # TODO: I'm not sure if more needs to happen, espcially with the recursive call
+    def _static_blit(self, key, blit):
+        blit.position += self.position
+        blit.apply_scale(self.scale)
+        # TODO: visible, anchor, position, clipping
+        self._parent._static_blit(key, blit)

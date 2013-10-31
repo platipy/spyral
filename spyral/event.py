@@ -72,7 +72,7 @@ def handle(type, event = None, _scene = None):
     _scene._handle_event(type, event)
 
 def get_identifier(obj):
-    return obj.__class__.__name__ + str(id(obj))
+    return obj.__class__.__name__
 
 def _pygame_to_spyral(event):
     attrs = _type_to_attrs[event.type]

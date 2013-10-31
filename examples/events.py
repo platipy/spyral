@@ -27,6 +27,6 @@ if __name__ == "__main__":
     def key_down(event):
         print event.key, event.unicode, event.mod
     
-    my_scene.register("input.keyboard.down.comma", key_down)
+    my_scene.register("input.keyboard.down.k", key_down)
     
     spyral.director.run(scene=my_scene) # This will run your game. It will not return.
