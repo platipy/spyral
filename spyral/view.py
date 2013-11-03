@@ -129,13 +129,13 @@ class View(object):
         return self._output_size[0]
             
     def _set_output_width(self, width):
-        self._set_output_size(width, self._get_output_height())
+        self._set_output_size((width, self._get_output_height()))
 
     def _get_output_height(self):
         return self._output_size[1]
             
     def _set_output_height(self, height):
-        self._set_output_size(self._get_output_width(), height)
+        self._set_output_size((self._get_output_width(), height))
 
     def _get_size(self):
         return self._size
@@ -223,11 +223,16 @@ class View(object):
     view = property(_get_view, _set_view)
     
     def _blit(self, blit):
-        #visible, anchor, position
-        blit.position += self.position
-        blit.apply_scale(self.scale)
-        #blit.clip(self._rect) #TODO: Fix this, not sure what it should be instead of rect
-        self._parent._blit(blit)
+        # Visible
+        if self.visible:
+            # Anchor + position
+            blit.position += self.position #- spyral.util.anchor_offset(self._anchor, *self.size)
+            # Scaling
+            blit.apply_scale(self.scale)
+            # Crop to view
+            if self.crop:
+                blit.clip(spyral.Rect(blit.position, self.size))
+            self._parent._blit(blit)
         
     # TODO: I'm not sure if more needs to happen, espcially with the recursive call
     def _static_blit(self, key, blit):
