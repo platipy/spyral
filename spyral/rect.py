@@ -232,7 +232,7 @@ class Rect(object):
             point[1] > self.top and point[1] < self.bottom
 
     def _to_pygame(self):
-        return pygame.Rect(((self.top, self.left), (self.width, self.height)))
+        return pygame.Rect(((self.left, self.top), (self.width, self.height)))
         
     def __str__(self):
         return ''.join(['<rect(',

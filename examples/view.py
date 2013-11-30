@@ -17,7 +17,7 @@ BLUE = (0, 255, 0)
 GREEN = (0, 0, 255)
 SMALL = (40, 40)
 
-a1 = spyral.Animation('y', animator.Sine(amplitude = 30.0), duration = 2.0, shift= 240)
+a1 = spyral.Animation('y', animator.Sine(amplitude = 30.0), duration = 2.0, shift= 10)
 a2 = spyral.Animation('x', animator.Linear(0, 100), duration = 2.0)
 a3 = spyral.Animation('x', animator.Linear(0, 100), duration = 2.0)
 a4 = spyral.Animation('y', animator.Sine(amplitude = -30.0), duration = 2.0, shift= 240)
@@ -33,9 +33,10 @@ class Game(spyral.Scene):
         #top_view.anchor = "center"
         top_view.pos = (320, 240)
         bottom_view = spyral.View(top_view)
+        bottom_view.pos = (0,0)
         self.red_block = spyral.Sprite(bottom_view)
         self.red_block.image = spyral.Image(size=SMALL).fill(RED)
-        self.red_block.pos = (0, 0)
+        self.red_block.pos = (20, 0)
         
         self.blue_block = spyral.Sprite(bottom_view)
         self.blue_block.image = spyral.Image(size=SMALL).fill(BLUE)
@@ -43,7 +44,7 @@ class Game(spyral.Scene):
         
         self.green_block = spyral.Sprite(top_view)
         self.green_block.image = spyral.Image(size=SMALL).fill(GREEN)
-        self.green_block.pos = (0, 0)
+        self.green_block.pos = (0, 10)
         
         self.yellow_block = spyral.Sprite(self)
         self.yellow_block.image = spyral.Image(size=SMALL).fill(YELLOW)
