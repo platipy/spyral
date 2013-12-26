@@ -1,9 +1,5 @@
 Next Week Deadline:
-    - Fix views
     - Fix Animations (At least Animator naming)
-    - More style functionality in general (e.g. pass a filename as an image parameter to use it)
-    - Finish view transformation pipeline (including pivot_angle, and test tree of animation with views/agg sprites, especially talking about ordering of pipeline with regards to a tall tree of height greater than 2)
-    - Changes to the sprites so that size is now settable, get rid of read-only properties
     - Move all print statements to warnings
 Following Week Deadline:
     - All docs

@@ -35,12 +35,14 @@ class MultiStateWidget(BaseWidget):
     def __init__(self, form, name, states):
         self._states = states
         self._state = self._states[0]
+        self._layers = ["base", "content"]
         
         BaseWidget.__init__(self, form, name)
                 
         self._images = {}
         self._content_size = (0, 0)
         self.button = spyral.Sprite(self)
+        self.button.layer = "base"
         
     def _render_images(self):
         """
@@ -137,6 +139,7 @@ class ButtonWidget(MultiStateWidget):
         MultiStateWidget.__init__(self, form, name, ['up', 'down', 'down_focused', 'down_hovered', 'up_focused', 'up_hovered'])
         
         self._text_sprite = spyral.Sprite(self)
+        self._text_sprite.layer = "content"
 
         self.text = text
     

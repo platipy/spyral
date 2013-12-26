@@ -84,6 +84,12 @@ class View(object):
         self._layer = layer
         self._computed_layer = self._view._compute_layer(layer)
         self._changed()
+    
+    def _compute_layer(self, layer):
+        """
+        Computes the numerical index of `layer` (in reference to the other layers).
+        """
+        return spyral.util.compute_layer(self._layers, layer)
 
     def _get_layers(self):
         return tuple(self._layers)
