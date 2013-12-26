@@ -40,6 +40,7 @@ class MultiStateWidget(BaseWidget):
                 
         self._images = {}
         self._content_size = (0, 0)
+        self.button = spyral.Sprite(self)
         
     def _render_images(self):
         """
@@ -54,7 +55,7 @@ class MultiStateWidget(BaseWidget):
                 self._images[state] = spyral.Image.render_nine_slice(nine_slice_image, size)
             else:
                 self._images[state] = spyral.Image(self._image_locations[state])
-        self.image = self._images[self._state]
+        self.button.image = self._images[self._state]
         self._on_state_change()
     
     def _set_state(self, state):
@@ -66,7 +67,7 @@ class MultiStateWidget(BaseWidget):
                                         {"form_name": self.form.__class__.__name__, 
                                          "widget": self.name}, 
                                     e)
-        self.image = self._images[state]
+        self.button.image = self._images[state]
         self._on_state_change()
         
     def _get_value(self):
