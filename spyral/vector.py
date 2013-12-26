@@ -89,6 +89,7 @@ class Vec2D(object):
         try:
             return Vec2D(self.x - o[0], self.y - o[1])
         except (IndexError, TypeError):
+            print self, o
             return NotImplemented
             
     __isub__ = __sub__

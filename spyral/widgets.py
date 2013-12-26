@@ -116,7 +116,7 @@ class MultiStateWidget(BaseWidget):
     
     def __stylize__(self, properties):
         self._padding = properties.pop('padding', 4)
-        if isinstance(self._padding, (int, long, float)):
+        if not isinstance(self._padding, spyral.Vec2D):
             self._padding = spyral.Vec2D(self._padding, self._padding)
         self._nine_slice = properties.pop('nine_slice', False)
         self._image_locations = {}
@@ -155,7 +155,7 @@ class ButtonWidget(MultiStateWidget):
         self._render_images()
         
     def _on_state_change(self):
-        self._text_sprite.pos = spyral.Vec2D(self._padding, self._padding) / 2
+        self._text_sprite.pos = self._padding / 2
     
     value = property(_get_value)
     text = property(_get_text, _set_text)

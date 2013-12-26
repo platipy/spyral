@@ -227,6 +227,22 @@ class View(object):
         return self._view
     def _set_view(self, view):
         self._view = view
+        
+    def _get_rect(self):
+        return spyral.Rect(self._pos, self.size)
+    
+    def _set_rect(self, *rect):
+        if len(rect) == 1:
+            r = rect[0]
+            self.x, self.y = r.x, r.y
+            self.width, self.height = r.w, r.h
+        elif len(rect) == 2:
+            self.pos = rect[0]
+            self.size = rect[1]
+        elif len(args) == 4:
+            self.x, self.y, self.width, self.height = args
+        else:
+            raise ValueError("TODO: You done goofed.")
 
     position = property(_get_pos, _set_pos)
     pos = property(_get_pos, _set_pos)
@@ -250,6 +266,7 @@ class View(object):
     visible = property(_get_visible, _set_visible)
     crop = property(_get_crop, _set_crop)
     view = property(_get_view, _set_view)
+    rect = property(_get_rect, _set_rect)
     
     def _blit(self, blit):
         if self.visible:

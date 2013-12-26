@@ -113,7 +113,7 @@ class Form(spyral.View):
                 tab_order = 0
             self._tab_orders[widget] = tab_order
         self._widgets.append(widget)
-        self.add_child(widget)
+        #self.add_child(widget)
         setattr(self.fields, name, widget)
         
     def add_label(self, name, sprite):
@@ -121,7 +121,7 @@ class Form(spyral.View):
         Adds a non-widget spyral.Sprite as part of the form.
         """
         self._labels[name] = sprite
-        self.add_child(sprite)
+        #self.add_child(sprite)
         setattr(self.fields, name, sprite)
                 
     def get_values(self):

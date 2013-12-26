@@ -37,7 +37,7 @@ class Game(spyral.Scene):
         #     def reset(self):
         #         print "Cancelled"
         my_form = RegisterForm(self)
-        my_form.name.pos = (100, 100)
+        #my_form.name.pos = (100, 100)
         my_form.focus()
         
         def test_print(event):

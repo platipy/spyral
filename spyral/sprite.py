@@ -31,9 +31,9 @@ class Sprite(object):
     layer           The name of the layer this sprite belongs to. See `layering <spyral_layering>` for more.
     image           The image for this sprite
     visible         A boolean that represents whether this sprite should be drawn.
-    width           Width of the image after all transforms. Read-only
-    height          Height of the image after all transforms. Read-only
-    size            (width, height) of the image after all transforms. Read-only
+    width           Width of the image after all transforms.
+    height          Height of the image after all transforms.
+    size            (width, height) of the image after all transforms.
     scale           A scale factor for resizing the image. It will always contain a :class:`spyral.Vec2D` with an x factor and a y factor, but it can be set to a numeric value which will be set for both coordinates.
     scale_x         The x factor of the scaling. Kept in sync with scale
     scale_y         The y factor of the scaling. Kept in sync with scale
@@ -170,6 +170,22 @@ class Sprite(object):
 
 
     # Getters and Setters
+    def _get_rect(self):
+        return spyral.Rect(self._pos, self.size)
+    
+    def _set_rect(self, *rect):
+        if len(rect) == 1:
+            r = rect[0]
+            self.x, self.y = r.x, r.y
+            self.width, self.height = r.w, r.h
+        elif len(rect) == 2:
+            self.pos = rect[0]
+            self.size = rect[1]
+        elif len(args) == 4:
+            self.x, self.y, self.width, self.height = args
+        else:
+            raise ValueError("TODO: You done goofed.")
+    
     def _get_pos(self):
         return self._pos
 
@@ -326,6 +342,7 @@ class Sprite(object):
     flip_x = property(_get_flip_x, _set_flip_x)
     flip_y = property(_get_flip_y, _set_flip_y)
     visible = property(_get_visible, _set_visible)
+    rect = property(_get_rect, _set_rect)
 
     def get_rect(self):
         """
