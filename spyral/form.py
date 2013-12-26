@@ -10,14 +10,14 @@ class FormFieldMeta(type):
                             key=lambda i:i[1].creation_counter)
         return cls
 
-class Form(spyral.AggregateSprite):
+class Form(spyral.View):
     __metaclass__ = FormFieldMeta
 
-    def __init__(self, scene):
+    def __init__(self, parent):
         """
         
         """
-        spyral.AggregateSprite.__init__(self, scene)
+        spyral.View.__init__(self, parent)
         class Fields(object):
             pass
             
@@ -34,13 +34,13 @@ class Form(spyral.AggregateSprite):
         # The instance of the currently mouse-downed widget
         self._mouse_down_on = None
         
-        scene.register("input.mouse.up", self.handle_mouse_up)
-        scene.register("input.mouse.down", self.handle_mouse_down)
-        scene.register("input.mouse.motion", self.handle_mouse_motion)
-        scene.register("input.keyboard.down.tab", self.handle_tab)
-        scene.register("input.keyboard.up.tab", self.handle_tab)
-        scene.register("input.keyboard.up", self.handle_key_up)
-        scene.register("input.keyboard.down", self.handle_key_down)
+        self.scene.register("input.mouse.up", self.handle_mouse_up)
+        self.scene.register("input.mouse.down", self.handle_mouse_down)
+        self.scene.register("input.mouse.motion", self.handle_mouse_motion)
+        self.scene.register("input.keyboard.down.tab", self.handle_tab)
+        self.scene.register("input.keyboard.up.tab", self.handle_tab)
+        self.scene.register("input.keyboard.up", self.handle_key_up)
+        self.scene.register("input.keyboard.down", self.handle_key_down)
         
         fields = self.fields
         self.fields = Fields()

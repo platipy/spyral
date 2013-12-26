@@ -48,6 +48,7 @@ class View(object):
 
         self.scene = scene = parent.scene
         self._view = parent
+        scene.apply_style(self)
 
         # It seems like views don't need to notify children that they've moved. Aren't View positions relative to their parent? That's the entire point of passing the Blit up the view hierarchy.
         #scene.register("spyral.internal.view.changed.%s" %
@@ -267,3 +268,16 @@ class View(object):
                 blit.clip(spyral.Rect((0, 0), self.crop_size))
             self._parent._static_blit(key, blit)
             
+    def __stylize__(self, properties):
+        simple = ['pos', 'x', 'y', 'position', 
+                  'width', 'height', 'size',
+                  'output_width', 'output_height', 'output_size',
+                  'anchor', 'layer', 'layers', 'visible',
+                  'scale', 'scale_x', 'scale_y', 
+                  'crop', 'crop_width', 'crop_height', 'crop_size']
+        for property in simple:
+            if property in properties:
+                value = properties.pop(property)
+                setattr(self, property, value)
+        if len(properties) > 0:
+            spyral.exceptions.unused_style_warning(self, properties.iterkeys())

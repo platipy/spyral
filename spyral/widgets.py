@@ -7,7 +7,7 @@ import string
 import pygame
 from bisect import bisect_right
 
-class BaseWidget(spyral.AggregateSprite):
+class BaseWidget(spyral.View):
     """
     The BaseWidget is the simplest possible widget that all other widgets
     must subclass. It handles tracking its owning form and the styling that
@@ -16,7 +16,7 @@ class BaseWidget(spyral.AggregateSprite):
     def __init__(self, form, name):
         self.__style__ = form.__class__.__name__ + '.' + name
         self.form = form
-        spyral.AggregateSprite.__init__(self, form)
+        spyral.View.__init__(self, form)
 
 # Widget Implementations
 
@@ -121,7 +121,7 @@ class MultiStateWidget(BaseWidget):
         for state in self._states:
             # TODO: try/catch to ensure that the property is set?
             self._image_locations[state] = properties.pop('image_%s' % (state,))
-        spyral.AggregateSprite.__stylize__(self, properties)
+        spyral.View.__stylize__(self, properties)
 
 
 class ButtonWidget(MultiStateWidget):
@@ -133,8 +133,7 @@ class ButtonWidget(MultiStateWidget):
     def __init__(self, form, name, text = "Okay"):
         MultiStateWidget.__init__(self, form, name, ['up', 'down', 'down_focused', 'down_hovered', 'up_focused', 'up_hovered'])
         
-        self._text_sprite = spyral.Sprite(form)
-        self.add_child(self._text_sprite)
+        self._text_sprite = spyral.Sprite(self)
 
         self.text = text
     
@@ -308,7 +307,7 @@ class TextInputWidget(BaseWidget):
         self._highlight_background_color = properties.pop('highlight_background_color', (0, 140, 255))
         self.font = spyral.Font(*properties.pop('font'))
 
-        spyral.AggregateSprite.__stylize__(self, properties)
+        spyral.View.__stylize__(self, properties)
             
     def _compute_letter_widths(self):
         self._letter_widths = []

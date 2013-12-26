@@ -25,11 +25,11 @@ class Game(spyral.Scene):
         self.load_style("style.spys")
 
         class RegisterForm(spyral.Form):
-            name = spyral.widgets.TextInput(50, "Current Name")
-            password = spyral.widgets.TextInput(50, "*Pass*")
+            #name = spyral.widgets.TextInput(50, "Current Name")
+            #password = spyral.widgets.TextInput(50, "*Pass*")
         #     user_type = spyral.RadioGroup(self, map(partial(spyral.RadioButtonWidget, self), ["Admin", "User", "Guest"]))
-            remember_me = spyral.widgets.Checkbox()
-            togglodyte = spyral.widgets.ToggleButton("Toggle me!")
+            #remember_me = spyral.widgets.Checkbox()
+            #togglodyte = spyral.widgets.ToggleButton("Toggle me!")
             okay = spyral.widgets.Button("Okay Button")
         #     cancel = spyral.ButtonWidget(self, "Cancel")
         #     def submit(self):
