@@ -116,6 +116,8 @@ class MultiStateWidget(BaseWidget):
     
     def __stylize__(self, properties):
         self._padding = properties.pop('padding', 4)
+        if isinstance(self._padding, (int, long, float)):
+            self._padding = spyral.Vec2D(self._padding, self._padding)
         self._nine_slice = properties.pop('nine_slice', False)
         self._image_locations = {}
         for state in self._states:
