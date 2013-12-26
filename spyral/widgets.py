@@ -17,6 +17,7 @@ class BaseWidget(spyral.View):
         self.__style__ = form.__class__.__name__ + '.' + name
         self.form = form
         spyral.View.__init__(self, form)
+        self.content_area = spyral.Rect(self.pos, self.size)
 
 # Widget Implementations
 
@@ -58,6 +59,7 @@ class MultiStateWidget(BaseWidget):
             else:
                 self._images[state] = spyral.Image(self._image_locations[state])
         self.button.image = self._images[self._state]
+        self.content_area = spyral.Rect(self.pos, self.button.size)
         self._on_state_change()
     
     def _set_state(self, state):
@@ -70,6 +72,7 @@ class MultiStateWidget(BaseWidget):
                                          "widget": self.name}, 
                                     e)
         self.button.image = self._images[state]
+        self.content_area = spyral.Rect(self.pos, self.button.size)
         self._on_state_change()
         
     def _get_value(self):
