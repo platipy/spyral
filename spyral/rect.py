@@ -169,6 +169,7 @@ class Rect(object):
         right = max(self.right, other.right)
         return Rect((left, top), (right - left, bottom - top))
 
+    # @test: Rect(10,10,50,50).clip(Rect(0,0,20,20)) -> Rect(10,10,10,10)
     def clip(self, r):
         """
         Returns a Rect which is cropped to be completely inside of r.
@@ -190,7 +191,7 @@ class Rect(object):
             
         if ((A._x + A._w) > B._x) and ((A._x + A._w) <= (B._x + B._w)):
             w = A._x + A._w - x
-        elif ((B._x + B._w) > A._x) and ((B._x + B._w) <= A._x + A._w):
+        elif ((B._x + B._w) > A._x) and ((B._x + B._w) <= (A._x + A._w)):
             w = B._x + B._w - x
         else:
             return Rect(A._x, A._y, 0, 0)

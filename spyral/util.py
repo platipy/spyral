@@ -119,6 +119,6 @@ class _Blit(object):
 
     def finalize(self):
         self.surface = scale_surface(self.surface, self.final_size)
-        self.position = self.position + self.area.topleft
+        self.position = self.position #+ self.area.topleft
         self.surface = self.surface.subsurface(self.area._to_pygame())
         self.rect = pygame.Rect((self.position[0], self.position[1]), self.surface.get_size())

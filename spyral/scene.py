@@ -545,7 +545,7 @@ class Scene(object):
                     # Todo: See if this is ever called. Shouldn't be.
                     x = blit.rect.clip(screen_rect)
                     y = x.move(-blit_rect.left, -blit_rect.top)
-                    b = blit.surf.subsurface(y)
+                    b = blit.surface.subsurface(y)
                     r = screen.blit(blit.surface, blit_rect, None, blit_flags)
                     clear_next.append(r)
 

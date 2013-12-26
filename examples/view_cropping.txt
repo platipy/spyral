@@ -1,0 +1,55 @@
+Sprite
+    Position
+    Scale
+    
+View
+    Cropping + Size
+        The contents cannot be wider than a given size
+    Position
+        Shift x,y
+    Scale (x,y)
+        Stretch contents after being cropped
+    
+View B - Crop 0,0 -> 40, 40
+    Sprite - Pic 0, 5 -> 40, 40
+        
+    0, 5 -> 40, 35
+    
+    
+View T - Crop 0,0 -> 40, 40
+    View B - Crop 0,0 -> 20, 20
+        Sprite - Pic 0, 5 -> 40, 40
+        
+    0, 5 -> 20,20
+    
+view-level
+    sprite.pos, sprite.size ->
+    -(view.pos, view.size, view.scale)-> crop from 0,0 to view.size
+                                         shift to view.pos
+                                         scale to view.scale
+    -(scene.size, scene.scale)-> 
+    
+    
+size - The (width, height) of this view's coordinate space (Default, size of parent)
+output_size - The (width, height) of this view when drawn on the parent
+scale - 
+
+
+1 <rect(0,0,40,40)>
+        <rect(0,17,40,40)>
+2 <rect(0,17,40,23)>
+1 <rect(0,17,40,23)>
+        <rect(0,17,20,20)>
+2 <rect(0,17,20,20)>
+        <rect(0, 0, 480, 480)>
+F----
+
+
+1 <rect(0,0,40,40)>
+        <rect(0,18,20,20)>
+2 <rect(0,18,20,20)>
+1 <rect(0,18,20,20)>
+        <rect(0,18,40,40)>
+2 <rect(0,18,20,20)>
+        <rect(0, 0, 480, 480)>
+F----

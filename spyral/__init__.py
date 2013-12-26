@@ -14,6 +14,7 @@ import pygame
 
 # import mapping to objects in other modules
 all_by_module = {
+    'spyral.debug' : ['DebugText'],
     'spyral.sprite' : ['Sprite'],
     'spyral.scene' : ['Scene'],
     'spyral.image' : ['Image'],

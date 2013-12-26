@@ -28,12 +28,16 @@ class View(object):
         layers          A list of layers that the children of this view can be in. See `layering <spyral_layering>` for more.
         visible         A boolean that represents whether this view should be drawn (default: True).
         crop            A boolean that determines whether the view should crop anything outside of it's size (default: True)
+        crop_size       The (width, height) of the area that will be cropped; anything outside of this region will be removed
+        crop_width      The width of the cropped area
+        crop_height     The height of the cropped area
         parent          The View or Scene that this View belongs to
         ============    ============
         """
 
         self._size = spyral.Vec2D(parent.size)
         self._output_size = spyral.Vec2D(parent.size)
+        self._crop_size = spyral.Vec2D(parent.size)
         self._pos = spyral.Vec2D(0,0)
         self._crop = True
         self._visible = True
@@ -136,6 +140,18 @@ class View(object):
             
     def _set_output_height(self, height):
         self._set_output_size((self._get_output_width(), height))
+        
+    def _get_crop_width(self):
+        return self._crop_size[0]
+            
+    def _set_crop_width(self, width):
+        self._set_crop_size((width, self._get_crop_height()))
+
+    def _get_crop_height(self):
+        return self._crop_size[1]
+            
+    def _set_crop_height(self, height):
+        self._set_crop_size((self._get_crop_width(), height))
 
     def _get_size(self):
         return self._size
@@ -153,6 +169,15 @@ class View(object):
         if size == self._output_size:
             return
         self._output_size = spyral.Vec2D(size)
+        self._changed()
+        
+    def _get_crop_size(self):
+        return self._crop_size
+        
+    def _set_crop_size(self, size):
+        if size == self._crop_size:
+            return
+        self._crop_size = spyral.Vec2D(size)
         self._changed()
 
     def _get_scale(self):
@@ -218,25 +243,27 @@ class View(object):
     output_width = property(_get_output_width, _set_output_width)
     output_height = property(_get_output_height, _set_output_height)
     output_size = property(_get_output_size, _set_output_size)
+    crop_width = property(_get_crop_width, _set_crop_width)
+    crop_height = property(_get_crop_height, _set_crop_height)
+    crop_size = property(_get_crop_size, _set_crop_size)
     visible = property(_get_visible, _set_visible)
     crop = property(_get_crop, _set_crop)
     view = property(_get_view, _set_view)
     
     def _blit(self, blit):
-        # Visible
         if self.visible:
-            # Anchor + position
-            blit.position += self.position #- spyral.util.anchor_offset(self._anchor, *self.size)
-            # Scaling
+            blit.position += self.position
             blit.apply_scale(self.scale)
-            # Crop to view
             if self.crop:
-                blit.clip(spyral.Rect(blit.position, self.size))
+                blit.clip(spyral.Rect((0, 0), self.crop_size))
             self._parent._blit(blit)
         
     # TODO: I'm not sure if more needs to happen, espcially with the recursive call
     def _static_blit(self, key, blit):
-        blit.position += self.position
-        blit.apply_scale(self.scale)
-        # TODO: visible, anchor, position, clipping
-        self._parent._static_blit(key, blit)
+        if self.visible:
+            blit.position += self.position
+            blit.apply_scale(self.scale)
+            if self.crop:
+                blit.clip(spyral.Rect((0, 0), self.crop_size))
+            self._parent._static_blit(key, blit)
+            

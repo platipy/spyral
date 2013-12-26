@@ -1,5 +1,15 @@
 import spyral
+import pygame
 
+class DebugText(spyral.sprite.Sprite):
+    def __init__(self, view, text, color):
+        spyral.sprite.Sprite.__init__(self, view)
+        self.font = spyral.Font("../spyral/resources/fonts/DejaVuSans.ttf", 15, color)
+        self.render(text)
+
+    def render(self, text):
+        self.image = self.font.render(text)
+    text = property(lambda self: "", render)
 
 class FPSSprite(spyral.sprite.Sprite):
     def __init__(self, font, color):
