@@ -64,7 +64,7 @@ class Sprite(object):
         self._static = False
         self._image = None
         self._image_version = None
-        self._layer = '__default__'
+        self._layer = 'all'
         self._computed_layer = 1
         self._make_static = False
         self._pos = spyral.Vec2D(0, 0)

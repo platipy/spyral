@@ -31,7 +31,7 @@ class View(object):
         crop_size       The (width, height) of the area that will be cropped; anything outside of this region will be removed
         crop_width      The width of the cropped area
         crop_height     The height of the cropped area
-        parent          The View or Scene that this View belongs to
+        parent          The View or Scene that this View belongs to #TODO
         ============    ============
         """
 
@@ -45,9 +45,11 @@ class View(object):
         self._anchor = 'topleft'
         self._offset = spyral.Vec2D(0,0)
         self._layers = ['all']
+        self._layer = 'all'
 
         self.scene = scene = parent.scene
         self._view = parent
+        self._child_views = []
         scene.apply_style(self)
 
         # It seems like views don't need to notify children that they've moved. Aren't View positions relative to their parent? That's the entire point of passing the Blit up the view hierarchy.
@@ -304,3 +306,7 @@ class View(object):
                 setattr(self, property, value)
         if len(properties) > 0:
             spyral.exceptions.unused_style_warning(self, properties.iterkeys())
+
+    def kill(self):
+        pass
+        #TODO

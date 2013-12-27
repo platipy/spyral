@@ -71,6 +71,7 @@ class Scene(object):
         self._rect = self._surface.get_rect()
 
         self._layers = ['all']
+        self._child_views = []
         self._sprites = set()
 
         self.register('director.update', self.handle_events)
@@ -80,6 +81,7 @@ class Scene(object):
         # View interface
         self.scene = self
         self._view = self
+        self._views = []
 
         # Loading default styles
         self.load_style(spyral._get_spyral_path() + 'resources/form_defaults.spys')
@@ -603,3 +605,7 @@ class Scene(object):
             pos = pos / self._scale
             return pos
         return None
+        
+    def kill(self):
+        #TODO
+        pass

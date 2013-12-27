@@ -194,9 +194,12 @@ class ButtonWidget(MultiStateWidget):
         if self.state in ('up_focused', 'down_focused'):
             self.state = self.state.replace('_focused', '')
             
-    def handle_key_down(self, event): pass
-    def handle_key_up(self, event): pass
-        
+    def handle_key_down(self, event):
+        if event.key in (32, 13):
+            self.handle_mouse_down(event)
+    def handle_key_up(self, event):
+        if event.key in (32, 13):
+            self.handle_mouse_up(event)
         
     def __stylize__(self, properties):
         self.font = spyral.Font(*properties.pop('font'))
@@ -250,15 +253,13 @@ class RadioGroupWidget(object):
 class TextInputWidget(BaseWidget):            
     def __init__(self, form, name, width, value = '', default_value = True, text_length = None, validator = None):
         BaseWidget.__init__(self, form, name)
-        view = form
     
         child_anchor = (self._padding, self._padding)
-        self._cursor = spyral.Sprite(view)
+        self._back = spyral.Sprite(self)
+        self._cursor = spyral.Sprite(self)
         self._cursor.anchor = child_anchor
-        self._text = spyral.Sprite(view)
+        self._text = spyral.Sprite(self)
         self._text.pos = child_anchor
-        self.add_child(self._cursor)
-        self.add_child(self._text)
         
         self._focused = False
         self._cursor.visible = False
@@ -278,12 +279,14 @@ class TextInputWidget(BaseWidget):
         self.text_length = text_length
         
         self._box_height = int(math.ceil(self.font.get_linesize()))
+        
+        self.content_area = spyral.Rect(0, 0, self.box_width, self._box_height)
 
         self._cursor.image = spyral.Image(size=(2,self._box_height))
         self._cursor.image.fill(self._cursor_color)
 
         if validator is None:
-            self.validator = string.printable
+            self.validator = str(set(string.printable).difference("\n\t"))
         else:
             self.validator = validator
         
@@ -293,16 +296,17 @@ class TextInputWidget(BaseWidget):
         self.value = value
         
         self._render_backs()
-        self.image = self._image_plain
+        self._back.image = self._image_plain
         
     def _render_backs(self):
         padding = self._padding
-        width = self.box_width + 2 * padding
+        width = self.box_width + 2*padding + 2
+        height = self._box_height + 2*padding + 2
         self._image_plain = spyral.Image(self._image_locations['focused'])
         self._image_focused = spyral.Image(self._image_locations['unfocused'])
         if self._nine_slice:
-            self._image_plain = spyral.Image.render_nine_slice(self._image_plain, (width, self._box_height + 2*padding))
-            self._image_focused = spyral.Image.render_nine_slice(self._image_focused, (width, self._box_height + 2*padding))
+            self._image_plain = spyral.Image.render_nine_slice(self._image_plain, (width, height))
+            self._image_focused = spyral.Image.render_nine_slice(self._image_focused, (width, height))
         
     def __stylize__(self, properties):
         self._padding = properties.pop('padding', 4)
@@ -622,7 +626,7 @@ class TextInputWidget(BaseWidget):
             self._stop_blinking()
     def handle_focus(self, event):
         self._focused = True
-        self.image = self._image_focused
+        self._back.image = self._image_focused
         if self.default_value:
             self._selecting = True
             self._selection_pos = 0
@@ -631,7 +635,7 @@ class TextInputWidget(BaseWidget):
         self.cursor_pos= len(self._value)
         self._render_text()
     def handle_blur(self, event):
-        self.image = self._image_plain
+        self._back.image = self._image_plain
         self._focused = False
         self._cursor.visible = False
         self.default_value = self._default_value_permanant  

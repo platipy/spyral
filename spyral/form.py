@@ -83,16 +83,13 @@ class Form(spyral.View):
     def handle_tab(self, event):
         if self._current_focus is None:
             return
-        if event.ascii == '\t':
-            if event.type == 'KEYDOWN':
-                return True
-            if event.mod & spyral.mods.shift:
-                self.previous()
-                return True
-            self.next()
+        if event.type == 'down':
             return True
-        if self._current_focus is not None:
-            self._current_focus.handle_focus(event)
+        if event.mod & spyral.mods.shift:
+            self.previous()
+            return True
+        self.next()
+        return True
             
     def handle_key_down(self, event):
         if self._current_focus is not None:

@@ -37,3 +37,7 @@ RegisterForm.okay {
 RegisterForm.togglodyte {
     pos: (100, 200)
 }
+
+RegisterForm.remember_me {
+    pos: (0, 300)
+}
