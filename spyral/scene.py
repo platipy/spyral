@@ -396,6 +396,9 @@ class Scene(object):
 
     def _get_height(self):
         return self._get_size()[1]
+    
+    def _get_rect(self):
+        return spyral.Rect((0,0), self.size)
 
     #: Read-only property that returns a :class:`Vec2D <spyral.Vec2D>` of the width and height of the Scene's size. See `View size and Window size`_ for more details.
     size = property(_get_size)
@@ -403,6 +406,8 @@ class Scene(object):
     width = property(_get_width)
     #: Read-only property that returns the height of the Scene (int).
     height = property(_get_height)
+    
+    rect = property(_get_rect)
 
     def _set_background(self, image):
         surface = image._surf
@@ -464,7 +469,7 @@ class Scene(object):
 
     def _remove_static_blit(self, key):
         """
-        Removes this sprite from the static blit list? TODO: WHAT DO.
+        Removes this sprite from the static blit list
         """
         try:
             x = self._static_blits.pop(key)

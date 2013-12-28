@@ -284,7 +284,6 @@ class View(object):
                 blit.clip(spyral.Rect((0, 0), self.crop_size))
             self._parent._blit(blit)
         
-    # TODO: I'm not sure if more needs to happen, espcially with the recursive call
     def _static_blit(self, key, blit):
         if self.visible:
             blit.position += self.position
@@ -306,7 +305,3 @@ class View(object):
                 setattr(self, property, value)
         if len(properties) > 0:
             spyral.exceptions.unused_style_warning(self, properties.iterkeys())
-
-    def kill(self):
-        pass
-        #TODO

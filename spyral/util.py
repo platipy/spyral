@@ -94,8 +94,7 @@ class _Blit(object):
     An internal class to represent a drawable `surface` with additional data (e.g.
     `rect` representing its location on screen, whether it's `static`).
     """
-    # TODO: Re-slots
-    # __slots__ = ['surface', 'rect', 'layer', 'flags', 'static', 'clipping']
+    __slots__ = ['surface', 'position', 'rect', 'area', 'layer', 'flags', 'static', 'clipping', 'final_size']
     def __init__(self, surface, position, area, layer, flags, static):
         self.surface = surface   # pygame surface
         self.position = position # coordinates to draw at

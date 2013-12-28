@@ -32,15 +32,22 @@ class Game(spyral.Scene):
             togglodyte = spyral.widgets.ToggleButton("Toggle me!")
             okay = spyral.widgets.Button("Okay Button")
         my_form = RegisterForm(self)
-        #my_form.name.pos = (100, 100)
+        my_form.name.pos = (100, 100)
         my_form.focus()
         
         def test_print(event):
             if event.value == "down":
                 print "Pressed!", event.widget.name
+                
+        debug = spyral.DebugText(self, "1) Red square in middle of room", (255, 0, 255))
+        debug.anchor = 'midbottom'
+        debug.position = self.rect.midbottom
+        def test_react(event):
+            debug.text = event.widget.value
         
         self.register("system.quit", sys.exit)
         self.register("form.RegisterForm.okay.changed", test_print)
+        self.register("form.RegisterForm.name.changed", test_react)
         
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes

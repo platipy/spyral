@@ -20,7 +20,10 @@ my_sprite.image = spyral.Image(size=(500,100))
 
 # You register events with functions
 import sys
-my_scene.register("system.quit", sys.exit)
+my_scene.register("system.quit", spyral.quit)
 
 # This will run your game. Execution will stop here until the game ends.
 spyral.director.run(scene=my_scene) 
+
+import objgraph
+objgraph.show_backrefs([my_sprite], filename='sample-graph.png')
