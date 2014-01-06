@@ -6,9 +6,10 @@ class LayerTree(object):
         self.layer_location = {scene : [0]}
         self.scene = scene
         self.tree_height = {scene : 1}
+        self._precompute_positions()
         
     def add_view(self, view):
-        parent = view.parent
+        parent = view._view
         self.layers[view] = []
         self.child_views[view] = []
         self.child_views[parent].append(view)
@@ -16,31 +17,32 @@ class LayerTree(object):
         if len(self.child_views[parent]) == 1:
             self.tree_height[parent] += 1
             while parent != self.scene:
-                parent = parent.parent
+                parent = parent._view
                 self.tree_height[parent] += 1
+        self._precompute_positions()
         
     def set_view_layer(self, view, layer):
         view.layer = layer
+        self._precompute_positions()
         
     def set_view_layers(self, view, layers):
         self.layers[view] = layers
+        self._precompute_positions()
     
-    def compute_positional_chain(self, chain):
-        print chain,
+    def _compute_positional_chain(self, chain):
         total = 0
         for index, value in enumerate(chain):
             total += value * self.MAX_LAYERS ** (self.maximum_height - index - 1)
-        print total
         return total
         
-    def precompute_positions(self):
+    def _precompute_positions(self):
         self.maximum_height = self.tree_height[self.scene]
         self.layer_location = {}
-        self.precompute_position_for_layer(self.scene, [])
+        self._precompute_position_for_layer(self.scene, [])
         for layer_key, value in self.layer_location.iteritems():
-            self.layer_location[layer_key] = self.compute_positional_chain(value)
+            self.layer_location[layer_key] = self._compute_positional_chain(value)
         
-    def precompute_position_for_layer(self, view, current_position):
+    def _precompute_position_for_layer(self, view, current_position):
         position = 0
         for position, layer in enumerate(self.layers[view], 1):
             self.layer_location[(view, layer)] = current_position + [position]
@@ -50,7 +52,7 @@ class LayerTree(object):
                 new_position = self.layer_location[view]
             else:
                 new_position = self.layer_location[(view, subview.layer)]
-            self.precompute_position_for_layer(subview, new_position)
+            self._precompute_position_for_layer(subview, new_position)
     
     def get_layer_position(self, parent, layer):
         s = layer.split(':')
@@ -64,13 +66,13 @@ class LayerTree(object):
                 offset = -0.5
         if (parent, layer) in self.layer_location:
             position = self.layer_location[(parent, layer)]
-        elif parent in self.layer_locations:
+        elif parent in self.layer_location:
             position = self.layer_location[parent]
         else:
             position = self.layer_location[self.scene]
         return position + offset
         
-
+"""
 # These should be re-implemented as tests
     
 class Scene(object):
@@ -103,10 +105,11 @@ lt.add_view(view2_1)
 lt.set_view_layers(view2, ["alpha", "beta", "gamma"])
 lt.set_view_layer(view2_1, "beta")
 lt.add_view(view4)
-lt.precompute_positions()
+lt._precompute_positions()
 for name, order in sorted(lt.layer_location.iteritems(), key=lambda x:x[1]):
     print name, order
 print "*" * 10
 for name, children in lt.child_views.iteritems():
     print name, ":::", map(str, children)
 print "*" * 10
+"""

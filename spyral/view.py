@@ -44,11 +44,12 @@ class View(object):
         self._parent = parent
         self._anchor = 'topleft'
         self._offset = spyral.Vec2D(0,0)
-        self._layers = ['all']
-        self._layer = 'all'
+        self._layers = []
+        self._layer = None
 
         self.scene = scene = parent.scene
         self._view = parent
+        self.scene._add_view(self)
         self._child_views = []
         scene.apply_style(self)
 
@@ -84,9 +85,10 @@ class View(object):
         if layer == self._layer:
             return
         self._layer = layer
-        self._computed_layer = self._view._compute_layer(layer)
+        self.scene._set_view_layer(self, layer)
+        #self._computed_layer = self._view._compute_layer(layer)
         self._changed()
-    
+        
     def _compute_layer(self, layer):
         """
         Computes the numerical index of `layer` (in reference to the other layers).
@@ -97,8 +99,9 @@ class View(object):
         return tuple(self._layers)
 
     def _set_layers(self, layers):
-        if self._layers == ['all']:
+        if not self._layers:
             self._layers = layers[:]
+            self.scene._set_view_layers(self, layers)
         elif self._layers == layers:
             pass
         else:

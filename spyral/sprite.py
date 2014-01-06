@@ -64,7 +64,7 @@ class Sprite(object):
         self._static = False
         self._image = None
         self._image_version = None
-        self._layer = 'all'
+        self._layer = None
         self._computed_layer = 1
         self._make_static = False
         self._pos = spyral.Vec2D(0, 0)
@@ -202,7 +202,7 @@ class Sprite(object):
         if layer == self._layer:
             return
         self._layer = layer
-        self._computed_layer = self._view._compute_layer(layer)
+        self._computed_layer = self._scene._get_layer_position(self._view, layer)
         self._expire_static()
 
     def _get_image(self):

@@ -9,6 +9,7 @@ import greenlet
 import inspect
 import sys
 import math
+from layertree import LayerTree
 from collections import defaultdict
 
 class Scene(object):
@@ -70,8 +71,9 @@ class Scene(object):
         self._invalidating_views = {}
         self._rect = self._surface.get_rect()
 
-        self._layers = ['all']
+        self._layers = []
         self._child_views = []
+        self._layer_tree = LayerTree(self)
         self._sprites = set()
 
         self.register('director.update', self.handle_events)
@@ -576,6 +578,16 @@ class Scene(object):
         """
         self._clear_this_frame.append(pygame.Rect((0,0), self._vsize))
 
+    def _get_layer_position(self, view, layer):
+        return self._layer_tree.get_layer_position(view, layer)
+    
+    def _set_view_layer(self, view, layer):
+        self._layer_tree.set_view_layer(view, layer)
+    def _set_view_layers(self, view, layers):
+        self._layer_tree.set_view_layers(view, layers)
+    def _add_view(self, view):
+        self._layer_tree.add_view(view)
+        
     def _compute_layer(self, layer):
         """
         Computes the numerical index of `layer` (in reference to the other layers).
@@ -588,7 +600,8 @@ class Scene(object):
         """
         # Potential caveat: If you change layers after blitting, previous blits may be wrong
         # for a frame, static ones wrong until they expire
-        if self._layers == ['all']:
+        if self._layers == []:
+            self._layer_tree.set_view_layers(self, layers)
             self._layers = layers
         elif self._layers == layers:
             pass

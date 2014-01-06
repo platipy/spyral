@@ -36,9 +36,9 @@ class MultiStateWidget(BaseWidget):
     def __init__(self, form, name, states):
         self._states = states
         self._state = self._states[0]
-        self._layers = ["base", "content"]
         
         BaseWidget.__init__(self, form, name)
+        self.layers = ["base", "content"]
                 
         self._images = {}
         self._content_size = (0, 0)
@@ -253,13 +253,18 @@ class RadioGroupWidget(object):
 class TextInputWidget(BaseWidget):            
     def __init__(self, form, name, width, value = '', default_value = True, text_length = None, validator = None):
         BaseWidget.__init__(self, form, name)
+        
+        self.layers = ["base", "content"]
     
         child_anchor = (self._padding, self._padding)
         self._back = spyral.Sprite(self)
+        self._back.layer = "base"
         self._cursor = spyral.Sprite(self)
         self._cursor.anchor = child_anchor
+        self._cursor.layer = "content"
         self._text = spyral.Sprite(self)
         self._text.pos = child_anchor
+        self._text.layer = "content"
         
         self._focused = False
         self._cursor.visible = False

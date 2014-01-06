@@ -45,9 +45,20 @@ class Game(spyral.Scene):
         def test_react(event):
             debug.text = event.widget.value
         
+        def test_tree():
+            lt = self._layer_tree
+            print "*" * 10
+            for name, order in sorted(lt.layer_location.iteritems(), key=lambda x:x[1]):
+                print name, order
+            print "*" * 10
+            for name, children in lt.child_views.iteritems():
+                print name, ":::", map(str, children)
+            print "*" * 10
+        
         self.register("system.quit", sys.exit)
         self.register("form.RegisterForm.okay.changed", test_print)
         self.register("form.RegisterForm.name.changed", test_react)
+        self.register("input.keyboard.down.space", test_tree)
         
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes
