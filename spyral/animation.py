@@ -6,9 +6,9 @@ from collections import defaultdict
 class Animation(object):
     """
     Creates an animation on *property*, with the specified
-    *animator*, to last *duration* in seconds.
+    *easing*, to last *duration* in seconds.
     
-    For example. Animation('x', animator.Linear(0, 100), 2.0)
+    For example. Animation('x', easing.Linear(0, 100), 2.0)
     creates an animation that will change the x propety of what it
     is applied to from 0 to 100 over 2 seconds.
     
@@ -17,17 +17,17 @@ class Animation(object):
     """
 
     def __init__(self, property,
-                 animator,
+                 easing,
                  duration=1.0,
                  absolute=True,
                  shift=None,
                  loop=False
                  ):
-        # Idea: These animators could be used for camera control
+        # Idea: These easings could be used for camera control
         # at some point. Everything should work pretty much the same.
 
         self.property = property
-        self.animator = animator
+        self.easing = easing
         self.duration = duration
         self.loop = loop
         self.properties = set((property,))
@@ -35,7 +35,7 @@ class Animation(object):
         
     def evaluate(self, sprite, progress):
         progress = progress / self.duration
-        value = self.animator(sprite, progress)
+        value = self.easing(sprite, progress)
         if self._shift is not None:
             if self.property == 'pos':
                 value = (value[0] + self._shift[0],

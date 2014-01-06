@@ -34,7 +34,7 @@ all_by_module = {
     'spyral.view': ['View']
 }
 
-attribute_modules = frozenset(['memoize', 'point', 'exceptions', 'animator', 'event', '_lib', 'font', 'form', 'director', 'sprite', '_style', 'widgets', 'cursor', 'util'])
+attribute_modules = frozenset(['memoize', 'point', 'exceptions', 'easing', 'event', '_lib', 'font', 'form', 'director', 'sprite', '_style', 'widgets', 'cursor', 'util'])
 
 object_origins = {}
 for module, items in all_by_module.iteritems():
