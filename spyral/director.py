@@ -7,6 +7,21 @@ _screen = None
 _tick = 0
 _max_fps = 30
 _max_ups = 30
+_keyboard_repeating = False
+
+
+def set_keyboard_repeat(delay, interval):
+    if delay == 0 or delay == 1:
+        pygame.key.set_repeat(delay, interval)
+        _keyboard_repeating = False
+    else:
+        pygame.key.set_repeat(delay, interval)
+        _keyboard_repeating = True
+    
+def disable_keyboard_repeat():
+    pygame.key.set_repeat()
+    _keyboard_repeating = False
+    
 
 def init(size=(0, 0),
          max_ups = 30,

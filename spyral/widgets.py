@@ -18,6 +18,9 @@ class BaseWidget(spyral.View):
         self.form = form
         spyral.View.__init__(self, form)
         self.content_area = spyral.Rect(self.pos, self.size)
+    
+    def _recalculate_content_area(self):
+        self.content_area = spyral.Rect(self.pos, self.size)
 
 # Widget Implementations
 
@@ -284,8 +287,7 @@ class TextInputWidget(BaseWidget):
         self.text_length = text_length
         
         self._box_height = int(math.ceil(self.font.get_linesize()))
-        
-        self.content_area = spyral.Rect(0, 0, self.box_width, self._box_height)
+        self._recalculate_content_area()
 
         self._cursor.image = spyral.Image(size=(2,self._box_height))
         self._cursor.image.fill(self._cursor_color)
@@ -302,6 +304,9 @@ class TextInputWidget(BaseWidget):
         
         self._render_backs()
         self._back.image = self._image_plain
+        
+    def _recalculate_content_area(self):
+        self.content_area = spyral.Rect(self.x, self.y, self.box_width, self._box_height)
         
     def _render_backs(self):
         padding = self._padding

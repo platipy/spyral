@@ -31,7 +31,7 @@ class View(object):
         crop_size       The (width, height) of the area that will be cropped; anything outside of this region will be removed
         crop_width      The width of the cropped area
         crop_height     The height of the cropped area
-        parent          The View or Scene that this View belongs to #TODO
+        view            The View or Scene that this View belongs to
         ============    ============
         """
 
@@ -276,7 +276,7 @@ class View(object):
     crop_size = property(_get_crop_size, _set_crop_size)
     visible = property(_get_visible, _set_visible)
     crop = property(_get_crop, _set_crop)
-    view = property(_get_view, _set_view)
+    view = property(_get_view)
     rect = property(_get_rect, _set_rect)
     
     def _blit(self, blit):

@@ -58,8 +58,9 @@ class Game(spyral.Scene):
         self.register("system.quit", sys.exit)
         self.register("form.RegisterForm.okay.changed", test_print)
         self.register("form.RegisterForm.name.changed", test_react)
-        self.register("input.keyboard.down.space", test_tree)
+        self.register("input.keyboard.down.number_5", test_tree)
         
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes
+    spyral.director.set_keyboard_repeat(800, 50)
     spyral.director.run(scene=Game()) # This will run your game. It will not return.
