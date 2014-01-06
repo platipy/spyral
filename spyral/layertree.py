@@ -7,9 +7,16 @@ class LayerTree(object):
         self.scene = scene
         self.tree_height = {scene : 1}
         self._precompute_positions()
+    
+    def remove_view(self, view):
+        del self.tree_height[view]
+        del self.layers[view]
+        self.child_views[view._parent].remove(view)
+        del self.child_views[view]
+        self._precompute_positions()
         
     def add_view(self, view):
-        parent = view._view
+        parent = view._parent
         self.layers[view] = []
         self.child_views[view] = []
         self.child_views[parent].append(view)
@@ -17,7 +24,7 @@ class LayerTree(object):
         if len(self.child_views[parent]) == 1:
             self.tree_height[parent] += 1
             while parent != self.scene:
-                parent = parent._view
+                parent = parent._parent
                 self.tree_height[parent] += 1
         self._precompute_positions()
         

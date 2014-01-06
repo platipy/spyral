@@ -31,7 +31,7 @@ class View(object):
         crop_size       The (width, height) of the area that will be cropped; anything outside of this region will be removed
         crop_width      The width of the cropped area
         crop_height     The height of the cropped area
-        view            The View or Scene that this View belongs to
+        parent          The View or Scene that this View belongs to
         ============    ============
         """
 
@@ -48,15 +48,23 @@ class View(object):
         self._layer = None
 
         self.scene = scene = parent.scene
-        self._view = parent
         self.scene._add_view(self)
-        self._child_views = []
+        self._parent.add_child(self)
         scene.apply_style(self)
-
-        # It seems like views don't need to notify children that they've moved. Aren't View positions relative to their parent? That's the entire point of passing the Blit up the view hierarchy.
-        #scene.register("spyral.internal.view.changed.%s" %
-        #                   (spyral.event.get_identifier(parent)),
-        #               self._changed)
+        self._children = set()
+        
+    def add_child(self, entity):
+        self._children.add(entity)
+        
+    def remove_child(self, entity):
+        self._children.discard(entity)
+        
+    def kill(self):
+        for child in list(self._children):
+            child.kill()
+        self._children.clear()
+        self.scene._kill_view(self)
+        self._parent = None
 
     def _changed(self):
         self._recalculate_offset()
@@ -234,10 +242,10 @@ class View(object):
         self._changed()
         
     
-    def _get_view(self):
-        return self._view
-    def _set_view(self, view):
-        self._view = view
+    def _get_parent(self):
+        return self._parent
+    def _set_parent(self, parent):
+        self._parent = parent
         
     def _get_rect(self):
         return spyral.Rect(self._pos, self.size)
@@ -276,7 +284,7 @@ class View(object):
     crop_size = property(_get_crop_size, _set_crop_size)
     visible = property(_get_visible, _set_visible)
     crop = property(_get_crop, _set_crop)
-    view = property(_get_view)
+    parent = property(_get_parent)
     rect = property(_get_rect, _set_rect)
     
     def _blit(self, blit):

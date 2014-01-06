@@ -84,6 +84,8 @@ class Sprite(object):
         self._flip_y = False
         self._animations = []
         self._progress = {}
+        
+        view.add_child(self)
 
         self._scene._register_sprite(self)
         self._scene.apply_style(self)
@@ -386,6 +388,7 @@ class Sprite(object):
         self._scene.unregister("director.render", self.draw)
         self._scene._unregister_sprite(self)
         self._scene._remove_static_blit(self)
+        self._view.remove_child(self)
 
     def __del__(self):
         self._scene._remove_static_blit(self)

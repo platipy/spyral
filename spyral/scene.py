@@ -82,7 +82,7 @@ class Scene(object):
 
         # View interface
         self.scene = self
-        self._view = self
+        self._parent = self
         self._views = []
 
         # Loading default styles
@@ -436,7 +436,7 @@ class Scene(object):
             if parent_view not in self._invalidating_views:
                 self._invalidating_views[parent_view] = set()
             self._invalidating_views[parent_view].add(sprite)
-            parent_view = parent_view._view
+            parent_view = parent_view._parent
 
     def _unregister_sprite(self, sprite):
         """
@@ -445,7 +445,12 @@ class Scene(object):
         if sprite in self._sprites:
             self._sprites.remove(sprite)
         for view in self._invalidating_views.keys():
-            self._invalidating_views[view].pop(sprite)
+            self._invalidating_views[view].discard(sprite)
+            
+    def _kill_view(self, view):
+        if view in self._invalidating_views:
+            del self._invalidating_views[view]
+        self._layer_tree.remove_view(view)
 
     def _blit(self, blit):
         blit.apply_scale(self._scale)
@@ -623,6 +628,9 @@ class Scene(object):
             pos = pos / self._scale
             return pos
         return None
+        
+    def add_child(self, entity): pass
+    def remove_child(self, entity): pass
         
     def kill(self):
         #TODO

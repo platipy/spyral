@@ -20,14 +20,17 @@ class Game(spyral.Scene):
         i = spyral.Image(size=(50,50))
         i.fill((255, 255, 255))
         
+        v_top = spyral.View(self)
+        v_bottom = spyral.View(v_top)
+        
         import objgraph
-        for x in xrange(5):
-            over = spyral.Sprite(self)
-            self.pos = (0, 0)
-            over.image = i
-            over.kill()
-            objgraph.show_refs([over])
-            print sys.getrefcount(over)
+        over = spyral.Sprite(v_bottom)
+        self.pos = (0, 0)
+        over.image = i
+        #over.kill()
+        v_top.kill()
+        del over
+        objgraph.show_backrefs([v_top], filename='sample-graph.png')
         
         self.register("system.quit", sys.exit)
 
