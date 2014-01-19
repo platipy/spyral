@@ -42,6 +42,7 @@ setup(
     keywords="pygame game engine",
     license='LGPLv2',
     url='https://github.com/platipy/spyral',
+    include_package_data=True,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
