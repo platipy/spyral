@@ -6,7 +6,7 @@ import spyral
 from spyral.sprite import Sprite
 from spyral.animation import Animation, DelayAnimation
 from spyral.scene import Scene
-import spyral.animator as animator
+import spyral.easing as easing
 import math
 import sys
 
@@ -18,20 +18,20 @@ FG_COLOR = (255, 255, 255)
 DELAY = DelayAnimation(1.5)
 
 ANIMATIONS = [
-    ('Linear', Animation('x', animator.Linear(0, 600), duration = 3.0)),
-    ('QuadraticIn', Animation('x', animator.QuadraticIn(0, 600), duration = 3.0)),
-    ('QuadraticOut', Animation('x', animator.QuadraticOut(0, 600), duration = 3.0)),
-    ('QuadraticInOut', Animation('x', animator.QuadraticInOut(0, 600), duration = 3.0)),
-    ('CubicIn', Animation('x', animator.CubicIn(0, 600), duration = 3.0)),
-    ('CubicOut', Animation('x', animator.CubicOut(0, 600), duration = 3.0)),
-    ('CubicInOut', Animation('x', animator.CubicInOut(0, 600), duration = 3.0)),
-    ('Custom (Using Polar)', Animation('pos', animator.Polar(center = (320, 240),
+    ('Linear', Animation('x', easing.Linear(0, 600), duration = 3.0)),
+    ('QuadraticIn', Animation('x', easing.QuadraticIn(0, 600), duration = 3.0)),
+    ('QuadraticOut', Animation('x', easing.QuadraticOut(0, 600), duration = 3.0)),
+    ('QuadraticInOut', Animation('x', easing.QuadraticInOut(0, 600), duration = 3.0)),
+    ('CubicIn', Animation('x', easing.CubicIn(0, 600), duration = 3.0)),
+    ('CubicOut', Animation('x', easing.CubicOut(0, 600), duration = 3.0)),
+    ('CubicInOut', Animation('x', easing.CubicInOut(0, 600), duration = 3.0)),
+    ('Custom (Using Polar)', Animation('pos', easing.Polar(center = (320, 240),
                                                                radius = lambda theta: 100.0+25.0*math.sin(5.0*theta)),
                                                                duration = 3.0)),
-    ('Sine', Animation('x', animator.Sine(amplitude = 100.0), duration=3.0, shift=300)),
-    ('Arc', Animation('pos', animator.Arc(center = (320, 240), radius = 100.0, theta_end = 1.4*math.pi))),
-    ('Scale', Animation('scale', animator.LinearTuple((1.0, 1.0), (0.0, 2.0)), duration = 3.0)),
-    ('Rotate', Animation('angle', animator.Linear(0, 2.0*math.pi), duration = 3.0))
+    ('Sine', Animation('x', easing.Sine(amplitude = 100.0), duration=3.0, shift=300)),
+    ('Arc', Animation('pos', easing.Arc(center = (320, 240), radius = 100.0, theta_end = 1.4*math.pi))),
+    ('Scale', Animation('scale', easing.LinearTuple((1.0, 1.0), (0.0, 2.0)), duration = 3.0)),
+    ('Rotate', Animation('angle', easing.Linear(0, 2.0*math.pi), duration = 3.0))
 ]
 
 class TextSprite(Sprite):
