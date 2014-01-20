@@ -4,7 +4,7 @@ import pygame
 class DebugText(spyral.sprite.Sprite):
     def __init__(self, view, text, color):
         spyral.sprite.Sprite.__init__(self, view)
-        self.font = spyral.Font("../spyral/resources/fonts/DejaVuSans.ttf", 15, color)
+        self.font = spyral.Font(spyral._get_spyral_path() + "resources/fonts/DejaVuSans.ttf", 15, color)
         self.render(text)
 
     def render(self, text):
