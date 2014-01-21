@@ -5,7 +5,7 @@ except NameError:
 import spyral
 import sys
 
-SIZE = (1000, 1000)
+SIZE = (600, 600)
 BG_COLOR = (0, 0, 0)
     
 class StupidSprite(spyral.Sprite, spyral.Actor):
