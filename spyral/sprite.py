@@ -40,6 +40,9 @@ class Sprite(object):
     flip_x          A boolean that determines whether the image should be flipped horizontally
     flip_y          A boolean that determines whether the image should be flipped vertically
     angle           An angle to rotate the image by. Rotation is computed after scaling and flipping, and keeps the center of the original image aligned with the center of the rotated image.
+    parent          The parent of this sprite, either a View or a Scene. Read-only.
+    scene           The scene that this sprite belongs to. Read-only.
+    mask            A rect to use instead of the current image's rect for computing collisions. `None` if the image's rect should be used.
     ============    ============
     """
 
@@ -84,6 +87,7 @@ class Sprite(object):
         self._flip_y = False
         self._animations = []
         self._progress = {}
+        self._mask = None
         
         view.add_child(self)
 
@@ -102,6 +106,7 @@ class Sprite(object):
             self._scene._remove_static_blit(self)
         self._static = False
         self._age = 0
+        self._set_collision_box()
         return True
 
     def _recalculate_offset(self):
@@ -324,6 +329,11 @@ class Sprite(object):
             return
         self._visible = visible
         self._expire_static()
+    
+    def _get_scene(self):
+        return self._scene
+    def _get_view(self):
+        return self._view
 
     #: Determines where this Sprite is drawn in the Scene (or View).
     position = property(_get_pos, _set_pos)
@@ -345,6 +355,8 @@ class Sprite(object):
     flip_y = property(_get_flip_y, _set_flip_y)
     visible = property(_get_visible, _set_visible)
     rect = property(_get_rect, _set_rect)
+    scene = property(_get_scene)
+    scene = property(_get_view)
 
     def get_rect(self):
         """
@@ -383,6 +395,15 @@ class Sprite(object):
             return
         self._view._blit(b)
         self._age += 1
+    
+    def _set_collision_box(self):
+        if self._mask is None:
+            area = spyral.Rect(self._transform_image.get_rect())
+        else:
+            area = self._mask
+        c = spyral.util._CollisionBox(self._pos - self._offset, area)
+        warped_box = self._view._warp_collision_box(c)
+        self._scene._set_collision_box(self, warped_box.rect)
 
     def kill(self):
         self._scene.unregister("director.render", self.draw)
@@ -431,3 +452,10 @@ class Sprite(object):
         for animation in self._animations:
             self.stop_animation(animation)
 
+    def collide_sprite(self, other):
+        return self.scene.collide_sprite(self, other)
+    def collide_point(self, pos):
+        return self.scene.collide_point(self, pos)
+    def collide_rect(self, rect):
+        return self.scene.collide_rect(self, rect)
+        

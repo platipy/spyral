@@ -32,7 +32,8 @@ class Game(spyral.Scene):
             togglodyte = spyral.widgets.ToggleButton("Toggle me!")
             okay = spyral.widgets.Button("Okay Button")
         my_form = RegisterForm(self)
-        my_form.name.pos = (100, 100)
+        #my_form.name.pos = (100, 100)
+        #my_form.pos = (16, 16)
         my_form.focus()
         
         def test_print(event):
@@ -44,21 +45,21 @@ class Game(spyral.Scene):
         debug.position = self.rect.midbottom
         def test_react(event):
             debug.text = event.widget.value
-        
-        def test_tree():
-            lt = self._layer_tree
-            print "*" * 10
-            for name, order in sorted(lt.layer_location.iteritems(), key=lambda x:x[1]):
-                print name, order
-            print "*" * 10
-            for name, children in lt.child_views.iteritems():
-                print name, ":::", map(str, children)
-            print "*" * 10
+        self.once = True
         
         self.register("system.quit", sys.exit)
         self.register("form.RegisterForm.okay.changed", test_print)
         self.register("form.RegisterForm.name.changed", test_react)
-        self.register("input.keyboard.down.number_5", test_tree)
+        self.register("director.update", self.report_boxes)
+        #self.register("input.keyboard.down.number_4", test_collisions)
+    def report_boxes(self):
+        if self.once:
+            for entity, rect in self._collision_boxes.iteritems():
+                s = spyral.Sprite(self)
+                s.image = spyral.Image(size=rect.size).fill((0,0,255))
+                s.pos = rect.topleft
+                s.layer = ":above"
+            self.once = False
         
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes

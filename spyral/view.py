@@ -31,7 +31,9 @@ class View(object):
         crop_size       The (width, height) of the area that will be cropped; anything outside of this region will be removed
         crop_width      The width of the cropped area
         crop_height     The height of the cropped area
-        parent          The View or Scene that this View belongs to
+        parent          The first parent View or Scene that this View belongs to. Read-only.
+        scene           The Scene that this View belongs to. Read-only.
+        mask            A rect to use instead of the current image's rect for computing collisions. `None` if the view's rect should be used.
         ============    ============
         """
 
@@ -39,15 +41,16 @@ class View(object):
         self._output_size = spyral.Vec2D(parent.size)
         self._crop_size = spyral.Vec2D(parent.size)
         self._pos = spyral.Vec2D(0,0)
-        self._crop = True
+        self._crop = False
         self._visible = True
         self._parent = parent
         self._anchor = 'topleft'
         self._offset = spyral.Vec2D(0,0)
         self._layers = []
         self._layer = None
+        self._mask = None
 
-        self.scene = scene = parent.scene
+        self._scene = scene = parent.scene
         self.scene._add_view(self)
         self._parent.add_child(self)
         scene.apply_style(self)
@@ -65,9 +68,17 @@ class View(object):
         self._children.clear()
         self.scene._kill_view(self)
         self._parent = None
+        
+    def _get_mask(self):
+        return self._mask
+        
+    def _set_mask(self, mask):
+        self._mask = mask
+        self._set_collision_box()
 
     def _changed(self):
         self._recalculate_offset()
+        self._set_collision_box()
         # Notify any listeners (probably children) that I have changed
         e = spyral.Event(name="changed", view=self)
         spyral.event.handle("spyral.internal.view.changed.%s" %
@@ -244,8 +255,8 @@ class View(object):
     
     def _get_parent(self):
         return self._parent
-    def _set_parent(self, parent):
-        self._parent = parent
+    def _get_scene(self):
+        return self._scene
         
     def _get_rect(self):
         return spyral.Rect(self._pos, self.size)
@@ -276,6 +287,7 @@ class View(object):
     width = property(_get_width, _set_width)
     height = property(_get_height, _set_height)
     size = property(_get_size, _set_size)
+    mask = property(_get_mask, _set_mask)
     output_width = property(_get_output_width, _set_output_width)
     output_height = property(_get_output_height, _set_output_height)
     output_size = property(_get_output_size, _set_output_size)
@@ -285,6 +297,7 @@ class View(object):
     visible = property(_get_visible, _set_visible)
     crop = property(_get_crop, _set_crop)
     parent = property(_get_parent)
+    scene = property(_get_scene)
     rect = property(_get_rect, _set_rect)
     
     def _blit(self, blit):
@@ -302,6 +315,26 @@ class View(object):
             if self.crop:
                 blit.clip(spyral.Rect((0, 0), self.crop_size))
             self._parent._static_blit(key, blit)
+    
+    def _warp_collision_box(self, box):
+        box.position += self.position
+        box.apply_scale(self.scale)
+        if self.crop:
+            box.clip(spyral.Rect((0, 0), self.crop_size))
+        return self._parent._warp_collision_box(box)
+    
+    def _set_collision_box(self):
+        if self._mask is not None:
+            pos = self._mask.topleft
+            area = spyral.Rect((0,0), self._mask.size)
+        else:
+            pos = self._pos - self._offset
+            area = spyral.Rect((0,0), self.size)
+        c = spyral.util._CollisionBox(pos, area)
+        warped_box = self._parent._warp_collision_box(c)
+        
+        
+        self._scene._set_collision_box(self, warped_box.rect)
             
     def __stylize__(self, properties):
         simple = ['pos', 'x', 'y', 'position', 
@@ -316,3 +349,10 @@ class View(object):
                 setattr(self, property, value)
         if len(properties) > 0:
             spyral.exceptions.unused_style_warning(self, properties.iterkeys())
+
+    def collide_sprite(self, other):
+        return self.scene.collide_sprite(self, other)
+    def collide_point(self, pos):
+        return self.scene.collide_point(self, pos)
+    def collide_rect(self, rect):
+        return self.scene.collide_rect(self, rect)

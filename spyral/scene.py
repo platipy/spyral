@@ -55,7 +55,7 @@ class Scene(object):
         self._style_functions['TestingBox'] = TestingBox
 
         self._size = None
-        self._scale = (1.0, 1.0) #None
+        self._scale = spyral.Vec2D(1.0, 1.0) #None
         self._surface = pygame.display.get_surface()
         if size is not None:
             self._set_size(size)
@@ -69,6 +69,7 @@ class Scene(object):
         self._soft_clear = []
         self._static_blits = {}
         self._invalidating_views = {}
+        self._collision_boxes = {}
         self._rect = self._surface.get_rect()
 
         self._layers = []
@@ -444,12 +445,16 @@ class Scene(object):
         """
         if sprite in self._sprites:
             self._sprites.remove(sprite)
+        if sprite in self._collision_boxes:
+            del self._collision_boxes[sprite]
         for view in self._invalidating_views.keys():
             self._invalidating_views[view].discard(sprite)
             
     def _kill_view(self, view):
         if view in self._invalidating_views:
             del self._invalidating_views[view]
+        if view in self._collision_boxes:
+            del self._collision_boxes[view]
         self._layer_tree.remove_view(view)
 
     def _blit(self, blit):
@@ -551,7 +556,7 @@ class Scene(object):
                         soft_clear.append(blit.rect)
                         drawn_static += 1
                         break
-            else:                
+            else:
                 if screen_rect.contains(blit_rect):
                     r = screen.blit(blit.surface, blit_rect, None, blit_flags)
                     clear_next.append(r)
@@ -632,6 +637,27 @@ class Scene(object):
     def add_child(self, entity): pass
     def remove_child(self, entity): pass
         
-    def kill(self):
-        #TODO
-        pass
+    def _warp_collision_box(self, box):
+        box.apply_scale(self._scale)
+        box.finalize()
+        return box
+    
+    def _set_collision_box(self, entity, box):
+        self._collision_boxes[entity] = box
+
+    def collide_sprite(self, first, second):
+        if first not in self._collision_boxes or second not in self._collision_boxes:
+            return False
+        first_box = self._collision_boxes[first]
+        second_box = self._collision_boxes[second]
+        return first_box.collide_rect(second_box)
+    def collide_point(self, sprite, pos):
+        if sprite not in self._collision_boxes:
+            return False
+        sprite_box = self._collision_boxes[sprite]
+        return sprite_box.collide_point(pos)
+    def collide_rect(self, sprite, rect):
+        if sprite not in self._collision_boxes:
+            return False
+        sprite_box = self._collision_boxes[sprite]
+        return sprite_box.collide_rect(rect)

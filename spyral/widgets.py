@@ -17,10 +17,10 @@ class BaseWidget(spyral.View):
         self.__style__ = form.__class__.__name__ + '.' + name
         self.form = form
         spyral.View.__init__(self, form)
-        self.content_area = spyral.Rect(self.pos, self.size)
+        self.mask = spyral.Rect(self.pos, self.size)
     
-    def _recalculate_content_area(self):
-        self.content_area = spyral.Rect(self.pos, self.size)
+    def _recalculate_mask(self):
+        self.mask = spyral.Rect(self.pos, self.size + self.padding)
 
 # Widget Implementations
 
@@ -62,7 +62,7 @@ class MultiStateWidget(BaseWidget):
             else:
                 self._images[state] = spyral.Image(self._image_locations[state])
         self.button.image = self._images[self._state]
-        self.content_area = spyral.Rect(self.pos, self.button.size)
+        self.mask = spyral.Rect(self.pos, self.button.size)
         self._on_state_change()
     
     def _set_state(self, state):
@@ -75,7 +75,7 @@ class MultiStateWidget(BaseWidget):
                                          "widget": self.name}, 
                                     e)
         self.button.image = self._images[state]
-        self.content_area = spyral.Rect(self.pos, self.button.size)
+        self.mask = spyral.Rect(self.pos, self.button.size)
         self._on_state_change()
         
     def _get_value(self):
@@ -287,7 +287,7 @@ class TextInputWidget(BaseWidget):
         self.text_length = text_length
         
         self._box_height = int(math.ceil(self.font.get_linesize()))
-        self._recalculate_content_area()
+        self._recalculate_mask()
 
         self._cursor.image = spyral.Image(size=(2,self._box_height))
         self._cursor.image.fill(self._cursor_color)
@@ -305,8 +305,8 @@ class TextInputWidget(BaseWidget):
         self._render_backs()
         self._back.image = self._image_plain
         
-    def _recalculate_content_area(self):
-        self.content_area = spyral.Rect(self.x, self.y, self.box_width, self._box_height)
+    def _recalculate_mask(self):
+        self.mask = spyral.Rect(self.x+self.padding, self.y+self.padding, self.box_width+self.padding, self._box_height+self.padding)
         
     def _render_backs(self):
         padding = self._padding

@@ -58,7 +58,7 @@ class Form(spyral.View):
         
     def handle_mouse_down(self, event):
         for widget in self._widgets:
-            if widget.content_area.collide_point(event.pos):
+            if widget.collide_point(event.pos):
                 self.focus(widget)
                 self._mouse_down_on = widget
                 widget.handle_mouse_down(event)
@@ -70,7 +70,7 @@ class Form(spyral.View):
             self._mouse_down_on.handle_mouse_motion(event)
         now_hover = None
         for widget in self._widgets:
-            if widget.content_area.collide_point(event.pos):
+            if widget.collide_point(event.pos):
                 widget.handle_mouse_motion(event)
                 now_hover = widget
         if now_hover != self._mouse_currently_over:

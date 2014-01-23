@@ -118,6 +118,28 @@ class _Blit(object):
 
     def finalize(self):
         self.surface = scale_surface(self.surface, self.final_size)
-        self.position = self.position #+ self.area.topleft
         self.surface = self.surface.subsurface(self.area._to_pygame())
         self.rect = pygame.Rect((self.position[0], self.position[1]), self.surface.get_size())
+
+class _CollisionBox(object):
+    """
+    An internal class to represent a drawable `surface` with additional data (e.g.
+    `rect` representing its location on screen, whether it's `static`).
+    """
+    __slots__ = ['position', 'rect', 'area']
+    def __init__(self, position, area):
+        self.position = position # coordinates to draw at
+        self.area = area         # portion of the surface to be drawn to screen
+        # Rect is only for finalized sprites
+        self.rect = None
+
+    def apply_scale(self, scale):
+        self.position = self.position * scale
+        self.area = spyral.Rect(self.area.topleft * scale, self.area.size * scale)
+
+    def clip(self, rect):
+        self.area = self.area.clip(spyral.Rect(rect))
+
+    def finalize(self):
+        self.rect = spyral.Rect(self.position, self.area.size)
+        
