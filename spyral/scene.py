@@ -52,6 +52,7 @@ class Scene(object):
             i.fill(color)
             return i
         
+        self._style_functions['_get_spyral_path'] = spyral._get_spyral_path
         self._style_functions['TestingBox'] = TestingBox
 
         self._size = None
@@ -319,7 +320,7 @@ class Scene(object):
                 bg = spyral.Image(size=self.size)
                 bg.fill(background)
             else:
-                bg = spyral.Image(backgronud)
+                bg = spyral.Image(background)
             self._set_background(bg)
         if 'layers' in properties:
             layers = properties.pop('layers')
@@ -474,7 +475,6 @@ class Scene(object):
         self._clear_this_frame.append(blit.rect)
         
     def _invalidate_views(self, view):
-        # somehow transform the spyral.event.get_identifier into a proper instance
         if view in self._invalidating_views:
             for sprite in self._invalidating_views[view]:
                 sprite._expire_static()

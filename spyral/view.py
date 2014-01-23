@@ -50,22 +50,27 @@ class View(object):
         self._layer = None
         self._mask = None
 
+        self._children = set()
+        self._child_views = set()
         self._scene = scene = parent.scene
         self.scene._add_view(self)
         self._parent.add_child(self)
         scene.apply_style(self)
-        self._children = set()
         
     def add_child(self, entity):
         self._children.add(entity)
+        if isinstance(entity, View):
+            self._child_views.add(entity)
         
     def remove_child(self, entity):
         self._children.discard(entity)
+        self._child_views.discard(entity)
         
     def kill(self):
         for child in list(self._children):
             child.kill()
         self._children.clear()
+        self._child_views.clear()
         self.scene._kill_view(self)
         self._parent = None
         
@@ -75,10 +80,15 @@ class View(object):
     def _set_mask(self, mask):
         self._mask = mask
         self._set_collision_box()
+    
+    def _set_collision_box_tree(self):
+        self._set_collision_box()
+        for view in self._child_views:
+            view._set_collision_box_tree()
 
     def _changed(self):
         self._recalculate_offset()
-        self._set_collision_box()
+        self._set_collision_box_tree()
         # Notify any listeners (probably children) that I have changed
         e = spyral.Event(name="changed", view=self)
         spyral.event.handle("spyral.internal.view.changed.%s" %
@@ -333,7 +343,7 @@ class View(object):
         c = spyral.util._CollisionBox(pos, area)
         warped_box = self._parent._warp_collision_box(c)
         
-        
+        print self, warped_box.rect
         self._scene._set_collision_box(self, warped_box.rect)
             
     def __stylize__(self, properties):

@@ -397,6 +397,8 @@ class Sprite(object):
         self._age += 1
     
     def _set_collision_box(self):
+        if self.image is None:
+            return
         if self._mask is None:
             area = spyral.Rect(self._transform_image.get_rect())
         else:

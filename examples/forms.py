@@ -51,10 +51,11 @@ class Game(spyral.Scene):
         self.register("form.RegisterForm.okay.changed", test_print)
         self.register("form.RegisterForm.name.changed", test_react)
         self.register("director.update", self.report_boxes)
-        #self.register("input.keyboard.down.number_4", test_collisions)
+        
+        
     def report_boxes(self):
         if self.once:
-            for entity, rect in self._collision_boxes.iteritems():
+            for entity, rect in list(self._collision_boxes.iteritems()):
                 s = spyral.Sprite(self)
                 s.image = spyral.Image(size=rect.size).fill((0,0,255))
                 s.pos = rect.topleft
