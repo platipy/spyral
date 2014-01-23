@@ -586,7 +586,7 @@ class Scene(object):
         This is particularly useful for Sugar, which loves to put artifacts over
         our window.
         """
-        self._clear_this_frame.append(pygame.Rect((0,0), self._vsize))
+        self._clear_this_frame.append(pygame.Rect(self._rect))
 
     def _get_layer_position(self, view, layer):
         return self._layer_tree.get_layer_position(view, layer)
