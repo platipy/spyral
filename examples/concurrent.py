@@ -19,10 +19,10 @@ class StupidSprite(spyral.Sprite, spyral.Actor):
         self.anchor = 'center'
         
     def main(self, dt):
-        right = spyral.Animation('x', spyral.animator.Linear(0, 600), duration = 1.0)
-        down = spyral.Animation('y', spyral.animator.Linear(0, 600), duration = 1.0)
-        left = spyral.Animation('x', spyral.animator.Linear(600, 0), duration = 1.0)
-        up = spyral.Animation('y', spyral.animator.Linear(600, 0), duration = 1.0)
+        right = spyral.Animation('x', spyral.easing.Linear(0, 600), duration = 1.0)
+        down = spyral.Animation('y', spyral.easing.Linear(0, 600), duration = 1.0)
+        left = spyral.Animation('x', spyral.easing.Linear(600, 0), duration = 1.0)
+        up = spyral.Animation('y', spyral.easing.Linear(600, 0), duration = 1.0)
         while True:
             self.run_animation(right)
             self.run_animation(down)
@@ -35,7 +35,7 @@ class Game(spyral.Scene):
         self.clock.max_ups = 60.
         bg = spyral.Image(size=SIZE)
         bg.fill(BG_COLOR)
-        self.set_background(bg)
+        self.background = bg
 
         def add_new_box():
             StupidSprite(self)

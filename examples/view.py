@@ -4,7 +4,7 @@ except NameError:
     pass
 import spyral
 from spyral.animation import Animation, DelayAnimation
-import spyral.animator as animator
+import spyral.easing as easing
 import sys
 import math
 import itertools
@@ -17,13 +17,13 @@ BLUE = (0, 255, 0)
 GREEN = (0, 0, 255)
 SMALL = (40, 40)
 
-go_down = spyral.Animation('y', animator.Linear(0, 80), duration = 1.0)
-go_down += spyral.Animation('y', animator.Linear(80, 0), duration = 1.0)
+go_down = spyral.Animation('y', easing.Linear(0, 80), duration = 1.0)
+go_down += spyral.Animation('y', easing.Linear(80, 0), duration = 1.0)
 go_down.loop = True
 
-go_up = spyral.Animation('y', animator.Linear(160, 0), duration = 2.0)
-go_left = spyral.Animation('x', animator.Linear(0, 160), duration = 2.0)
-go_right = spyral.Animation('x', animator.Linear(160, 0), duration = 2.0)
+go_up = spyral.Animation('y', easing.Linear(160, 0), duration = 2.0)
+go_left = spyral.Animation('x', easing.Linear(0, 160), duration = 2.0)
+go_right = spyral.Animation('x', easing.Linear(160, 0), duration = 2.0)
 
 # Object inside View
 # Object shifted by View

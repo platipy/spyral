@@ -18,7 +18,7 @@ class Game(spyral.Scene):
         spyral.Scene.__init__(self, SIZE)
         back = spyral.Image(size=SIZE)
         back.fill(BG_COLOR)
-        self.set_background(back)
+        self.background = back
         try:
             spyral.cursor.set_cursor(spyral.cursor.MonochromeCursor("external_cursor.xbm"))
         except ValueError, error:

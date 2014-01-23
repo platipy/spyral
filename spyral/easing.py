@@ -9,6 +9,7 @@ example implementations.
 
 Built-in easings are stateless, so the same animation can be used
 many times or on many different objects. Custom easings do not
+
 have to be stateless.
 
 """
