@@ -342,8 +342,6 @@ class View(object):
             area = spyral.Rect((0,0), self.size)
         c = spyral.util._CollisionBox(pos, area)
         warped_box = self._parent._warp_collision_box(c)
-        
-        print self, warped_box.rect
         self._scene._set_collision_box(self, warped_box.rect)
             
     def __stylize__(self, properties):
