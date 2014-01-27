@@ -32,7 +32,8 @@ class Game(spyral.Scene):
             togglodyte = spyral.widgets.ToggleButton("Toggle me!")
             okay = spyral.widgets.Button("Okay Button")
         my_form = RegisterForm(self)
-        #my_form.name.pos = (100, 100)
+        my_form.password.anchor = 'topleft'
+        my_form.password.pos = (200, 100)
         #my_form.pos = (16, 16)
         my_form.focus()
         

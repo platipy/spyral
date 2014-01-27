@@ -39,6 +39,7 @@ class MultiStateWidget(BaseWidget):
     def __init__(self, form, name, states):
         self._states = states
         self._state = self._states[0]
+        self.button = None # Hack for now; TODO need to be able to set properties on it even though it doesn't exist yet
         
         BaseWidget.__init__(self, form, name)
         self.layers = ["base", "content"]
@@ -116,7 +117,17 @@ class MultiStateWidget(BaseWidget):
         
     def _on_size_change(self):
         pass
+        
+    def _get_anchor(self):
+        return self._anchor
+        
+    def _set_anchor(self, anchor):
+        if self.button is not None:
+            self.button.anchor = anchor
+            self._text_sprite.anchor = anchor
+        BaseWidget._set_anchor(self, anchor)
     
+    anchor = property(_get_anchor, _set_anchor)
     value = property(_get_value)
     padding = property(_get_padding, _set_padding)
     nine_slice = property(_get_nine_slice, _set_nine_slice)
@@ -165,7 +176,7 @@ class ButtonWidget(MultiStateWidget):
         self._render_images()
         
     def _on_state_change(self):
-        self._text_sprite.pos = self._padding / 2
+        self._text_sprite.pos = spyral.util.anchor_offset(self._anchor, self._padding[0] / 2, self._padding[1] / 2)
     
     value = property(_get_value)
     text = property(_get_text, _set_text)
@@ -264,7 +275,7 @@ class TextInputWidget(BaseWidget):
         self._back.layer = "base"
         self._cursor = spyral.Sprite(self)
         self._cursor.anchor = child_anchor
-        self._cursor.layer = "content"
+        self._cursor.layer = "content:above"
         self._text = spyral.Sprite(self)
         self._text.pos = child_anchor
         self._text.layer = "content"
@@ -432,7 +443,17 @@ class TextInputWidget(BaseWidget):
         
     def _get_padding(self):
         return self._padding
-
+        
+    def _get_anchor(self):
+        return self._anchor
+        
+    def _set_anchor(self, anchor):
+        self._back.anchor = anchor
+        self._text.anchor = anchor
+        self._cursor.anchor = anchor
+        BaseWidget._set_anchor(self, anchor)
+    
+    anchor = property(_get_anchor, _set_anchor)
     value = property(_get_value, _set_value)
     cursor_pos = property(_get_cursor_pos, _set_cursor_pos)
     padding = property(_get_padding, _set_padding)

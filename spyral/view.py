@@ -95,7 +95,10 @@ class View(object):
                                 spyral.event.get_identifier(self), e)
 
     def _recalculate_offset(self):
-        self._offset = spyral.util.anchor_offset(self._anchor, self._size[0], self._size[1])
+        if self._mask:
+            self._offset = spyral.util.anchor_offset(self._anchor, self._mask.size[0], self._mask.size[1])
+        else:
+            self._offset = spyral.util.anchor_offset(self._anchor, self._size[0], self._size[1])
 
     # Properties
     def _get_pos(self):
@@ -335,7 +338,7 @@ class View(object):
     
     def _set_collision_box(self):
         if self._mask is not None:
-            pos = self._mask.topleft
+            pos = self._mask.topleft - self._offset
             area = spyral.Rect((0,0), self._mask.size)
         else:
             pos = self._pos - self._offset

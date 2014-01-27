@@ -10,11 +10,11 @@ digit = anything:x ?(x in string.digits) -> x
 name_characters = (alpha | digit | '_')
 
 # Types of constants
-integer = <(digit+)>:s -> int(s)
+integer = ('-' | -> ''):sign <(digit+)>:s -> int(sign + s)
 true = 'T' 'r' 'u' 'e' -> True
 false = 'F' 'a' 'l' 's' 'e' -> False
 none = 'N' 'o' 'n' 'e' -> None
-float = (<int_part? '.' int_part> | <int_part '.'>):f -> leval(f)
+float = ('-' | -> ''):sign (<int_part? '.' int_part> | <int_part '.'>):f -> leval(sign + f)
 int_part = <digit+>
 
 identifier = <((alpha | '_') name_characters*)>:i -> i
