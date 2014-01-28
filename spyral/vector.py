@@ -236,6 +236,11 @@ class Vec2D(object):
         if self.get_length() == 0:
             return None
         return Vec2D(self.x/l, self.y/l)
+    
+    def floor(self):
+        self.x = int(self.x)
+        self.y = int(self.y)
+        return self
         
     def to_polar(self):
         """

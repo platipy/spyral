@@ -8,7 +8,6 @@ _all_sprites = []
 
 def _switch_scene():
     global _all_sprites
-    print _all_sprites
     _all_sprites = [s for s in _all_sprites if s() is not None and s()
                     ._expire_static()]
 

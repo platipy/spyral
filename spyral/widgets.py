@@ -188,6 +188,11 @@ class ButtonWidget(MultiStateWidget):
     def handle_mouse_down(self, event):
         if self.state.startswith('up'):
             self.state = self.state.replace('up', 'down')
+            e = spyral.Event(name="clicked", widget=self, form=self.form, value=self._get_value())
+            self.scene._queue_event("form.%(form_name)s.%(widget)s.clicked" %
+                                        {"form_name": self.form.__class__.__name__, 
+                                         "widget": self.name}, 
+                                    e)
         
     def handle_mouse_out(self, event):
         if "_hovered" in self.state:

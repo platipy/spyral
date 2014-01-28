@@ -82,7 +82,7 @@ class LayerTree(object):
         :param layers: the name of the layer on the parent
         :type layers: a list of strings
         """
-        self.layers[(view)] = list(layers)
+        self.layers[_wref(view)] = list(layers)
         self._precompute_positions()
     
     def _compute_positional_chain(self, chain):

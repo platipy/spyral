@@ -310,7 +310,6 @@ class Scene(object):
             
     def clear_all_events(self):
         self._handlers.clear()
-        print self._handlers
         
     def set_event_source(self, source):
         """

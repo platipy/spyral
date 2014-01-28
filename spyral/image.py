@@ -102,7 +102,7 @@ class Image(object):
         position <anchors>`.
         """
         offset = self._calculate_offset(anchor)
-        pygame.draw.circle(self._surf, color, position + offset, radius, width)
+        pygame.draw.circle(self._surf, color, (position + offset).floor(), radius, width)
         self._version += 1
         spyral.util.scale_surface.clear(self._surf)
         return self
