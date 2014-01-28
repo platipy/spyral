@@ -93,7 +93,6 @@ def replace(scene):
         spyral.director.replace(Scene())
         print "This will be printed!"
         return
-    TODO: Do I know what I'm talking about?
     """
     if _stack:
         spyral.event.handle('director.scene.exit', _scene = _stack[-1])

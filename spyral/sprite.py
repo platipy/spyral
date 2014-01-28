@@ -8,6 +8,7 @@ _all_sprites = []
 
 def _switch_scene():
     global _all_sprites
+    print _all_sprites
     _all_sprites = [s for s in _all_sprites if s() is not None and s()
                     ._expire_static()]
 
@@ -77,8 +78,8 @@ class Sprite(object):
         self._offset = spyral.Vec2D(0, 0)
         self._scale = spyral.Vec2D(1.0, 1.0)
         self._scaled_image = None
-        self._view = view
-        self._scene = view.scene
+        self._view = (view)
+        self._scene = (view.scene)
         self._angle = 0
         self._crop = None
         self._transform_image = None
@@ -89,7 +90,7 @@ class Sprite(object):
         self._progress = {}
         self._mask = None
         
-        view.add_child(self)
+        view._add_child(self)
 
         self._scene._register_sprite(self)
         self._scene.apply_style(self)

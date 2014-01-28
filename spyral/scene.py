@@ -634,8 +634,8 @@ class Scene(object):
             return pos
         return None
         
-    def add_child(self, entity): pass
-    def remove_child(self, entity): pass
+    def _add_child(self, entity): pass
+    def _remove_child(self, entity): pass
         
     def _warp_collision_box(self, box):
         box.apply_scale(self._scale)

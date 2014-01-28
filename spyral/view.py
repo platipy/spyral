@@ -1,4 +1,5 @@
 import spyral
+from weakref import ref as _wref
 
 class View(object):
     def __init__(self, parent):
@@ -43,7 +44,7 @@ class View(object):
         self._pos = spyral.Vec2D(0,0)
         self._crop = False
         self._visible = True
-        self._parent = parent
+        self._parent = (parent)
         self._anchor = 'topleft'
         self._offset = spyral.Vec2D(0,0)
         self._layers = []
@@ -52,27 +53,43 @@ class View(object):
 
         self._children = set()
         self._child_views = set()
-        self._scene = scene = parent.scene
-        self.scene._add_view(self)
-        self._parent.add_child(self)
-        scene.apply_style(self)
+        self._scene  = (parent.scene)
+        self._scene._add_view(self)
+        self._parent._add_child(self)
+        self._scene.apply_style(self)
         
-    def add_child(self, entity):
+    def _add_child(self, entity):
+        """
+        Starts keeping track of the entity as a child of this view.
+        
+        :param entity: The new entity to keep track of.
+        :type entity: a View or a Sprite.
+        """
         self._children.add(entity)
         if isinstance(entity, View):
             self._child_views.add(entity)
         
-    def remove_child(self, entity):
+    def _remove_child(self, entity):
+        """
+        Stops keeping track of the entity as a child of this view, if it exists. 
+        
+        :param entity: The entity to keep track of.
+        :type entity: a View or a Sprite.
+        """
         self._children.discard(entity)
         self._child_views.discard(entity)
         
     def kill(self):
+        """
+        Completely remove any parent's links to this view.
+        """
         for child in list(self._children):
             child.kill()
         self._children.clear()
         self._child_views.clear()
         self.scene._kill_view(self)
         self._parent = None
+        self._scene = None
         
     def _get_mask(self):
         return self._mask
@@ -118,7 +135,6 @@ class View(object):
             return
         self._layer = layer
         self.scene._set_view_layer(self, layer)
-        #self._computed_layer = self._view._compute_layer(layer)
         self._changed()
         
     def _compute_layer(self, layer):
@@ -362,8 +378,8 @@ class View(object):
             spyral.exceptions.unused_style_warning(self, properties.iterkeys())
 
     def collide_sprite(self, other):
-        return self.scene.collide_sprite(self, other)
+        return self._scene.collide_sprite(self, other)
     def collide_point(self, pos):
-        return self.scene.collide_point(self, pos)
+        return self._scene.collide_point(self, pos)
     def collide_rect(self, rect):
-        return self.scene.collide_rect(self, rect)
+        return self._scene.collide_rect(self, rect)
