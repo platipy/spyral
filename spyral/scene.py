@@ -11,6 +11,7 @@ import sys
 import math
 from layertree import LayerTree
 from collections import defaultdict
+from weakref import ref as _wref
 
 class Scene(object):
     """
@@ -83,8 +84,7 @@ class Scene(object):
         self.register('spyral.internal.view.changed.*', self._invalidate_views)
 
         # View interface
-        #self.scene = self
-        self._parent = self
+        self._scene = _wref(self)
         self._views = []
 
         # Loading default styles
@@ -403,6 +403,11 @@ class Scene(object):
     
     def _get_rect(self):
         return spyral.Rect((0,0), self.size)
+        
+    def _get_scene(self):
+        return self._scene()
+    def _get_parent(self):
+        return self._scene()
 
     #: Read-only property that returns a :class:`Vec2D <spyral.Vec2D>` of the width and height of the Scene's size. See `View size and Window size`_ for more details.
     size = property(_get_size)
@@ -410,6 +415,9 @@ class Scene(object):
     width = property(_get_width)
     #: Read-only property that returns the height of the Scene (int).
     height = property(_get_height)
+    
+    scene = property(_get_scene)
+    parent = property(_get_parent)
     
     rect = property(_get_rect)
 
@@ -438,7 +446,7 @@ class Scene(object):
             if parent_view not in self._invalidating_views:
                 self._invalidating_views[parent_view] = set()
             self._invalidating_views[parent_view].add(sprite)
-            parent_view = parent_view._parent
+            parent_view = parent_view.parent
 
     def _unregister_sprite(self, sprite):
         """
