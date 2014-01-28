@@ -83,7 +83,7 @@ class Scene(object):
         self.register('spyral.internal.view.changed.*', self._invalidate_views)
 
         # View interface
-        self.scene = self
+        #self.scene = self
         self._parent = self
         self._views = []
 
