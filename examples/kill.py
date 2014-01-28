@@ -2,11 +2,13 @@ try:
     import _path
 except NameError:
     pass
-import pygame
-import spyral
-import sys
 import objgraph
 import gc
+import sys
+import types
+from weakref import ref as _wref
+import pygame
+import spyral
 
 SIZE = (640, 480)
 BG_COLOR = (0, 0, 0)
@@ -14,16 +16,15 @@ BG_COLOR = (0, 0, 0)
 first_scene = None
 class Level2(spyral.Scene):
     def __init__(self):
-        global first_scene
         spyral.Scene.__init__(self, SIZE)
         self.register("input.keyboard.down.j", self.check_first)
         self.register("system.quit", sys.exit)
-        objgraph.show_backrefs([first_scene], filename='after_second.png')
     
     def check_first(self):
         global first_scene
+        #first_scene.clear_all_events()
         gc.collect()
-        objgraph.show_backrefs([first_scene], filename='last.png')
+        objgraph.show_backrefs([first_scene], filename='scene.png', filter= lambda x: not isinstance(x, types.FrameType), extra_ignore = [id(locals()), id(globals())], max_depth=7)
         
 class Game(spyral.Scene):
     """
@@ -42,10 +43,10 @@ class Game(spyral.Scene):
         over.image = spyral.Image(size=(50,50)).fill((255, 255, 255))
         over.should_be_dead = lambda :  10
         
+        self.khan = over.should_be_dead
         self.register("system.quit", sys.exit)
         self.register("input.keyboard.down.k", over.should_be_dead)
         self.register("input.keyboard.down.j", self.advance)
-        objgraph.show_backrefs([first_scene], filename='after_first.png')
     
     def advance(self):
         spyral.director.replace(Level2())

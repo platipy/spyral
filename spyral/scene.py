@@ -13,6 +13,13 @@ from layertree import LayerTree
 from collections import defaultdict
 from weakref import ref as _wref
 
+def _wref_except_builtins(func):
+    # Dirty hack to ensure that we don't accidentally weakref a builtin
+    try:
+        return _wref(func)
+    except TypeError:
+        return func
+
 class Scene(object):
     """
     Creates a new Scene. When a scene is not active, no events will be processed 
@@ -126,6 +133,8 @@ class Scene(object):
     def _queue_event(self, type, event = None):
         """
         Internal method to add a new `event` to be handled by this scene.
+        
+        TODO: This shouldn't be private; people often need to queue new events
         """
         if self._handling_events:
             self._pending.append((type, event))
@@ -134,7 +143,8 @@ class Scene(object):
 
     def _reg_internal(self, namespace, handlers, args, kwargs, priority, dynamic):
         """
-        TODO: Convenience method for registering a new event?
+        Convenience method for registering a new event; other variations 
+        exist to keep the signature convenient and easy.
         """
         if namespace.endswith(".*"):
             namespace = namespace[:-2]
@@ -202,7 +212,7 @@ class Scene(object):
     
     def _handle_event(self, type, event = None):
         """
-        TODO: Why did I think I could document this? What does this do??
+        For a given event, send the event information to all registered handlers
         """
         for handler_info in itertools.chain.from_iterable(self._handlers[namespace] for namespace in self._get_namespaces(type)):
             if self._send_event_to_handler(event, *handler_info):
@@ -210,7 +220,8 @@ class Scene(object):
                     
     def handle_events(self):
         """
-        TODO: Is this an internal method? What circumstance requires the user to call it?
+        Run through all the events and handle them.
+        TODO: Should be internal
         """
         self._handling_events = True
         do = True
@@ -226,7 +237,7 @@ class Scene(object):
         Registers an event `handler` to a namespace. Whenever an event in that `event_namespace` is fired, the event `handler`
         will execute with that event. For more information, see `Event Namespaces`_.
         
-        :param event_namespace: the namespace of the event, e.g. "input.mouse.left.click" or "ball.collides.paddle".
+        :param event_namespace: the namespace of the event, e.g. "input.mouse.left.click" or "pong.score".
         :type event_namespace: string
         :param handler: A function that will handle the event. The first argument to the function will be the event.
         :type handler: function
@@ -278,6 +289,8 @@ class Scene(object):
         :param handler: The handler to unregister.
         :type handler: a function or string.
         """
+        if not isinstance(handler, str):
+            handler = _wref(handler)
         if event_namespace.endswith(".*"):
             event_namespace = event_namespace[:-2]
         self._handlers[event_namespace] = [h for h in self._handlers[event_namespace] if h[0] != handler]
@@ -294,6 +307,10 @@ class Scene(object):
         ns = [n for n in self._namespaces if n.startswith(namespace)]
         for namespace in ns:
             self._handlers[namespace] = []
+            
+    def clear_all_events(self):
+        self._handlers.clear()
+        print self._handlers
         
     def set_event_source(self, source):
         """
