@@ -48,7 +48,7 @@ class LayerTree(object):
         :param view: the new View to add
         :type view: View (not a weakref)
         """
-        parent = _wref(view._parent)
+        parent = view._parent
         view = _wref(view)
         self.layers[view] = []
         self.child_views[view] = []
@@ -57,7 +57,7 @@ class LayerTree(object):
         if len(self.child_views[parent]) == 1:
             self.tree_height[parent] += 1
             while parent != self.scene:
-                parent = _wref(parent()._parent)
+                parent = parent()._parent
                 self.tree_height[parent] += 1
         self._precompute_positions()
         

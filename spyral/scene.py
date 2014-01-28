@@ -441,7 +441,7 @@ class Scene(object):
         """
         self._sprites.add(sprite)
         # Add the view and its parents to the invalidating_views for the sprite
-        parent_view = sprite._view
+        parent_view = sprite._view()
         while parent_view != self:
             if parent_view not in self._invalidating_views:
                 self._invalidating_views[parent_view] = set()

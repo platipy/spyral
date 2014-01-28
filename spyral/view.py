@@ -44,7 +44,7 @@ class View(object):
         self._pos = spyral.Vec2D(0,0)
         self._crop = False
         self._visible = True
-        self._parent = (parent)
+        self._parent = _wref(parent)
         self._anchor = 'topleft'
         self._offset = spyral.Vec2D(0,0)
         self._layers = []
@@ -53,10 +53,10 @@ class View(object):
 
         self._children = set()
         self._child_views = set()
-        self._scene  = (parent.scene)
-        self._scene._add_view(self)
-        self._parent._add_child(self)
-        self._scene.apply_style(self)
+        self._scene = _wref(parent.scene)
+        self._scene()._add_view(self)
+        self._parent()._add_child(self)
+        self._scene().apply_style(self)
         
     def _add_child(self, entity):
         """
@@ -87,9 +87,7 @@ class View(object):
             child.kill()
         self._children.clear()
         self._child_views.clear()
-        self.scene._kill_view(self)
-        self._parent = None
-        self._scene = None
+        self._scene()._kill_view(self)
         
     def _get_mask(self):
         return self._mask
@@ -134,7 +132,7 @@ class View(object):
         if layer == self._layer:
             return
         self._layer = layer
-        self.scene._set_view_layer(self, layer)
+        self._scene()._set_view_layer(self, layer)
         self._changed()
         
     def _compute_layer(self, layer):
@@ -149,7 +147,7 @@ class View(object):
     def _set_layers(self, layers):
         if not self._layers:
             self._layers = layers[:]
-            self.scene._set_view_layers(self, layers)
+            self._scene()._set_view_layers(self, layers)
         elif self._layers == layers:
             pass
         else:
@@ -283,9 +281,9 @@ class View(object):
         
     
     def _get_parent(self):
-        return self._parent
+        return self._parent()
     def _get_scene(self):
-        return self._scene
+        return self._scene()
         
     def _get_rect(self):
         return spyral.Rect(self._pos, self.size)
@@ -335,7 +333,7 @@ class View(object):
             blit.apply_scale(self.scale)
             if self.crop:
                 blit.clip(spyral.Rect((0, 0), self.crop_size))
-            self._parent._blit(blit)
+            self._parent()._blit(blit)
         
     def _static_blit(self, key, blit):
         if self.visible:
@@ -343,14 +341,14 @@ class View(object):
             blit.apply_scale(self.scale)
             if self.crop:
                 blit.clip(spyral.Rect((0, 0), self.crop_size))
-            self._parent._static_blit(key, blit)
+            self._parent()._static_blit(key, blit)
     
     def _warp_collision_box(self, box):
         box.position += self.position
         box.apply_scale(self.scale)
         if self.crop:
             box.clip(spyral.Rect((0, 0), self.crop_size))
-        return self._parent._warp_collision_box(box)
+        return self._parent()._warp_collision_box(box)
     
     def _set_collision_box(self):
         if self._mask is not None:
@@ -360,8 +358,8 @@ class View(object):
             pos = self._pos - self._offset
             area = spyral.Rect((0,0), self.size)
         c = spyral.util._CollisionBox(pos, area)
-        warped_box = self._parent._warp_collision_box(c)
-        self._scene._set_collision_box(self, warped_box.rect)
+        warped_box = self._parent()._warp_collision_box(c)
+        self._scene()._set_collision_box(self, warped_box.rect)
             
     def __stylize__(self, properties):
         simple = ['pos', 'x', 'y', 'position', 
@@ -378,8 +376,8 @@ class View(object):
             spyral.exceptions.unused_style_warning(self, properties.iterkeys())
 
     def collide_sprite(self, other):
-        return self._scene.collide_sprite(self, other)
+        return self._scene().collide_sprite(self, other)
     def collide_point(self, pos):
-        return self._scene.collide_point(self, pos)
+        return self._scene().collide_point(self, pos)
     def collide_rect(self, rect):
-        return self._scene.collide_rect(self, rect)
+        return self._scene().collide_rect(self, rect)

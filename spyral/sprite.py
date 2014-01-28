@@ -78,8 +78,8 @@ class Sprite(object):
         self._offset = spyral.Vec2D(0, 0)
         self._scale = spyral.Vec2D(1.0, 1.0)
         self._scaled_image = None
-        self._view = (view)
-        self._scene = (view.scene)
+        self._view = _wref(view)
+        self._scene = _wref(view.scene)
         self._angle = 0
         self._crop = None
         self._transform_image = None
@@ -92,9 +92,9 @@ class Sprite(object):
         
         view._add_child(self)
 
-        self._scene._register_sprite(self)
-        self._scene.apply_style(self)
-        self._scene.register('director.render', self.draw)
+        self._scene()._register_sprite(self)
+        self._scene().apply_style(self)
+        self._scene().register('director.render', self.draw)
 
     def _set_static(self):
         self._make_static = True
@@ -104,7 +104,7 @@ class Sprite(object):
         # Expire static is part of the private API which must
         # be implemented by Sprites that wish to be static.
         if self._static:
-            self._scene._remove_static_blit(self)
+            self._scene()._remove_static_blit(self)
         self._static = False
         self._age = 0
         self._set_collision_box()
@@ -210,7 +210,7 @@ class Sprite(object):
         if layer == self._layer:
             return
         self._layer = layer
-        self._computed_layer = self._scene._get_layer_position(self._view, layer)
+        self._computed_layer = self._scene()._get_layer_position(self._view(), layer)
         self._expire_static()
 
     def _get_image(self):
@@ -332,9 +332,9 @@ class Sprite(object):
         self._expire_static()
     
     def _get_scene(self):
-        return self._scene
+        return self._scene()
     def _get_view(self):
-        return self._view
+        return self._view()
 
     #: Determines where this Sprite is drawn in the Scene (or View).
     position = property(_get_pos, _set_pos)
@@ -392,9 +392,9 @@ class Sprite(object):
             b.static = True
             self._make_static = False
             self._static = True
-            self._view._static_blit(self, b)
+            self._view()._static_blit(self, b)
             return
-        self._view._blit(b)
+        self._view()._blit(b)
         self._age += 1
     
     def _set_collision_box(self):
@@ -405,17 +405,17 @@ class Sprite(object):
         else:
             area = self._mask
         c = spyral.util._CollisionBox(self._pos - self._offset, area)
-        warped_box = self._view._warp_collision_box(c)
-        self._scene._set_collision_box(self, warped_box.rect)
+        warped_box = self._view()._warp_collision_box(c)
+        self._scene()._set_collision_box(self, warped_box.rect)
 
     def kill(self):
-        self._scene.unregister("director.render", self.draw)
-        self._scene._unregister_sprite(self)
-        self._scene._remove_static_blit(self)
-        self._view.remove_child(self)
+        self._scene().unregister("director.render", self.draw)
+        self._scene()._unregister_sprite(self)
+        self._scene()._remove_static_blit(self)
+        self._view().remove_child(self)
 
     def __del__(self):
-        self._scene._remove_static_blit(self)
+        self._scene()._remove_static_blit(self)
         
     def animate(self, animation):
         """
@@ -426,7 +426,7 @@ class Sprite(object):
                 raise ValueError(
                     "Cannot animate on propety %s twice" % animation.property)
         if len(self._animations) == 0:
-            self._scene.register('director.update',
+            self._scene().register('director.update',
                                  self._run_animations,
                                  ('dt', ))
         self._animations.append(animation)
@@ -443,7 +443,7 @@ class Sprite(object):
             self._animations.remove(animation)
             del self._progress[animation]
             if len(self._animations) == 0:
-                self._scene.unregister('director.update', self._run_animations)
+                self._scene().unregister('director.update', self._run_animations)
                 e = spyral.Event(animation=animation, sprite=self)
                 spyral.event.handle("sprites.%s.animation.end", e)
 
@@ -456,9 +456,9 @@ class Sprite(object):
             self.stop_animation(animation)
 
     def collide_sprite(self, other):
-        return self.scene.collide_sprite(self, other)
+        return self._scene().collide_sprite(self, other)
     def collide_point(self, pos):
-        return self.scene.collide_point(self, pos)
+        return self._scene().collide_point(self, pos)
     def collide_rect(self, rect):
-        return self.scene.collide_rect(self, rect)
+        return self._scene().collide_rect(self, rect)
         
