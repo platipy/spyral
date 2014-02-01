@@ -12,14 +12,14 @@ import math
 from layertree import LayerTree
 from collections import defaultdict
 from weakref import ref as _wref
+from weakmethod import WeakMethod as _wm
 
-def _wref_except_builtins(func):
-    # Dirty hack to ensure that we don't accidentally weakref a builtin
+def WeakMethod(func):
     try:
-        return _wref(func)
+        return _wm(func)
     except TypeError:
         return func
-
+        
 class Scene(object):
     """
     Creates a new Scene. When a scene is not active, no events will be processed 
@@ -85,6 +85,8 @@ class Scene(object):
         self._child_views = []
         self._layer_tree = LayerTree(self)
         self._sprites = set()
+        
+        self.register('director.scene.enter', self.redraw)
 
         self.register('director.update', self.handle_events)
         self.register('director.update', self.run_actors, ('dt',))
@@ -174,7 +176,6 @@ class Scene(object):
                 if default != fillval:
                     return default
                 raise TypeError("Handler expects an argument of named %s, %s does not have that." % (arg, str(event)))
-
         if dynamic is True:
             h = handler
             handler = self
@@ -189,7 +190,11 @@ class Scene(object):
         elif args is None and kwargs is None:
             # Autodetect the arguments 
             try:
-                h_argspec = inspect.getargspec(handler)
+                funct = handler.f
+            except AttributeError:
+                funct = handler
+            try:
+                h_argspec = inspect.getargspec(funct)
             except Exception, e:
                 raise Exception("Unfortunate Python Problem! %s isn't supported by Python's inspect module! Oops." % str(handler))
             h_args = h_argspec.args
@@ -248,7 +253,7 @@ class Scene(object):
         :param priority: the higher the `priority`, the sooner this handler will be called in reaction to the event, relative to the other event handlers registered.
         :type priority: int
         """
-        self._reg_internal(event_namespace, (handler,), args, kwargs, priority, False)
+        self._reg_internal(event_namespace, (WeakMethod(handler),), args, kwargs, priority, False)
 
     def register_dynamic(self, event_namespace, handler_string, args = None, kwargs = None, priority = 0):
         """
@@ -271,7 +276,7 @@ class Scene(object):
         Similar to :func:`spyral.Scene.register` function, except a sequence of `handlers` are be given
         instead of just one. For more information, see `Event Namespaces`_.
         """
-        self._reg_internal(event_namespace, handlers, args, kwargs, priority, False)
+        self._reg_internal(event_namespace, map(WeakMethod, handlers), args, kwargs, priority, False)
 
     def register_multiple_dynamic(self, event_namespace, handler_strings, args = None, kwargs = None, priority = 0):
         """
@@ -290,7 +295,7 @@ class Scene(object):
         :type handler: a function or string.
         """
         if not isinstance(handler, str):
-            handler = _wref(handler)
+            handler = WeakMethod(handler)
         if event_namespace.endswith(".*"):
             event_namespace = event_namespace[:-2]
         self._handlers[event_namespace] = [h for h in self._handlers[event_namespace] if h[0] != handler]

@@ -414,7 +414,8 @@ class Sprite(object):
         self._view().remove_child(self)
 
     def __del__(self):
-        self._scene()._remove_static_blit(self)
+        if self._scene():
+            self._scene()._remove_static_blit(self)
         
     def animate(self, animation):
         """

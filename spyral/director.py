@@ -99,7 +99,7 @@ def replace(scene):
         old = _stack.pop()
         spyral.sprite._switch_scene()
     _stack.append(scene)
-    spyral.event.handle('director.scene.enter', _scene = scene)
+    spyral.event.handle('director.scene.enter', event=spyral.Event(scene=scene), _scene = scene)
     pygame.event.get()
 
 def pop():

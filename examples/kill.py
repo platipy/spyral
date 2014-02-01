@@ -17,6 +17,7 @@ first_scene = None
 class Level2(spyral.Scene):
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
+        self.background = spyral.Image(size=SIZE).fill(BG_COLOR)
         self.register("input.keyboard.down.j", self.check_first)
         self.register("system.quit", sys.exit)
     
@@ -26,6 +27,9 @@ class Level2(spyral.Scene):
         gc.collect()
         objgraph.show_backrefs([first_scene], filename='scene.png', filter= lambda x: not isinstance(x, types.FrameType), extra_ignore = [id(locals()), id(globals())], max_depth=7)
         
+    def advance(self):
+        spyral.director.replace(Game())
+        
 class Game(spyral.Scene):
     """
     A Scene represents a distinct state of your game. They could be menus,
@@ -34,13 +38,14 @@ class Game(spyral.Scene):
     def __init__(self):
         global first_scene
         spyral.Scene.__init__(self, SIZE)
+        self.background = spyral.Image(size=SIZE).fill(BG_COLOR)
         first_scene = self
         
         v_top = spyral.View(self)
         v_bottom = spyral.View(v_top)
         
         over = spyral.Sprite(v_bottom)
-        over.image = spyral.Image(size=(50,50)).fill((255, 255, 255))
+        over.image = spyral.Image(size=(50,50)).fill((255, 0, 0))
         over.should_be_dead = lambda :  10
         
         self.khan = over.should_be_dead
