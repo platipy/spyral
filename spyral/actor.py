@@ -1,32 +1,51 @@
+"""Actors are tools for rapidly adding multiprocessing behavior to your game."""
+
 import greenlet
 import spyral
 
 class Actor(object):
     """
-    TODO
+    Actors are a powerful mechanism for quickly adding multiprocessing behavior
+    to your game through <Greenlets ``>. Any object that subclasses the Actor
+    mixin can implement a `main` method that will run concurrently. You can put
+    a non-terminating loop into it, and it will work like magic. Example:
+        class MyActor(spyral.Actor):
+            def main(self, delta):
+                while True:
+                    print "Acting!"
+    When an instance of the above class is created in a scene, it will
+    continuously print "Acting!" until the scene ends.
+
+    An Actor belongs to the Scene that was currently active when it was created.
     """
     def __init__(self):
         self._greenlet = greenlet.greenlet(self.main)
-        scene = spyral._get_executing_scene()
+        scene = spyral.get_executing_scene()
         scene._register_actor(self, self._greenlet)
-            
-    def wait(self, dt = 0):
+
+    def wait(self, delta=0):
         """
-        TODO
+        Switches execution from this Actor for *delta* frames to the other
+        Actors. Returns the amount of time that this actor was left waiting.
+
+        :param delta: the number of frames(?) to wait.
+        :type delta: number
+        :rtype: float
         """
-        if dt == 0:
+        if delta == 0:
             return self._greenlet.parent.switch(True)
-        return self._greenlet.parent.switch(dt)
-        
+        return self._greenlet.parent.switch(delta)
+
     def run_animation(self, animation):
         """
-        TODO
+        Run this animation, without blocking other Actors, until the animation
+        completes.
         """
         progress = 0.0
-        dt = 0.0
+        delta = 0.0
         while progress < animation.duration:
-            progress += dt
-            
+            progress += delta
+
             if progress > animation.duration:
                 extra = progress - animation.duration
                 progress = animation.duration
@@ -36,10 +55,13 @@ class Actor(object):
             for property in animation.properties:
                 if property in values:
                     setattr(self, property, values[property])
-            dt = self.wait(extra)
-        
-    def main(self, dt):
+            delta = self.wait(extra)
+
+    def main(self, delta):
         """
-        TODO
+        The main function is executed continuously until either the program
+        ends or the main function ends. While the Actor's scene is not on the
+        top of the stack, the Actor is paused; it will continue when the Scene
+        is back on the top of the Directory's stack.
         """
         pass

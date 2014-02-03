@@ -444,7 +444,7 @@ class Scene(object):
 
     def _set_background(self, image):
         surface = image._surf
-        scene = spyral._get_executing_scene()
+        scene = spyral.get_executing_scene()
         if surface.get_size() != self.size:
             raise spyral.BackgroundSizeError("Background size must match the scene's size.")
         self._background = pygame.transform.smoothscale(surface, self._surface.get_size())

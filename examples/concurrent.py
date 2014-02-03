@@ -7,6 +7,11 @@ import sys
 
 SIZE = (600, 600)
 BG_COLOR = (0, 0, 0)
+
+class DumbObject(spyral.Actor):
+    def main(self, dt):
+        while True:
+            print "1", self.wait()
     
 class StupidSprite(spyral.Sprite, spyral.Actor):
     def __init__(self, scene):
@@ -36,6 +41,8 @@ class Game(spyral.Scene):
         bg = spyral.Image(size=SIZE)
         bg.fill(BG_COLOR)
         self.background = bg
+        
+        self.counter = DumbObject()
 
         def add_new_box():
             StupidSprite(self)

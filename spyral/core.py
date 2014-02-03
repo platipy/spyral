@@ -25,7 +25,7 @@ def quit():
     spyral.director._stack = []
     spyral.director._initialized = False
     
-def _get_executing_scene():
+def get_executing_scene():
     for frame, _, _, _, _, _ in inspect.stack():
         args = inspect.getargvalues(frame)
         if len(args.args) > 0 and args.args[0] == 'self':

@@ -21,7 +21,7 @@ ALL_BY_MODULE = {
     'spyral.vector' : ['Vec2D'],
     'spyral.rect' : ['Rect'],
     'spyral.animation' : ['Animation'],
-    'spyral.core' : ['init', 'quit', '_get_executing_scene'],
+    'spyral.core' : ['init', 'quit', 'get_executing_scene'],
     'spyral.cursor' : ['set_cursor', 'MonochromeCursor', 'ColorCursor',
                        'cursors'],
     'spyral.font' : ['Font'],
