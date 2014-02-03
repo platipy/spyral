@@ -15,6 +15,7 @@ class BaseWidget(spyral.View):
     """
     def __init__(self, form, name):
         self.__style__ = form.__class__.__name__ + '.' + name
+        self.name = name
         self.form = form
         spyral.View.__init__(self, form)
         self.mask = spyral.Rect(self.pos, self.size)

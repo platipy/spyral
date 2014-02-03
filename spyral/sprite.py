@@ -47,6 +47,12 @@ class Sprite(object):
     """
 
     def __stylize__(self, properties):
+        """
+        The __stylize__ function is called during initialization to set up properties
+        taken from a style function. Sprites that want to override default styling
+        behavior should implement this class, although that should rarely be
+        necessary.
+        """
         if 'image' in properties:
             image = properties.pop('image') 
             if isinstance(image, str):
@@ -96,10 +102,19 @@ class Sprite(object):
         self._scene().register('director.render', self.draw)
 
     def _set_static(self):
+        """
+        Forces this class to be static, indicating that it will not be redrawn
+        every frame.
+        """
         self._make_static = True
         self._static = True
 
     def _expire_static(self):
+        """
+        Force this class to no longer be static; it will be redrawn for a few
+        frames, until it has sufficiently aged. This also triggers the collision
+        box to be recomputed.
+        """
         # Expire static is part of the private API which must
         # be implemented by Sprites that wish to be static.
         if self._static:
@@ -110,6 +125,10 @@ class Sprite(object):
         return True
 
     def _recalculate_offset(self):
+        """
+        Recalculates this sprite's offset based on its position, transform offset,
+        anchor, its image, and the image's scaling.
+        """
         if self.image is None:
             return
         size = self._scale * self._image.get_size()
@@ -119,6 +138,10 @@ class Sprite(object):
         self._offset = spyral.Vec2D(offset) - self._transform_offset
             
     def _recalculate_transforms(self):
+        """
+        Calculates the transforms that need to be applied to this sprite's
+        image. In order: flipping, scaling, and rotation.
+        """
         source = self._image._surf
         
         # flip
@@ -149,12 +172,20 @@ class Sprite(object):
         self._expire_static()
 
     def _evaluate(self, animation, progress):
+        """
+        Performs a step of the given animation, setting any properties that will
+        change as a result of the animation (e.g., x position).
+        """
         values = animation.evaluate(self, progress)
         for property in animation.properties:
             if property in values:
                 setattr(self, property, values[property])
                 
     def _run_animations(self, dt):
+        """
+        For a given time-step (dt), perform a step of all the animations
+        associated with this sprite.
+        """
         completed = []
         for animation in self._animations:
             self._progress[animation] += dt
