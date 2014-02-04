@@ -1,3 +1,5 @@
+"""Clock to manage frame/cpu rate."""
+
 # spyral uses a modified version of this file from Gummworld2
 # and Trolls Outta Luckland, and thanks the authors for their great,
 # reusable piece of code. It is licensed separately from spyral
@@ -125,11 +127,12 @@ class GameClock(object):
     """
     GameClock is an implementation of fixed-timestep clocks used for
     running the game.
-    
+
     =============== ============
     Attribute       Description
     =============== ============
-    get_ticks       The time source for the game. Should support at least subsecond accuracy.
+    get_ticks       The time source for the game. Should support at least
+                    subsecond accuracy.
     max_ups         The maximum number of updates per second. The clock
                     will prioritize trying to keep the number of
                     updates per second at this level, at the cost of
@@ -146,10 +149,10 @@ class GameClock(object):
     game_time       Virtual elapsed time in milliseconds
     paused          The game time at which the clock was paused
     =============== ============
-    
+
     In addition to these attributes, the following read-only attributes
     provide some useful metrics on performance of the program.
-    
+
     =============== ============
     Attribute       Description
     =============== ============
@@ -175,7 +178,7 @@ class GameClock(object):
             update_callback=None,
             frame_callback=None,
             paused_callback=None):
-        
+
         # Configurables.
         self.get_ticks = time_source
         self.max_ups = max_ups
@@ -184,27 +187,27 @@ class GameClock(object):
         self.update_callback = update_callback
         self.frame_callback = frame_callback
         self.paused_callback = paused_callback
-        
+
         # Time keeping.
-        TIME = self.get_ticks()
-        self._real_time = TIME
-        self._game_time = TIME
-        self._last_update = TIME
-        self._last_update_real = TIME
-        self._next_update = TIME
-        self._last_frame = TIME
-        self._next_frame = TIME
-        self._next_second = TIME
+        CURRENT_TIME = self.get_ticks()
+        self._real_time = CURRENT_TIME
+        self._game_time = CURRENT_TIME
+        self._last_update = CURRENT_TIME
+        self._last_update_real = CURRENT_TIME
+        self._next_update = CURRENT_TIME
+        self._last_frame = CURRENT_TIME
+        self._next_frame = CURRENT_TIME
+        self._next_second = CURRENT_TIME
         self._update_ready = False
         self._frame_ready = False
 #        self._frame_skip = 0
         self._paused = 0
-        
+
         # Schedules
         self._need_sort = False
         self._schedules = []
         self._unschedules = []
-        
+
         # Metrics: update and frame progress counter in the current one-second
         # interval.
         self.num_updates = 0
@@ -219,7 +222,7 @@ class GameClock(object):
         # seconds.
         self.ups = 0.0
         self.fps = 0.0
-    
+
     @property
     def max_ups(self):
         return self._max_ups
@@ -227,27 +230,28 @@ class GameClock(object):
     def max_ups(self, val):
         self._max_ups = val
         self._update_interval = 1.0 / val
-    
+
     @property
     def max_fps(self):
         return self._max_fps
     @max_fps.setter
     def max_fps(self, val):
         self._max_fps = val
-        self._frame_interval = 1.0 / val if val>0 else 0
-    
+        self._frame_interval = 1.0 / val if val > 0 else 0
+
     @property
     def game_time(self):
         return self._game_time
     @property
     def paused(self):
         return self._paused
-    
+
     @property
     def interpolate(self):
-        interp = (self._real_time - self._last_update_real) / self._update_interval
+        interp = (self._real_time - self._last_update_real)
+        interp = interp / self._update_interval
         return interp if interp <= 1.0 else 1.0
-    
+
     def tick(self):
         """
         Should be called in a loop, will run and handle timers.
@@ -255,13 +259,13 @@ class GameClock(object):
         # Now.
         real_time = self.get_ticks()
         self._real_time = real_time
-        
+
         # Pre-emptive pause callback.
         if self._paused:
             if self.paused_callback:
                 self.paused_callback()
             return
-        
+
         # Check if update and frame are due.
         update_interval = self._update_interval
         game_time = self._game_time
@@ -276,7 +280,8 @@ class GameClock(object):
             if self.update_callback:
                 self._update_ready = True
 #ORIG
-#        if real_time + self.cost_of_frame < self._next_update and real_time >= self._next_frame:
+#        if (real_time + self.cost_of_frame < self._next_update) and
+#            (real_time >= self._next_frame):
 #            self.dt_frame = real_time - self._last_frame
 #            self._last_frame = real_time
 #            self._next_frame = real_time + self._frame_interval
@@ -323,23 +328,23 @@ class GameClock(object):
             sched_due = sched.lasttime + sched.interval
             if real_time >= sched_due:
                 sched_ready = True
-        
+
         # Run schedules if any are due.
         if self._update_ready or sched_ready:
             self._run_schedules()
-        
+
         # Run the frame callback (moved inline to reduce function calls).
         if self.frame_callback and self._frame_ready:
             get_ticks = self.get_ticks
-            t = get_ticks()
+            ticks = get_ticks()
             self.frame_callback(self.interpolate)
-            self.cost_of_frame = get_ticks() - t
+            self.cost_of_frame = get_ticks() - ticks
             self._frame_ready = False
-        
+
         # Flip metrics counters every second.
         if real_time >= self._next_second:
             self._flip(real_time)
-        
+
         # Sleep to save CPU.
         if self.use_wait:
             upcoming_events = [
@@ -350,14 +355,14 @@ class GameClock(object):
             if sched_due != 0:
                 upcoming_events.append(sched_due)
             next = reduce(min, upcoming_events)
-            t = self.get_ticks()
-            time_to_sleep = next - t
+            ticks = self.get_ticks()
+            time_to_sleep = next - ticks
             if time_to_sleep >= 0.002:
                 time.sleep(time_to_sleep)
-        
+
     def pause(self):
         """Pause the clock so that time does not elapse.
-        
+
         While the clock is paused, no schedules will fire and tick() returns
         immediately without progressing internal counters. Game loops that
         completely rely on the clock will need to take over timekeeping and
@@ -367,25 +372,25 @@ class GameClock(object):
         resumed when needed.
         """
         self._paused = self.get_ticks()
-    
+
     def resume(self):
         """Resume the clock from the point that it was paused."""
         real_time = self.get_ticks()
         paused = self._paused
         for item in self._schedules:
-            dt = paused - item.lasttime
-            item.lasttime = real_time - dt
+            delta = paused - item.lasttime
+            item.lasttime = real_time - delta
         self._last_update_real = real_time - (paused - self._last_update_real)
         self._paused = 0
         self._real_time = real_time
-    
+
     def schedule_interval(self, func, interval, life=0, args=[]):
         """
-        
+
         Schedule an item to be called back each time an interval elapses.
-        
+
         While the clock is paused time does not pass.
-        
+
         | *func*: The callback function.
         | *interval*: The time in seconds (float) between calls.
         | *life*: The number of times the callback will fire, after which the
@@ -393,35 +398,35 @@ class GameClock(object):
           will persist until manually unscheduled.
         | *args*: A list that will be passed to the callback as an unpacked
           sequence, like so: item.func(\*[item.interval]+item.args).
-            
+
         """
         self.unschedule(func)
         item = _IntervalItem(
             func, interval, self.get_ticks(), life, [interval]+list(args))
         self._schedules.append(item)
         self._need_sort = True
-    
+
     def unschedule(self, func):
         """Unschedule a managed function."""
         sched = self._schedules
         for item in list(sched):
             if item.func == func:
                 sched.remove(item)
-    
+
     @staticmethod
     def _interval_item_sort_key(item):
         return item.lasttime + item.interval
-    
+
     def _run_schedules(self):
         get_ticks = self.get_ticks
-        
+
         # Run the update callback.
         if self.update_callback and self._update_ready:
             t = get_ticks()
             self.update_callback(self.dt_update)
             self.cost_of_update = get_ticks() - t
             self._update_ready = False
-        
+
         # Run the interval callbacks.
         if self._need_sort:
             self._schedules.sort(key=self._interval_item_sort_key)
@@ -448,13 +453,13 @@ class GameClock(object):
             for func in self._unschedules:
                 self.unschedule(func)
             del self._unschedules[:]
-    
+
     def _flip(self, real_time):
         self.ups = self.num_updates
         self.fps = self.num_frames
-        
+
         self.num_updates = 0
         self.num_frames = 0
-        
+
         self._last_second = real_time
         self._next_second += 1.0
