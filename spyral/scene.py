@@ -444,7 +444,7 @@ class Scene(object):
 
     def _set_background(self, image):
         surface = image._surf
-        scene = spyral.get_executing_scene()
+        scene = spyral._get_executing_scene()
         if surface.get_size() != self.size:
             raise spyral.BackgroundSizeError("Background size must match the scene's size.")
         self._background = pygame.transform.smoothscale(surface, self._surface.get_size())
@@ -597,10 +597,10 @@ class Scene(object):
                     r = screen.blit(blit.surface, blit_rect, None, blit_flags)
                     clear_next.append(r)
 
-        pygame.display.set_caption("%d / %d static, %d dynamic. %d ups, %d fps" %
-                                   (drawn_static, static_blits,
-                                    dynamic_blits, self.clock.ups,
-                                    self.clock.fps))
+        #pygame.display.set_caption("%d / %d static, %d dynamic. %d ups, %d fps" %
+        #                           (drawn_static, static_blits,
+        #                            dynamic_blits, self.clock.ups,
+        #                            self.clock.fps))
         # Do the display update
         pygame.display.update(self._clear_next_frame + self._clear_this_frame)
         # Get ready for the next call

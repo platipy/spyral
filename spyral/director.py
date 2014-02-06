@@ -1,50 +1,44 @@
 import spyral
 import pygame
 
+__doc__ = """The director handles initializing and running your game. It is also
+responsible for keeping track of the game's scenes."""
+
 _initialized = False
 _stack = []
 _screen = None
 _tick = 0
 _max_fps = 30
 _max_ups = 30
-_keyboard_repeating = False
-
-
-def set_keyboard_repeat(delay, interval):
-    if delay == 0 or delay == 1:
-        pygame.key.set_repeat(delay, interval)
-        _keyboard_repeating = False
-    else:
-        pygame.key.set_repeat(delay, interval)
-        _keyboard_repeating = True
-    
-def disable_keyboard_repeat():
-    pygame.key.set_repeat()
-    _keyboard_repeating = False
-    
 
 def init(size=(0, 0),
-         max_ups = 30,
-         max_fps = 30,
-         fullscreen = False,
-         caption = "spyral"):
+         max_ups=30,
+         max_fps=30,
+         fullscreen=False,
+         caption="My Spyral Game"):
+    """
+    Initializes the director. This should be called at the very beginning of
+    your game.
+
+    :param size: The resolution of the display window. (0,0) uses the screen
+                 resolution
+    :type size: :class:`Vec2D <spyral.Vec2D>`
+    :param int max_fps: The number of times that the director.update event will
+                        occur per frame. This will remain the same, even if fps
+                        drops.
+    :param int max_ups: The number of frames per second that should occur when
+                        your game is run.
+    :param bool fullscreen: Whether your game should start in fullscreen mode.
+    :param str caption: The caption that will be displayed in the window.
+                        Typically the name of your game.
+    """
     global _initialized
     global _screen
     global _max_fps
     global _max_ups
-    
-    """
-    initializes the director.
 
-    | *size* is the resolution of the display. (0,0) uses the screen resolution
-    | *max_ups* sets the number of times scene.update() should be
-       called per frame. This will remain the same, even if fps drops.
-    | *max_fps* sets the fps cap on the game.
-    | *fullscreen* determines whether the display starts fullscreen
-    | *caption* is the window caption
-    """
     if _initialized:
-        print('Warning: Tried to initialize the director twice. Ignoring.')
+        print 'Warning: Tried to initialize the director twice. Ignoring.'
     spyral.init()
 
     flags = 0
@@ -68,7 +62,11 @@ def init(size=(0, 0),
 
 def get_scene():
     """
-    Returns the currently running scene.
+    Returns the currently running scene; this will be the Scene on the top of
+    the director's stack.
+
+    :rtype: :class:`Scene <spyral.Scene>`
+    :returns: The currently running Scene, or `None`.
     """
     try:
         return _stack[-1]
@@ -78,28 +76,37 @@ def get_scene():
 def get_tick():
     """
     Returns the current tick number, where ticks happen on each update,
-    not on each frame.
-    
-    A tick is a "tick of the clock", and will happen many (usually 30) times
-    per second. TODO: Do I know what I'm talking about?
+    not on each frame. A tick is a "tick of the clock", and will happen many
+    (usually 30) times per second.
+
+    :rtype: int
+    :returns: The current number of ticks since the start of the game.
     """
     return _tick
 
 def replace(scene):
     """
     Replace the currently running scene on the stack with *scene*.
-    
-    Execution will continue after this is called, so make sure you return::
+
+    Execution will continue after this is called, so make sure you return;
+    otherwise you may find unexpected behavior::
+
         spyral.director.replace(Scene())
         print "This will be printed!"
         return
+
+    :param scene: The new scene.
+    :type scene: :class:`Scene <spyral.Scene>`
     """
     if _stack:
-        spyral.event.handle('director.scene.exit', _scene = _stack[-1])
+        spyral.event.handle('director.scene.exit', _scene=_stack[-1])
         old = _stack.pop()
         spyral.sprite._switch_scene()
     _stack.append(scene)
-    spyral.event.handle('director.scene.enter', event=spyral.Event(scene=scene), _scene = scene)
+    spyral.event.handle('director.scene.enter',
+                        event=spyral.Event(scene=scene),
+                        _scene=scene)
+    # Empty all events!
     pygame.event.get()
 
 def pop():
@@ -107,17 +114,17 @@ def pop():
     Pop the top scene off the stack, returning control to the next scene
     on the stack. If the stack is empty, the program will quit.
 
-    This does return control, so remember to return immediately after 
+    This does return control, so remember to return immediately after
     calling it.
     """
     if len(_stack) < 1:
         return
-    spyral.event.handle('director.scene.exit', _scene = _stack[-1])
+    spyral.event.handle('director.scene.exit', _scene=_stack[-1])
     scene = _stack.pop()
     spyral.sprite._switch_scene()
     if _stack:
         scene = _stack[-1]
-        spyral.event.handle('director.scene.enter', _scene = scene)
+        spyral.event.handle('director.scene.enter', _scene=scene)
     else:
         exit(0)
     pygame.event.get()
@@ -126,26 +133,40 @@ def push(scene):
     """
     Place *scene* on the top of the stack, and move control to it.
 
-    This does return control, so remember to return immediately after 
+    This does return control, so remember to return immediately after
     calling it.
+
+    :param scene: The new scene.
+    :type scene: :class:`Scene <spyral.Scene>`
     """
     if _stack:
-        spyral.event.handle('director.scene.exit', _scene = _stack[-1])
+        spyral.event.handle('director.scene.exit', _scene=_stack[-1])
         old = _stack[-1]
         spyral.sprite._switch_scene()
     _stack.append(scene)
-    spyral.event.handle('director.scene.enter', _scene = scene)
+    spyral.event.handle('director.scene.enter', _scene=scene)
+    # Empty all events!
     pygame.event.get()
 
 def run(sugar=False, profiling=False, scene=None):
     """
     Begins running the game, starting with the scene on top of the stack. You
-    can also pass in a *scene* to push that scene on top of the stack.
+    can also pass in a *scene* to push that scene on top of the stack. This
+    function will run until your game ends, at which point execution will end
+    too.
 
-    If *profiling* is enabled, this function will return on every
-    scene change so that scenes can be profiled independently.
-    
-    The *sugar* argument is used by the Launcher, it can be safely ignored.
+    If *profiling* is enabled,
+
+    The *sugar* argument is only used by the XO Launcher, it can be safely
+    ignored.
+
+    :param bool sugar: Whether to run the game for Sugar. This is only
+                       to the special XO Launcher; it is safe to ignore.
+    :param bool profiling: Whether to enable profiling mode, where this function
+                           will return on every scene change so that scenes can
+                           be profiled independently.
+    :param scene: The first scene.
+    :type scene: :class:`Scene <spyral.Scene>`
     """
     if scene is not None:
         push(scene)
@@ -166,12 +187,20 @@ def run(sugar=False, profiling=False, scene=None):
             old_scene = scene
 
             def frame_callback(interpolation):
+                """
+                A closure for handling drawing, which includes forcing the
+                rendering-related events to be fired.
+                """
                 scene._handle_event("director.pre_render")
                 scene._handle_event("director.render")
                 scene._draw()
                 scene._handle_event("director.post_render")
 
-            def update_callback(dt):
+            def update_callback(delta):
+                """
+                A closure for handling events, which includes firing the update
+                related events (e.g., pre_update, update, and post_update).
+                """
                 global _tick
                 if sugar:
                     while gtk.events_pending():
@@ -185,7 +214,8 @@ def run(sugar=False, profiling=False, scene=None):
                 for event in events:
                     scene._queue_event(*spyral.event._pygame_to_spyral(event))
                 scene._handle_event("director.pre_update")
-                scene._handle_event("director.update", spyral.Event(dt=dt))
+                scene._handle_event("director.update", 
+                                    spyral.Event(delta=delta))
                 _tick += 1
                 scene._handle_event("director.post_update")
             clock.frame_callback = frame_callback

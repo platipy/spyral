@@ -21,9 +21,7 @@ ALL_BY_MODULE = {
     'spyral.vector' : ['Vec2D'],
     'spyral.rect' : ['Rect'],
     'spyral.animation' : ['Animation'],
-    'spyral.core' : ['init', 'quit', 'get_executing_scene'],
-    'spyral.cursor' : ['set_cursor', 'MonochromeCursor', 'ColorCursor',
-                       'cursors'],
+    'spyral.core' : ['init', 'quit', '_get_executing_scene'],
     'spyral.font' : ['Font'],
     'spyral.clock' : ['GameClock'],
     'spyral.event' : ['keys', 'mods', 'queue', 'Event',
@@ -39,8 +37,9 @@ ALL_BY_MODULE = {
 }
 
 ATTRIBUTE_MODULES = frozenset(['memoize', 'point', 'exceptions', 'easing',
-                               'event', '_lib', 'font', 'form', 'director',
-                               'sprite', '_style', 'widgets', 'cursor', 'util'])
+                               'mouse', 'event', '_lib', 'font', 'form',
+                               'director', 'sprite', '_style', 'widgets',
+                               'util', 'keyboard'])
 
 OBJECT_ORIGINS = {}
 for module, items in ALL_BY_MODULE.iteritems():

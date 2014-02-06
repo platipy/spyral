@@ -28,9 +28,11 @@ def quit():
     spyral.director._stack = []
     spyral.director._initialized = False
 
-def get_executing_scene():
+def _get_executing_scene():
     """
     Returns the currently executing scene using Python introspection.
+
+    This function should not be used lightly - it requires some dark magic.
     """
     for frame, _, _, _, _, _ in inspect.stack():
         args = inspect.getargvalues(frame)

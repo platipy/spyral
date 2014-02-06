@@ -1,8 +1,50 @@
 Scenes and the Director
+
+Sprites
+
+Rects and Vec2Ds
+
+Events
+
+    Keyboard - list of common keyboard events (complete list in appendix)
+    Mouse - complete list of mouse events
+
+Collision Tests
+
+Views and Layers
+
+Forms and Widgets
+
+Actors
+
+Animations and Easings
+
+Fonts
+
+Images
+
+Mouse
+
+Styles
+
+
+Scenes and the Director
 -----------------------
 Scenes are the basic units that are executed by spyral for your game, and should be subclassed and filled in with code which is relevant to your game. The director, which is accessible at *spyral.director*, is a manager for Scenes, which maintains a stacks and actually executes the code.
 
+API Reference
+-------------
+
+.. automodule:: spyral.director
+    :members:
+    
+.. automodule:: spyral.easing
+    :members:
+
 .. autoclass:: spyral.Animation
+    :members:
+
+.. autoclass:: spyral.DebugText
     :members:
 
 .. autoclass:: spyral.Scene
@@ -10,11 +52,11 @@ Scenes are the basic units that are executed by spyral for your game, and should
     
 .. autoclass:: spyral.Sprite
     :members:
-    
-.. autoclass:: spyral.View
+
+.. autoclass:: spyral.Vec2D
     :members:
     
-.. autoclass:: spyral.Vec2D
+.. autoclass:: spyral.View
     :members:
     
 =========================

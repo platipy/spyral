@@ -63,12 +63,12 @@ def queue(type, event = None, _scene = None):
         spyral.event.queue("ball.collides.paddle", collision_event)
     """
     if _scene is None:
-        _scene = spyral.get_executing_scene()
+        _scene = spyral._get_executing_scene()
     _scene._queue_event(type, event)
 
 def handle(type, event = None, _scene = None):
     if _scene is None:
-        _scene = spyral.get_executing_scene()
+        _scene = spyral._get_executing_scene()
     _scene._handle_event(type, event)
 
 def get_identifier(obj):
