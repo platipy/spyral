@@ -89,7 +89,7 @@ class Scene(object):
         self.register('director.scene.enter', self.redraw)
 
         self.register('director.update', self.handle_events)
-        self.register('director.update', self.run_actors, ('dt',))
+        self.register('director.update', self.run_actors, ('delta',))
         self.register('spyral.internal.view.changed.*', self._invalidate_views)
 
         # View interface
@@ -106,24 +106,24 @@ class Scene(object):
         """
         self._greenlets[actor] = greenlet
                     
-    def _run_actors_greenlet(self, dt, _):
+    def _run_actors_greenlet(self, delta, _):
         """
         Helper method for run_actors to TODO: What does this do?
         """
         for actor, greenlet in self._greenlets.iteritems():
-            dt, rerun = greenlet.switch(dt)
+            delta, rerun = greenlet.switch(delta)
             while rerun:
-                dt, rerun = greenlet.switch(dt)
+                delta, rerun = greenlet.switch(delta)
         return False
 
-    def run_actors(self, dt):
+    def run_actors(self, delta):
         """
         TODO: Is this an internal method? What circumstances warrant it being called explicitly?
         Main loop for running actors (until they TODO: What causes the loop to stop?
         """
         g = greenlet.greenlet(self._run_actors_greenlet)
         while True:
-            d = g.switch(dt, False)
+            d = g.switch(delta, False)
             if d is True:
                 continue
             if d is False:
