@@ -1,22 +1,27 @@
+"""
+This module defines custom exceptions that are thrown throughout spyral.
+"""
+
 import warnings
 
 class SceneHasNoSizeError(Exception):
-	pass
+    pass
 class NotStylableError(Exception):
-	pass
+    pass
 class NoImageError(Exception):
-	pass
+    pass
 class BackgroundSizeError(Exception):
-	pass
+    pass
 class LayersAlreadySetError(Exception):
-	pass
+    pass
 
 # Warnings
 class UnusedStyleWarning(Warning):
-	pass
+    pass
 
 
 # Convenience Wrappers
-def unused_style_warning(object, properties):
-    warnings.warn("%r does not understand style properties %s" % (object, ','.join(properties)),
-                      UnusedStyleWarning)
+def unused_style_warning(obj, properties):
+    warnings.warn("%r does not understand style properties %s" %
+                  (obj, ','.join(properties)),
+                  UnusedStyleWarning)

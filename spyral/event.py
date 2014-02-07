@@ -77,13 +77,13 @@ def _init():
         pygame.VIDEOEXPOSE: "system.video_expose",
     }
 
-def queue(type, event=None, _scene=None):
+def queue(event_name, event=None, _scene=None):
     """
     Queues a new event in the system, meaning that it will be run at the next
     available opportunity.
 
-    :param str type: The type of event (e.g., "system.quit", "input.mouse.up",
-                     or "pong.score".
+    :param str event_name: The type of event (e.g., "system.quit",
+                           "input.mouse.up", or "pong.score".
     :param event: An Event object that holds properties for the event.
     :type event: :class:`Event <spyral.event.Event>`
     :param _scene: The scene to queue this event on; if `None` is given, the
@@ -92,15 +92,15 @@ def queue(type, event=None, _scene=None):
     """
     if _scene is None:
         _scene = spyral._get_executing_scene()
-    _scene._queue_event(type, event)
+    _scene._queue_event(event_name, event)
 
-def handle(type, event=None, _scene=None):
+def handle(event_name, event=None, _scene=None):
     """
     Instructs spyral to execute the handlers for this event right now. When you
     have a custom event, this is the function you call to have the event occur.
 
-    :param str type: The type of event (e.g., "system.quit", "input.mouse.up",
-                     or "pong.score".
+    :param str event_name: The type of event (e.g., "system.quit",
+                           "input.mouse.up", or "pong.score".
     :param event: An Event object that holds properties for the event.
     :type event: :class:`Event <spyral.event.Event>`
     :param _scene: The scene to queue this event on; if `None` is given, the
@@ -109,25 +109,25 @@ def handle(type, event=None, _scene=None):
     """
     if _scene is None:
         _scene = spyral._get_executing_scene()
-    _scene._handle_event(type, event)
+    _scene._handle_event(event_name, event)
 
 def _pygame_to_spyral(event):
     """
     Convert a Pygame event to a Spyral event, correctly converting arguments to
     attributes.
     """
-    attrs = _TYPE_TO_ATTRS[event.type]
-    type = _TYPE_TO_TYPE[event.type]
+    event_attrs = _TYPE_TO_ATTRS[event.type]
+    event_type = _TYPE_TO_TYPE[event.type]
     e = Event()
-    for attr in attrs:
+    for attr in event_attrs:
         setattr(e, attr, getattr(event, attr))
-    if type.startswith("input"):
-        setattr(e, "type", type.split(".")[-1])
-    if type.startswith('input.keyboard'):
+    if event_type.startswith("input"):
+        setattr(e, "type", event_type.split(".")[-1])
+    if event_type.startswith('input.keyboard'):
         k = keys.reverse_map.get(event.key, 'unknown')
-        type += '.' + k
+        event_type += '.' + k
 
-    return (type, e)
+    return (event_type, e)
 
 class EventHandler(object):
     """
@@ -267,9 +267,9 @@ class Keys(object):
 
     def load_keys_from_file(self, filename):
         fp = open(filename)
-        keys = fp.readlines()
+        key_maps = fp.readlines()
         fp.close()
-        for single_mapping in keys:
+        for single_mapping in key_maps:
             mapping = single_mapping[:-1].split(' ')
             if len(mapping) == 2:
                 if mapping[1][0:2] == '0x':
