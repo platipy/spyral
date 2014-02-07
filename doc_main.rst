@@ -35,6 +35,9 @@ Scenes are the basic units that are executed by spyral for your game, and should
 API Reference
 -------------
 
+.. automodule:: spyral.event
+    :members:
+
 .. automodule:: spyral.director
     :members:
     

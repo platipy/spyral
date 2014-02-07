@@ -90,7 +90,7 @@ class Scene(object):
 
         self.register('director.update', self.handle_events)
         self.register('director.update', self.run_actors, ('delta',))
-        self.register('spyral.internal.view.changed.*', self._invalidate_views)
+        self.register('spyral.internal.view.changed', self._invalidate_views)
 
         # View interface
         self._scene = _wref(self)

@@ -126,9 +126,10 @@ class View(object):
         self._recalculate_offset()
         self._set_collision_box_tree()
         # Notify any listeners (probably children) that I have changed
-        e = spyral.Event(name="changed", view=self)
-        spyral.event.handle("spyral.internal.view.changed.%s" %
-                                spyral.event.get_identifier(self), e)
+        changed_event = spyral.Event(name="changed", view=self)
+        spyral.event.handle("spyral.internal.view.changed", 
+                            changed_event,
+                            self.scene)
 
     def _recalculate_offset(self):
         """
