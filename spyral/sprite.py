@@ -181,14 +181,14 @@ class Sprite(object):
             if property in values:
                 setattr(self, property, values[property])
                 
-    def _run_animations(self, dt):
+    def _run_animations(self, delta):
         """
-        For a given time-step (dt), perform a step of all the animations
+        For a given time-step (delta), perform a step of all the animations
         associated with this sprite.
         """
         completed = []
         for animation in self._animations:
-            self._progress[animation] += dt
+            self._progress[animation] += delta
             progress = self._progress[animation]
             if progress > animation.duration:
                 self._evaluate(animation, animation.duration)
@@ -459,7 +459,7 @@ class Sprite(object):
         if len(self._animations) == 0:
             self._scene().register('director.update',
                                  self._run_animations,
-                                 ('dt', ))
+                                 ('delta', ))
         self._animations.append(animation)
         self._progress[animation] = 0
         self._evaluate(animation, 0.0)

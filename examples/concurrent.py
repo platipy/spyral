@@ -9,7 +9,7 @@ SIZE = (600, 600)
 BG_COLOR = (0, 0, 0)
 
 class DumbObject(spyral.Actor):
-    def main(self, dt):
+    def main(self, delta):
         while True:
             print "1", self.wait()
     
@@ -23,7 +23,7 @@ class StupidSprite(spyral.Sprite, spyral.Actor):
         self.pos = (0, 0)
         self.anchor = 'center'
         
-    def main(self, dt):
+    def main(self, delta):
         right = spyral.Animation('x', spyral.easing.Linear(0, 600), duration = 1.0)
         down = spyral.Animation('y', spyral.easing.Linear(0, 600), duration = 1.0)
         left = spyral.Animation('x', spyral.easing.Linear(600, 0), duration = 1.0)

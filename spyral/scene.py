@@ -298,7 +298,7 @@ class Scene(object):
             handler = WeakMethod(handler)
         if event_namespace.endswith(".*"):
             event_namespace = event_namespace[:-2]
-        self._handlers[event_namespace] = [h for h in self._handlers[event_namespace] if h[0] != handler]
+        self._handlers[event_namespace] = [h for h in self._handlers[event_namespace] if h[0].method != handler.method]
 
     def clear_namespace(self, namespace):
         """

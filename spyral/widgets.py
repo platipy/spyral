@@ -585,9 +585,9 @@ class TextInputWidget(BaseWidget):
         else:
             self.cursor_pos= min(self.cursor_pos+1, len(self.value))
             
-    def update(self, dt):
+    def update(self, delta):
         if self._focused:
-            self._cursor_time += dt
+            self._cursor_time += delta
             if self._cursor_time > self._cursor_blink_interval:
                 self._cursor_time -= self._cursor_blink_interval
                 self._cursor.visible = not self._cursor.visible
