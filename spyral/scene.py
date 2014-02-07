@@ -489,7 +489,7 @@ class Scene(object):
 
     def _blit(self, blit):
         blit.apply_scale(self._scale)
-        blit.clip(self._rect)
+        #blit.clip(self._rect)
         blit.finalize()
         self._blits.append(blit)
 
@@ -498,7 +498,7 @@ class Scene(object):
         Identifies that this sprite will be statically blit from now.
         """
         blit.apply_scale(self._scale)
-        blit.clip(self._rect)
+        #blit.clip(self._rect)
         blit.finalize()
         self._static_blits[key] = blit
         self._clear_this_frame.append(blit.rect)

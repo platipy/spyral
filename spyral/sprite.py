@@ -126,8 +126,8 @@ class Sprite(object):
 
     def _recalculate_offset(self):
         """
-        Recalculates this sprite's offset based on its position, transform offset,
-        anchor, its image, and the image's scaling.
+        Recalculates this sprite's offset based on its position, transform
+        offset, anchor, its image, and the image's scaling.
         """
         if self.image is None:
             return
@@ -135,7 +135,7 @@ class Sprite(object):
 
         offset = spyral.util.anchor_offset(self._anchor, size[0], size[1])
 
-        self._offset = spyral.Vec2D(offset) - self._transform_offset
+        self._offset = spyral.Vec2D(offset) - self._transform_offset        
             
     def _recalculate_transforms(self):
         """
@@ -387,7 +387,7 @@ class Sprite(object):
     visible = property(_get_visible, _set_visible)
     rect = property(_get_rect, _set_rect)
     scene = property(_get_scene)
-    scene = property(_get_view)
+    view = property(_get_view)
 
     def get_rect(self):
         """
