@@ -9,18 +9,7 @@ from functools import partial
 SIZE = (640, 480)
 
 class Game(spyral.Scene):
-    """
-    A Scene represents a distinct state of your game. They could be menus,
-    different subgames, or any other things which are mostly distinct.
-    
-    A Scene should define two methods, update and render.
-    """
     def __init__(self):
-        """
-        The __init__ message for a scene should set up the camera(s) for the
-        scene, and setup groups and other structures which are needed for the
-        scene.
-        """
         spyral.Scene.__init__(self)
         self.load_style("style.spys")
 
@@ -65,5 +54,7 @@ class Game(spyral.Scene):
         
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes
-    spyral.director.set_keyboard_repeat(800, 50)
+    spyral.keyboard.repeat = True
+    spyral.keyboard.delay = 800
+    spyral.keyboard.interval = 50
     spyral.director.run(scene=Game()) # This will run your game. It will not return.

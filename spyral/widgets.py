@@ -20,6 +20,10 @@ class BaseWidget(spyral.View):
         spyral.View.__init__(self, form)
         self.mask = spyral.Rect(self.pos, self.size)
     
+    def _changed(self):
+        self._recalculate_mask()
+        spyral.View._changed(self)
+    
     def _recalculate_mask(self):
         self.mask = spyral.Rect(self.pos, self.size + self.padding)
 
@@ -182,11 +186,11 @@ class ButtonWidget(MultiStateWidget):
     value = property(_get_value)
     text = property(_get_text, _set_text)
     
-    def handle_mouse_up(self, event):
+    def _handle_mouse_up(self, event):
         if self.state.startswith('down'):
             self.state = self.state.replace('down', 'up')
         
-    def handle_mouse_down(self, event):
+    def _handle_mouse_down(self, event):
         if self.state.startswith('up'):
             self.state = self.state.replace('up', 'down')
             e = spyral.Event(name="clicked", widget=self, form=self.form, value=self._get_value())
@@ -195,29 +199,29 @@ class ButtonWidget(MultiStateWidget):
                                          "widget": self.name}, 
                                     e)
         
-    def handle_mouse_out(self, event):
+    def _handle_mouse_out(self, event):
         if "_hovered" in self.state:
             self.state = self.state.replace('_hovered', '')
         
-    def handle_mouse_over(self, event):
+    def _handle_mouse_over(self, event):
         if not "_hovered" in self.state:
             self.state = self.state.replace('_focused', '') + "_hovered"
         
-    def handle_mouse_motion(self, event):
+    def _handle_mouse_motion(self, event):
         pass
         
-    def handle_focus(self, event):
+    def _handle_focus(self, event):
         if self.state in ('up', 'down'):
             self.state+= '_focused'
     
-    def handle_blur(self, event):
+    def _handle_blur(self, event):
         if self.state in ('up_focused', 'down_focused'):
             self.state = self.state.replace('_focused', '')
             
-    def handle_key_down(self, event):
+    def _handle_key_down(self, event):
         if event.key in (32, 13):
             self.handle_mouse_down(event)
-    def handle_key_up(self, event):
+    def _handle_key_up(self, event):
         if event.key in (32, 13):
             self.handle_mouse_up(event)
         
@@ -236,10 +240,10 @@ class ToggleButtonWidget(ButtonWidget):
     def __init__(self, form, name, text = "Okay"):
         ButtonWidget.__init__(self, form, name, text)
         
-    def handle_mouse_up(self, event):
+    def _handle_mouse_up(self, event):
         pass
         
-    def handle_mouse_down(self, event):
+    def _handle_mouse_down(self, event):
         if self.state.startswith('down'):
             self.state = self.state.replace('down', 'up')
         elif self.state.startswith('up'):
@@ -265,6 +269,8 @@ class RadioButtonWidget(ToggleButtonWidget):
 class RadioGroupWidget(object):
     """
     Only one RadioButton in a RadioGroup can be selected at a time.
+    
+    ..warning:: This widget is incomplete.
     """
     def __init__(self, buttons, selected = None):
         pass
@@ -272,6 +278,7 @@ class RadioGroupWidget(object):
 
 class TextInputWidget(BaseWidget):            
     def __init__(self, form, name, width, value = '', default_value = True, text_length = None, validator = None):
+        self.box_width, self._box_height = 0, 0
         BaseWidget.__init__(self, form, name)
         
         self.layers = ["base", "content"]
@@ -303,7 +310,7 @@ class TextInputWidget(BaseWidget):
         self.box_width = width - 2*self._padding
         self.text_length = text_length
         
-        self._box_height = int(math.ceil(self.font.get_linesize()))
+        self._box_height = int(math.ceil(self.font.linesize))
         self._recalculate_mask()
 
         self._cursor.image = spyral.Image(size=(2,self._box_height))
@@ -321,6 +328,8 @@ class TextInputWidget(BaseWidget):
         
         self._render_backs()
         self._back.image = self._image_plain
+        
+        self.scene.register("director.update", self._update)
         
     def _recalculate_mask(self):
         self.mask = spyral.Rect(self.x+self.padding, self.y+self.padding, self.box_width+self.padding, self._box_height+self.padding)
@@ -585,14 +594,14 @@ class TextInputWidget(BaseWidget):
         else:
             self.cursor_pos= min(self.cursor_pos+1, len(self.value))
             
-    def update(self, delta):
+    def _update(self, delta):
         if self._focused:
             self._cursor_time += delta
             if self._cursor_time > self._cursor_blink_interval:
                 self._cursor_time -= self._cursor_blink_interval
                 self._cursor.visible = not self._cursor.visible
     
-    def handle_key_down(self, event):
+    def _handle_key_down(self, event):
         key = event.key
         mods = event.mod
         shift_is_down= (mods & spyral.mods.shift) or (key in (spyral.keys.lshift, spyral.keys.rshift))
@@ -632,13 +641,13 @@ class TextInputWidget(BaseWidget):
         if self._selecting:
             self._render_text()
     
-    def handle_mouse_over(self, event): pass
-    def handle_mouse_out(self, event): pass
-    def handle_key_up(self, event): pass
+    def _handle_mouse_over(self, event): pass
+    def _handle_mouse_out(self, event): pass
+    def _handle_key_up(self, event): pass
     
-    def handle_mouse_up(self, event):
+    def _handle_mouse_up(self, event):
         self.cursor_pos = self._compute_cursor_pos(event.pos)
-    def handle_mouse_down(self, event):
+    def _handle_mouse_down(self, event):
         if not self._selecting:
             if pygame.key.get_mods() & pygame.KMOD_SHIFT:
                 self._selection_pos = self.cursor_pos
@@ -652,7 +661,7 @@ class TextInputWidget(BaseWidget):
             self.default_value = False
         self._render_text()
         self._stop_blinking()
-    def handle_mouse_motion(self, event):
+    def _handle_mouse_motion(self, event):
         left, center, right = event.buttons
         if left:
             if not self._selecting:
@@ -661,7 +670,7 @@ class TextInputWidget(BaseWidget):
             self.cursor_pos = self._compute_cursor_pos(event.pos)
             self._render_text()
             self._stop_blinking()
-    def handle_focus(self, event):
+    def _handle_focus(self, event):
         self._focused = True
         self._back.image = self._image_focused
         if self.default_value:
@@ -671,7 +680,7 @@ class TextInputWidget(BaseWidget):
             self._selecting = False
         self.cursor_pos= len(self._value)
         self._render_text()
-    def handle_blur(self, event):
+    def _handle_blur(self, event):
         self._back.image = self._image_plain
         self._focused = False
         self._cursor.visible = False
