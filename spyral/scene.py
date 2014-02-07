@@ -44,7 +44,7 @@ class Scene(object):
 
         self._handlers = collections.defaultdict(lambda: [])
         self._namespaces = set()
-        self._event_source = spyral.event.LiveEventHandler() # Gotta go rename this now
+        self._event_source = spyral.event.LiveEventHandler()
         self._handling_events = False
         self._events = []
         self._pending = []

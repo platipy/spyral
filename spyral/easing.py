@@ -12,7 +12,6 @@ have to be stateless.
 
 Many of these easings were inspired by Clutter/Kivy, but have been
 generalized.
-
 """
 
 import math

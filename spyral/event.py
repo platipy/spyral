@@ -1,3 +1,22 @@
+"""This module contains functions and classes for creating and issuing events.
+
+    .. attribute:: keys
+
+        A special attribute for accessing the constants associated with a given
+        key. For instance, `spyral.keys.down` and `spyral.keys.f`. This is
+        useful for testing for keyboard events. A complete list of all the key
+        constants can be found in the appendix.
+
+    .. attribute:: mods
+
+        A special attribute for accessing the constants associated with a given
+        mod key. For instance, `spyral.mods.lshift` (left shift) and
+        `spyral.mods.ralt` (Right alt). This is useful for testing for keyboard
+        events. A complete list of all the key constants can be found in the
+        appendix.
+
+"""
+
 import pygame
 try:
     import json
@@ -15,7 +34,7 @@ class Event(object):
     """
     A simple representation of an event. Keyword arguments will be named
     attributes of the Event::
-    
+
         collision_event = Event(ball=ball, paddle=paddle)
         spyral.event.queue("ball.collides.paddle", collision_event)
     """
@@ -27,7 +46,7 @@ _EVENT_NAMES = ['QUIT', 'ACTIVEEVENT', 'KEYDOWN', 'KEYUP', 'MOUSEMOTION',
                 'MOUSEBUTTONUP', 'VIDEORESIZE', 'VIDEOEXPOSE', 'USEREVENT',
                 'MOUSEBUTTONDOWN']
 
-def init():
+def _init():
     """
     Initializes the Event system, which requires mapping the Pygame event
     constants to Spyral strings.
@@ -62,7 +81,7 @@ def queue(type, event=None, _scene=None):
     """
     Queues a new event in the system, meaning that it will be run at the next
     available opportunity.
-    
+
     :param str type: The type of event (e.g., "system.quit", "input.mouse.up",
                      or "pong.score".
     :param event: An Event object that holds properties for the event.
@@ -79,7 +98,7 @@ def handle(type, event=None, _scene=None):
     """
     Instructs spyral to execute the handlers for this event right now. When you
     have a custom event, this is the function you call to have the event occur.
-    
+
     :param str type: The type of event (e.g., "system.quit", "input.mouse.up",
                      or "pong.score".
     :param event: An Event object that holds properties for the event.
@@ -92,13 +111,11 @@ def handle(type, event=None, _scene=None):
         _scene = spyral._get_executing_scene()
     _scene._handle_event(type, event)
 
-def _get_identifier(obj):
-    """
-    Returns a unique identifier for this object based on its class.
-    """
-    return obj.__class__.__name__
-
 def _pygame_to_spyral(event):
+    """
+    Convert a Pygame event to a Spyral event, correctly converting arguments to
+    attributes.
+    """
     attrs = _TYPE_TO_ATTRS[event.type]
     type = _TYPE_TO_TYPE[event.type]
     e = Event()
@@ -152,21 +169,21 @@ class EventHandler(object):
 
 
 class LiveEventHandler(EventHandler):
+    """
+    An event handler which pulls events from the operating system.
+
+    The optional output_file argument specifies the path to a file
+    where the event handler will save a custom json file that can
+    be used with the `ReplayEventHandler` to show replays of a
+    game in action, or be used for other clever purposes.
+
+    .. note::
+
+        If you use the output_file parameter, this function will
+        reseed the random number generator, save the seed used. It
+        will then be restored by the ReplayEventHandler.
+    """
     def __init__(self, output_file=None):
-        """
-        An event handler which pulls events from the operating system.
-
-        The optional output_file argument specifies the path to a file
-        where the event handler will save a custom json file that can
-        be used with the `ReplayEventHandler` to show replays of a
-        game in action, or be used for other clever purposes.
-
-        .. note::
-
-            If you use the output_file parameter, this function will
-            reseed the random number generator, save the seed used. It
-            will then be restored by the ReplayEventHandler.
-        """
         EventHandler.__init__(self)
         self._save = output_file is not None
         if self._save:
@@ -191,11 +208,11 @@ class LiveEventHandler(EventHandler):
 
 
 class ReplayEventHandler(EventHandler):
+    """
+    An event handler which replays the events from a custom json
+    file saved by the `LiveEventHandler`.
+    """
     def __init__(self, input_file):
-        """
-        An event handler which replays the events from a custom json
-        file saved by the `LiveEventHandler`.
-        """
         EventHandler.__init__(self)
         self._file = open(input_file)
         info = json.loads(self._file.readline())
@@ -252,8 +269,8 @@ class Keys(object):
         fp = open(filename)
         keys = fp.readlines()
         fp.close()
-        for singleMapping in keys:
-            mapping = singleMapping[:-1].split(' ')
+        for single_mapping in keys:
+            mapping = single_mapping[:-1].split(' ')
             if len(mapping) == 2:
                 if mapping[1][0:2] == '0x':
                     setattr(self, mapping[0], int(mapping[1], 16))
