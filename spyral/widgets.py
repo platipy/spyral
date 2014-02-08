@@ -177,7 +177,7 @@ class ButtonWidget(MultiStateWidget):
     def _set_text(self, text):
         self._text = text
         self._text_sprite.image = self.font.render(self._text)
-        self._content_size = self._text_sprite.image.get_size()
+        self._content_size = self._text_sprite.image.size
         self._render_images()
         
     def _on_state_change(self):
@@ -482,12 +482,12 @@ class TextInputWidget(BaseWidget):
             highlight = self.font.render(self._value[start:end], color=self._highlight_color)
             post = self.font.render(self._value[end:])
             
-            pre_missed = self.font.get_size(self._value[:end])[0] - pre.get_width() - highlight.get_width() + 1
+            pre_missed = self.font.get_size(self._value[:end])[0] - pre.width - highlight.width + 1
             if self._value[:start]:
-                post_missed = self.font.get_size(self._value)[0] - post.get_width() - pre.get_width() - highlight.get_width() - 1
+                post_missed = self.font.get_size(self._value)[0] - post.width - pre.width - highlight.width - 1
                 self._rendered_text = spyral.Image.from_sequence((pre, highlight, post), 'right', [pre_missed, post_missed])
             else:
-                post_missed = self.font.get_size(self._value)[0] - post.get_width() - highlight.get_width()
+                post_missed = self.font.get_size(self._value)[0] - post.width - highlight.width
                 self._rendered_text = spyral.Image.from_sequence((highlight, post), 'right', [post_missed])
 
         else:

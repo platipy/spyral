@@ -131,7 +131,7 @@ class Sprite(object):
         """
         if self.image is None:
             return
-        size = self._scale * self._image.get_size()
+        size = self._scale * self._image.size
 
         offset = spyral.util.anchor_offset(self._anchor, size[0], size[1])
 
@@ -150,7 +150,7 @@ class Sprite(object):
 
         # scale
         if self._scale != (1.0, 1.0):
-            new_size = self._scale * self._image.get_size()
+            new_size = self._scale * self._image.size
             new_size = (int(new_size[0]), int(new_size[1]))
             if 0 in new_size:
                 self._transform_image = pygame.Surface((1,1), pygame.SRCALPHA)

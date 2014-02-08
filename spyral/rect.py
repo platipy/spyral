@@ -43,7 +43,7 @@ class Rect(object):
             return v(self._x + self._w, self._y)
         if name == "bottomleft":
             return v(self._x, self._y + self._h)
-        if name == "topleft":
+        if name == "topleft" or name == "pos":
             return v(self._x, self._y)
         if name == "bottomright":
             return v(self._x + self._w, self._y + self._h)
