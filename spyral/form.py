@@ -1,13 +1,22 @@
+"""This module defines the Form class, a subclass of Views that can manage
+widgets."""
+
 import spyral
 import operator
 import inspect
 
 class _FormFieldMeta(type):
+    """
+    Black magic for wrapping widgets defined as class attributes. See python
+    documentation on overriding Python
+    `__metaclass__ <http://docs.python.org/2/reference/datamodel.html#customizing-class-creation>`_
+    for more information.
+    """
     def __new__(meta, name, bases, dict):
         cls = type.__new__(meta, name, bases, dict)
-        cls.fields = sorted(inspect.getmembers(cls,
-                                               lambda o: isinstance(o, spyral.widgets._WidgetWrapper)),
-                            key=lambda i:i[1].creation_counter)
+        is_wrapper = lambda obj: isinstance(obj, spyral.widgets._WidgetWrapper)
+        cls.fields = sorted(inspect.getmembers(cls, is_wrapper),
+                            key=lambda i: i[1].creation_counter)
         return cls
 
 class Form(spyral.View):
@@ -15,21 +24,21 @@ class Form(spyral.View):
     Forms are a subclass of :class:`Views <spyral.View>` that hold a set of
     widgets. Forms will manage focus and event delegation between the widgets,
     ensuring that only one widget is active at a given time.
-    
+
     Forms are defined using a class-based syntax::
-    
+
         class MyForm(spyral.Form):
             name = spyral.widgets.TextInput(100, "Current Name")
             remember_me = spyral.widgets.Checkbox()
             save = spyral.widgets.ToggleButton("Save")
-            
+
         my_form = MyForm()
-    
+
     Every widget in a form is accessible as an attribute of the form:
-    
+
         >>> print my_form.name.value
         "Current Name"
-    
+
     :param scene: The Scene or View that this Form belongs to.
     :type scene: :class:`Scene <spyral.Scene>` or :class:`View <spyral.View>`.
     """
@@ -44,8 +53,6 @@ class Form(spyral.View):
         self._widgets = []
         # Map each widget instance to its tab order
         self._tab_orders = {}
-        # Maintain a mapping of each label from its name
-        self._labels = {}
         # The instance of the currently focused widget
         self._current_focus = None
         # The instance of the currently mouse-overed widget
@@ -72,7 +79,11 @@ class Form(spyral.View):
 
     def _handle_mouse_up(self, event):
         """
-        
+        Delegate the mouse being released to the widget that is currently being
+        clicked.
+
+        :param event: The associated event data.
+        :type event: :class:`Event <spyral.Event>`
         """
         if self._mouse_down_on is None:
             return False
@@ -80,6 +91,13 @@ class Form(spyral.View):
         self._mouse_down_on = None
 
     def _handle_mouse_down(self, event):
+        """
+        Delegate the mouse being clicked down to any widget that it is currently
+        hovering over.
+
+        :param event: The associated event data.
+        :type event: :class:`Event <spyral.Event>`
+        """
         for widget in self._widgets:
             if widget.collide_point(event.pos):
                 self.focus(widget)
@@ -89,6 +107,15 @@ class Form(spyral.View):
         return False
 
     def _handle_mouse_motion(self, event):
+        """
+        Delegate the mouse being hovered over any widget that it is currently
+        hovering over. If the widget being hovered over is no longer the
+        previous widget that was being hovered over, it notifies the old widget
+        (mouse out event) and the new widget (mouse over event).
+
+        :param event: The associated event data.
+        :type event: :class:`Event <spyral.Event>`
+        """
         if self._mouse_down_on is not None:
             self._mouse_down_on._handle_mouse_motion(event)
         now_hover = None
@@ -104,6 +131,14 @@ class Form(spyral.View):
                 now_hover._handle_mouse_over(event)
 
     def _handle_tab(self, event):
+        """
+        If this form has focus, advances to the next widget in the tab order.
+        Unless the shift key is held, in which case the previous widget is
+        focused.
+
+        :param event: The associated event data.
+        :type event: :class:`Event <spyral.Event>`
+        """
         if self._current_focus is None:
             return
         if event.type == 'down':
@@ -115,16 +150,43 @@ class Form(spyral.View):
         return True
 
     def _handle_key_down(self, event):
+        """
+        Notifies the currently focused widget that a key has been pressed.
+
+        :param event: The associated event data.
+        :type event: :class:`Event <spyral.Event>`
+        """
         if self._current_focus is not None:
             self._current_focus._handle_key_down(event)
+
     def _handle_key_up(self, event):
+        """
+        Notifies the currently focused widget that a key has been released.
+
+        :param event: The associated event data.
+        :type event: :class:`Event <spyral.Event>`
+        """
         if self._current_focus is not None:
             self._current_focus._handle_key_up(event)
 
 
-    def add_widget(self, name, widget, tab_order = None):
+    def add_widget(self, name, widget, tab_order=None):
         """
-        If tab-order is None, it is set to one higher than the highest tab order.
+        Adds a new widget to this form. When this method is used to add a Widget
+        to a Form, you create the Widget as you would create a normal Sprite. It
+        is less preferred to using the class-based method; consider carefully
+        whether you can achieve the same effect through visibility and
+        disabling.
+
+        >>> my_widget = spyral.widgets.ButtonWidget(my_form, "save")
+        >>> my_form.add_widget("save", my_widget)
+
+        :param str name: A unique name for this widget.
+        :param widget: The new Widget.
+        :type widget: :class:`Widget <spyral.Widget>`.
+        :param int tab_order: Sets the tab order for this widget explicitly. If
+                              tab-order is None, it is set to one higher than
+                              the highest tab order.
         """
         if tab_order is None:
             if len(self._tab_orders) > 0:
@@ -136,21 +198,23 @@ class Form(spyral.View):
         #self.add_child(widget)
         setattr(self.fields, name, widget)
 
-    def add_label(self, name, sprite):
-        """
-        Adds a non-widget spyral.Sprite as part of the form.
-        """
-        self._labels[name] = sprite
-        #self.add_child(sprite)
-        setattr(self.fields, name, sprite)
-
     def get_values(self):
         """
-        Returns a dictionary of the values for all the fields.
+        Returns a dictionary of the values for all the fields, mapping the name
+        of each widget with the value associated with that widget.
+
+        :rtype: dict
+        :returns: A dictionary of the values for all fields.
         """
         return dict((widget.name, widget.value) for widget in self._widgets)
 
     def _blur(self, widget):
+        """
+        Queues an event indicating that a widget has lost focus.
+
+        :param widget: The widget that is losing focus.
+        :type widget: :class:`Widget <spyral.Widget>`
+        """
         e = spyral.Event(name="blurred", widget=widget, form=self)
         self.scene._queue_event("form.%(form_name)s.%(widget)s.blurred" %
                                     {"form_name": self.__class__.__name__,
@@ -158,16 +222,21 @@ class Form(spyral.View):
                                 e)
         widget._handle_blur(e)
 
-    def focus(self, widget = None):
+    def focus(self, widget=None):
         """
         Sets the focus to be on a specific widget. Focus by default goes
         to the first widget added to the form.
+
+        :param widget: The widget that is gaining focus; if None, then the first
+                       widget gains focus.
+        :type widget: :class:`Widget <spyral.Widget>`
         """
         # By default, we focus on the first widget added to the form
         if widget is None:
             if not self._widgets:
                 return
-            widget = min(self._tab_orders.iteritems(), key=operator.itemgetter(1))[0]
+            widget = min(self._tab_orders.iteritems(),
+                         key=operator.itemgetter(1))[0]
 
         # If we'd focused on something before, we blur it
         if self._current_focus is not None:
@@ -177,7 +246,7 @@ class Form(spyral.View):
         self._current_focus = widget
 
         # Make and send the "focused" event
-        e = spyral.Event(name="focused", widget=widget, form = self)
+        e = spyral.Event(name="focused", widget=widget, form=self)
         self.scene._queue_event("form.%(form_name)s.%(widget)s.focused" %
                                     {"form_name": self.__class__.__name__,
                                      "widget": widget.name},
@@ -193,9 +262,12 @@ class Form(spyral.View):
             self._blur(self._current_focus)
             self._current_focus = None
 
-    def next(self, wrap = True):
+    def next(self, wrap=True):
         """
-        Focuses the next widget
+        Focuses on the next widget in tab order.
+
+        :param bool wrap: Whether to continue to the first widget when the end
+                          of the tab order is reached.
         """
         if self._current_focus is None:
             self.focus()
@@ -203,7 +275,9 @@ class Form(spyral.View):
         if not self._widgets:
             return
         cur = self._tab_orders[self._current_focus]
-        candidates = [(widget, order) for (widget, order) in self._tab_orders.iteritems() if order > cur]
+        candidates = [(widget, order) for (widget, order)
+                                      in self._tab_orders.iteritems()
+                                      if order > cur]
         if len(candidates) == 0:
             if not wrap:
                 return
@@ -215,9 +289,12 @@ class Form(spyral.View):
         self._current_focus = None
         self.focus(widget)
 
-    def previous(self, wrap = True):
+    def previous(self, wrap=True):
         """
-        Focuses the previous widget
+        Focuses the previous widget in tab order.
+
+        :param bool wrap: Whether to continue to the last widget when the first
+                          of the tab order is reached.
         """
         if self._current_focus is None:
             self.focus()
@@ -225,11 +302,14 @@ class Form(spyral.View):
         if not self._widgets:
             return
         cur = self._tab_orders[self._current_focus]
-        candidates = [(widget, order) for (widget, order) in self._tab_orders.iteritems() if order < cur]
+        candidates = [(widget, order) for (widget, order)
+                                      in self._tab_orders.iteritems()
+                                      if order < cur]
         if len(candidates) == 0:
             if not wrap:
                 return
-            widget = max(self._tab_orders.iteritems(), key=operator.itemgetter(1))[0]
+            widget = max(self._tab_orders.iteritems(),
+                         key=operator.itemgetter(1))[0]
         else:
             widget = max(candidates, key=operator.itemgetter(1))[0]
 
