@@ -626,12 +626,6 @@ class Scene(object):
         self._layer_tree.set_view_layers(view, layers)
     def _add_view(self, view):
         self._layer_tree.add_view(view)
-        
-    def _compute_layer(self, layer):
-        """
-        Computes the numerical index of `layer` (in reference to the other layers).
-        """
-        return spyral.util.compute_layer(self._layers, layer)
 
     def set_layers(self, layers):
         """

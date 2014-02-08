@@ -1,7 +1,6 @@
 import spyral
 import parsley
 import string
-from collections import defaultdict
 from ast import literal_eval
 
 parser = None
