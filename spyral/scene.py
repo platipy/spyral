@@ -9,7 +9,7 @@ import greenlet
 import inspect
 import sys
 import math
-from layertree import LayerTree
+from layertree import _LayerTree
 from collections import defaultdict
 from weakref import ref as _wref
 from weakmethod import WeakMethod as _wm
@@ -83,7 +83,7 @@ class Scene(object):
 
         self._layers = []
         self._child_views = []
-        self._layer_tree = LayerTree(self)
+        self._layer_tree = _LayerTree(self)
         self._sprites = set()
         
         self.register('director.scene.enter', self.redraw)
