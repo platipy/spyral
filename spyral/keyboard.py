@@ -1,7 +1,24 @@
+"""The keyboard modules provides an interface to adjust the keyboard's repeat
+rate.
+
+.. attribute:: repeat
+
+    When the keyboard repeat is enabled, keys that are held down will keep
+    generating new events over time. Defaults to `False`.
+
+.. attribute:: delay
+
+    `int` to control how many milliseconds before the repeats start.
+
+.. attribute:: interval
+
+    `int` to control how many milliseconds to wait between repeated events.
+
+"""
+
 import sys
 import types
 import pygame
-import spyral
 
 old = sys.modules[__name__]
 

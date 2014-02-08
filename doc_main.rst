@@ -35,9 +35,11 @@ Scenes are the basic units that are executed by spyral for your game, and should
 API Reference
 -------------
 
+.. automodule:: spyral.keyboard
+    :members:
+    
 .. autoclass:: spyral.Image
     :members:
-
 
 .. autoclass:: spyral.Form
     :members:
