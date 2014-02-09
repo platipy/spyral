@@ -19,11 +19,11 @@ class BaseWidget(spyral.View):
         self.form = form
         spyral.View.__init__(self, form)
         self.mask = spyral.Rect(self.pos, self.size)
-    
+
     def _changed(self):
         self._recalculate_mask()
         spyral.View._changed(self)
-    
+
     def _recalculate_mask(self):
         self.mask = spyral.Rect(self.pos, self.size + self.padding)
 
@@ -34,29 +34,29 @@ class MultiStateWidget(BaseWidget):
     The MultiStateWidget is an abstract widget with multiple states. It is can
     be subclassed and implemented to have different behavior based on its
     states.
-    
+
     In addition, it supports having a Nine Slice image; it will cut a given
     image into a 3x3 grid of images that can be stretched into a button. This
     is a boolean property.
-    
+
     *states* should be a list of the possible states that the widget can be in.
     """
     def __init__(self, form, name, states):
         self._states = states
         self._state = self._states[0]
         self.button = None # Hack for now; TODO need to be able to set properties on it even though it doesn't exist yet
-        
+
         BaseWidget.__init__(self, form, name)
         self.layers = ["base", "content"]
-                
+
         self._images = {}
         self._content_size = (0, 0)
         self.button = spyral.Sprite(self)
         self.button.layer = "base"
-        
+
     def _render_images(self):
         """
-        Recreates the cached images of this widget (based on the 
+        Recreates the cached images of this widget (based on the
         **self._image_locations** internal variabel) and sets the widget's image
         based on its current state.
         """
@@ -70,75 +70,75 @@ class MultiStateWidget(BaseWidget):
         self.button.image = self._images[self._state]
         self.mask = spyral.Rect(self.pos, self.button.size)
         self._on_state_change()
-    
+
     def _set_state(self, state):
         old_value = self.value
         self._state = state
         if self.value != old_value:
             e = spyral.Event(name="changed", widget=self, form=self.form, value=self._get_value())
             self.scene._queue_event("form.%(form_name)s.%(widget)s.changed" %
-                                        {"form_name": self.form.__class__.__name__, 
-                                         "widget": self.name}, 
+                                        {"form_name": self.form.__class__.__name__,
+                                         "widget": self.name},
                                     e)
         self.button.image = self._images[state]
         self.mask = spyral.Rect(self.pos, self.button.size)
         self._on_state_change()
-        
+
     def _get_value(self):
         return self._state
-        
+
     def _get_state(self):
         return self._state
-        
+
     def _set_nine_slice(self, nine_slice):
         self._nine_slice = nine_slice
         self._render_images()
-        
+
     def _get_nine_slice(self):
         return self._nine_slice
-        
+
     def _set_padding(self, padding):
         if isinstance(padding, spyral.Vec2D):
             self._padding = padding
         else:
             self._padding = spyral.Vec2D(padding, padding)
         self._render_images()
-        
+
     def _get_padding(self):
         """
         TODO: _get_padding documentation
         """
         return self._padding
-        
+
     def _set_content_size(self, size):
         """
         TODO: _set_content_size documentation
         """
         self._content_size = size
         self._render_images()
-        
+
     def _get_content_size(self):
         return self._get_content_size
-        
+
     def _on_size_change(self):
         pass
-        
+
     def _get_anchor(self):
         return self._anchor
-        
+
     def _set_anchor(self, anchor):
         if self.button is not None:
             self.button.anchor = anchor
             self._text_sprite.anchor = anchor
         BaseWidget._set_anchor(self, anchor)
-    
+
     anchor = property(_get_anchor, _set_anchor)
     value = property(_get_value)
     padding = property(_get_padding, _set_padding)
     nine_slice = property(_get_nine_slice, _set_nine_slice)
     state = property(_get_state, _set_state)
     content_size = property(_get_content_size, _set_content_size)
-    
+
     def __stylize__(self, properties):
         self._padding = properties.pop('padding', 4)
         if not isinstance(self._padding, spyral.Vec2D):
@@ -159,79 +159,79 @@ class ButtonWidget(MultiStateWidget):
     """
     def __init__(self, form, name, text = "Okay"):
         MultiStateWidget.__init__(self, form, name, ['up', 'down', 'down_focused', 'down_hovered', 'up_focused', 'up_hovered'])
-        
+
         self._text_sprite = spyral.Sprite(self)
         self._text_sprite.layer = "content"
 
         self.text = text
-    
+
     def _get_value(self):
         if "up" in self._state:
             return "up"
         else:
             return "down"
-        
+
     def _get_text(self):
         return self._text
-    
+
     def _set_text(self, text):
         self._text = text
         self._text_sprite.image = self.font.render(self._text)
         self._content_size = self._text_sprite.image.size
         self._render_images()
-        
+
     def _on_state_change(self):
         self._text_sprite.pos = spyral.util.anchor_offset(self._anchor, self._padding[0] / 2, self._padding[1] / 2)
-    
+
     value = property(_get_value)
     text = property(_get_text, _set_text)
-    
+
     def _handle_mouse_up(self, event):
         if self.state.startswith('down'):
             self.state = self.state.replace('down', 'up')
-        
+
     def _handle_mouse_down(self, event):
         if self.state.startswith('up'):
             self.state = self.state.replace('up', 'down')
             e = spyral.Event(name="clicked", widget=self, form=self.form, value=self._get_value())
             self.scene._queue_event("form.%(form_name)s.%(widget)s.clicked" %
-                                        {"form_name": self.form.__class__.__name__, 
-                                         "widget": self.name}, 
+                                        {"form_name": self.form.__class__.__name__,
+                                         "widget": self.name},
                                     e)
-        
+
     def _handle_mouse_out(self, event):
         if "_hovered" in self.state:
             self.state = self.state.replace('_hovered', '')
-        
+
     def _handle_mouse_over(self, event):
         if not "_hovered" in self.state:
             self.state = self.state.replace('_focused', '') + "_hovered"
-        
+
     def _handle_mouse_motion(self, event):
         pass
-        
+
     def _handle_focus(self, event):
         if self.state in ('up', 'down'):
             self.state+= '_focused'
-    
+
     def _handle_blur(self, event):
         if self.state in ('up_focused', 'down_focused'):
             self.state = self.state.replace('_focused', '')
-            
+
     def _handle_key_down(self, event):
         if event.key in (32, 13):
             self.handle_mouse_down(event)
     def _handle_key_up(self, event):
         if event.key in (32, 13):
             self.handle_mouse_up(event)
-        
+
     def __stylize__(self, properties):
         self.font = spyral.Font(*properties.pop('font'))
         self._text = properties.pop('text', "Button")
 
         MultiStateWidget.__stylize__(self, properties)
-    
-        
+
+
 class ToggleButtonWidget(ButtonWidget):
     """
     A ToggleButtonWidget is similar to a Button, except that it will stay down
@@ -239,16 +239,16 @@ class ToggleButtonWidget(ButtonWidget):
     """
     def __init__(self, form, name, text = "Okay"):
         ButtonWidget.__init__(self, form, name, text)
-        
+
     def _handle_mouse_up(self, event):
         pass
-        
+
     def _handle_mouse_down(self, event):
         if self.state.startswith('down'):
             self.state = self.state.replace('down', 'up')
         elif self.state.startswith('up'):
             self.state = self.state.replace('up', 'down')
-        
+
 
 class CheckboxWidget(ToggleButtonWidget):
     """
@@ -265,24 +265,24 @@ class RadioButtonWidget(ToggleButtonWidget):
     """
     def __init__(self, form, name, group):
         ToggleButtonWidget.__init__(self, form, name, _view_x)
-        
+
 class RadioGroupWidget(object):
     """
     Only one RadioButton in a RadioGroup can be selected at a time.
-    
+
     ..warning:: This widget is incomplete.
     """
     def __init__(self, buttons, selected = None):
         pass
 
 
-class TextInputWidget(BaseWidget):            
+class TextInputWidget(BaseWidget):
     def __init__(self, form, name, width, value = '', default_value = True, text_length = None, validator = None):
         self.box_width, self._box_height = 0, 0
         BaseWidget.__init__(self, form, name)
-        
+
         self.layers = ["base", "content"]
-    
+
         child_anchor = (self._padding, self._padding)
         self._back = spyral.Sprite(self)
         self._back.layer = "base"
@@ -292,24 +292,24 @@ class TextInputWidget(BaseWidget):
         self._text = spyral.Sprite(self)
         self._text.pos = child_anchor
         self._text.layer = "content"
-        
+
         self._focused = False
         self._cursor.visible = False
         self._selection_pos = 0
         self._selecting = False
         self._shift_was_down = False
         self._mouse_is_down = False
-        
+
         self._cursor_time = 0.
         self._cursor_blink_interval = self._cursor_blink_interval
-        
+
         self.default_value = default_value
         self._default_value_permanant = default_value
 
         self._view_x = 0
         self.box_width = width - 2*self._padding
         self.text_length = text_length
-        
+
         self._box_height = int(math.ceil(self.font.linesize))
         self._recalculate_mask()
 
@@ -320,20 +320,20 @@ class TextInputWidget(BaseWidget):
             self.validator = str(set(string.printable).difference("\n\t"))
         else:
             self.validator = validator
-        
+
         if text_length is not None and len(value) < text_length:
             value = value[:text_length]
         self._value = None
         self.value = value
-        
+
         self._render_backs()
         self._back.image = self._image_plain
-        
+
         self.scene.register("director.update", self._update)
-        
+
     def _recalculate_mask(self):
         self.mask = spyral.Rect(self.x+self.padding, self.y+self.padding, self.box_width+self.padding, self._box_height+self.padding)
-        
+
     def _render_backs(self):
         padding = self._padding
         width = self.box_width + 2*padding + 2
@@ -343,7 +343,7 @@ class TextInputWidget(BaseWidget):
         if self._nine_slice:
             self._image_plain = spyral.Image.render_nine_slice(self._image_plain, (width, height))
             self._image_focused = spyral.Image.render_nine_slice(self._image_focused, (width, height))
-        
+
     def __stylize__(self, properties):
         self._padding = properties.pop('padding', 4)
         self._nine_slice = properties.pop('nine_slice', False)
@@ -357,14 +357,14 @@ class TextInputWidget(BaseWidget):
         self.font = spyral.Font(*properties.pop('font'))
 
         spyral.View.__stylize__(self, properties)
-            
+
     def _compute_letter_widths(self):
         self._letter_widths = []
         running_sum = 0
         for index in range(len(self._value)+1):
             running_sum= self.font.get_size(self._value[:index])[0]
             self._letter_widths.append(running_sum)
-            
+
     def _insert_char(self, position, char):
         if position == len(self._value):
             self._value += char
@@ -376,14 +376,14 @@ class TextInputWidget(BaseWidget):
         self._render_text()
         e = spyral.Event(name="changed", widget=self, form=self.form, value=self._value)
         self.scene._queue_event("form.%(form_name)s.%(widget)s.changed" %
-                                    {"form_name": self.form.__class__.__name__, 
-                                     "widget": self.name}, 
+                                    {"form_name": self.form.__class__.__name__,
+                                     "widget": self.name},
                                 e)
-        
+
     def _remove_char(self, position, end = None):
         if end is None:
             end = position+1
-        if position == len(self._value): 
+        if position == len(self._value):
             pass
         else:
             self._value = self._value[:position]+self._value[end:]
@@ -392,11 +392,11 @@ class TextInputWidget(BaseWidget):
         self._render_cursor()
         e = spyral.Event(name="changed", widget=self, form=self.form, value=self._value)
         self.scene._queue_event("form.%(form_name)s.%(widget)s.changed" %
-                                    {"form_name": self.form.__class__.__name__, 
-                                     "widget": self.name}, 
+                                    {"form_name": self.form.__class__.__name__,
+                                     "widget": self.name},
                                 e)
-                
-            
+
+
     def _compute_cursor_pos(self, mouse_pos):
         x = mouse_pos[0] + self._view_x - self.x - self._padding
         index = bisect_right(self._letter_widths, x)
@@ -411,77 +411,77 @@ class TextInputWidget(BaseWidget):
                 return index
         else:
             return 0
-            
+
     def _stop_blinking(self):
         self._cursor_time = 0
         self._cursor.visible = True
-        
+
     def _get_value(self):
         return self._value
-        
+
     def _set_value(self, value):
         if self._value is not None:
             e = spyral.Event(name="changed", widget=self, form=self.form, value=value)
             self.scene._queue_event("form.%(form_name)s.%(widget)s.changed" %
-                                        {"form_name": self.form.__class__.__name__, 
-                                         "widget": self.name}, 
+                                        {"form_name": self.form.__class__.__name__,
+                                         "widget": self.name},
                                     e)
         self._value = value
         self._compute_letter_widths()
         self._cursor_pos = 0#len(value)
         self._render_text()
         self._render_cursor()
-    
+
     def _get_cursor_pos(self):
         return self._cursor_pos
-    
+
     def _set_cursor_pos(self, position):
         self._cursor_pos = position
         self._move_rendered_text()
         self._render_cursor()
-        
+
     def validate(self, char):
         valid_length = self.text_length is None or (self.text_length is not None and len(self._value) < self.text_length)
         valid_char = str(char) in self.validator
         return valid_length and valid_char
-    
+
     def _set_nine_slice(self, nine_slice):
         self._nine_slice = nine_slice
         self._render_backs()
-        
+
     def _get_nine_slice(self):
         return self._nine_slice
-        
+
     def _set_padding(self, padding):
         self._padding = padding
         self._render_backs()
-        
+
     def _get_padding(self):
         return self._padding
-        
+
     def _get_anchor(self):
         return self._anchor
-        
+
     def _set_anchor(self, anchor):
         self._back.anchor = anchor
         self._text.anchor = anchor
         self._cursor.anchor = anchor
         BaseWidget._set_anchor(self, anchor)
-    
+
     anchor = property(_get_anchor, _set_anchor)
     value = property(_get_value, _set_value)
     cursor_pos = property(_get_cursor_pos, _set_cursor_pos)
     padding = property(_get_padding, _set_padding)
     nine_slice = property(_get_nine_slice, _set_nine_slice)
-        
+
     def _render_text(self):
         if self._selecting and (self._cursor_pos != self._selection_pos):
             start, end = sorted((self._cursor_pos, self._selection_pos))
-            
+
             pre = self.font.render(self._value[:start])
             highlight = self.font.render(self._value[start:end], color=self._highlight_color)
             post = self.font.render(self._value[end:])
-            
+
             pre_missed = self.font.get_size(self._value[:end])[0] - pre.width - highlight.width + 1
             if self._value[:start]:
                 post_missed = self.font.get_size(self._value)[0] - post.width - pre.width - highlight.width - 1
@@ -493,20 +493,20 @@ class TextInputWidget(BaseWidget):
         else:
             self._rendered_text = self.font.render(self._value)
         self._move_rendered_text()
-        
+
     def _move_rendered_text(self):
         width = self._letter_widths[self.cursor_pos]
         max_width = self._letter_widths[len(self._value)]
         cursor_width = 2
         x = width - self._view_x
-        if x < 0: 
+        if x < 0:
             self._view_x += x
         if x+cursor_width > self.box_width:
             self._view_x += x + cursor_width - self.box_width
         if self._view_x+self.box_width> max_width and max_width > self.box_width:
             self._view_x = max_width - self.box_width
         image = self._rendered_text.copy()
-        image.crop((self._view_x, 0), 
+        image.crop((self._view_x, 0),
                    (self.box_width, self._box_height))
         self._text.image = image
         # if highlighting
@@ -515,21 +515,21 @@ class TextInputWidget(BaseWidget):
         #   print second segment of non-highlight
         # else:
         #   print regular text
-        
+
     def _render_cursor(self):
         self._cursor.x = min(max(self._letter_widths[self.cursor_pos] - self._view_x, 0), self.box_width)
         self._cursor.y = 0
-        
-    _non_insertable_keys =(spyral.keys.up, spyral.keys.down, 
+
+    _non_insertable_keys =(spyral.keys.up, spyral.keys.down,
                            spyral.keys.left, spyral.keys.right,
-                           spyral.keys.home, spyral.keys.end, 
+                           spyral.keys.home, spyral.keys.end,
                            spyral.keys.pageup, spyral.keys.pagedown,
                            spyral.keys.numlock, spyral.keys.capslock,
                            spyral.keys.scrollock, spyral.keys.rctrl,
                            spyral.keys.rshift, spyral.keys.lshift,
                            spyral.keys.lctrl, spyral.keys.rmeta,
                            spyral.keys.ralt, spyral.keys.lalt,
-                           spyral.keys.lmeta, spyral.keys.lsuper, 
+                           spyral.keys.lmeta, spyral.keys.lsuper,
                            spyral.keys.rsuper, spyral.keys.mode)
     _non_skippable_keys = (' ', '.', '?', '!', '@', '#', '$',
                            '%', '^', '&', '*', '(', ')', '+',
@@ -537,7 +537,7 @@ class TextInputWidget(BaseWidget):
                            '<', '>', ',', '/', '\\', '|', '"',
                            "'", '~', '`')
     _non_printable_keys = ('\t', '')+_non_insertable_keys
-                           
+
     def _find_next_word(self, text, start=0, end=None):
         if end is None:
             end = len(text)
@@ -553,7 +553,7 @@ class TextInputWidget(BaseWidget):
             if letter in self._non_skippable_keys:
                 return end-(index+1)
         return start
-        
+
     def _delete(self, by_word = False):
         if self._selecting:
             start, end = sorted((self.cursor_pos, self._selection_pos))
@@ -565,7 +565,7 @@ class TextInputWidget(BaseWidget):
             self._remove_char(start, end)
         else:
             self._remove_char(self.cursor_pos)
-        
+
     def _backspace(self, by_word = False):
         if self._selecting:
             start, end = sorted((self.cursor_pos, self._selection_pos))
@@ -581,42 +581,42 @@ class TextInputWidget(BaseWidget):
         elif self._cursor_pos:
             self.cursor_pos-= 1
             self._remove_char(self.cursor_pos)
-    
+
     def _move_cursor_left(self, by_word = False):
         if by_word:
             self.cursor_pos = self._find_previous_word(self.value, 0, self.cursor_pos)
         else:
             self.cursor_pos= max(self.cursor_pos-1, 0)
-    
+
     def _move_cursor_right(self, by_word = False):
         if by_word:
             self.cursor_pos = self._find_next_word(self.value, self.cursor_pos, len(self.value))
         else:
             self.cursor_pos= min(self.cursor_pos+1, len(self.value))
-            
+
     def _update(self, delta):
         if self._focused:
             self._cursor_time += delta
             if self._cursor_time > self._cursor_blink_interval:
                 self._cursor_time -= self._cursor_blink_interval
                 self._cursor.visible = not self._cursor.visible
-    
+
     def _handle_key_down(self, event):
         key = event.key
         mods = event.mod
         shift_is_down= (mods & spyral.mods.shift) or (key in (spyral.keys.lshift, spyral.keys.rshift))
         shift_clicked = not self._shift_was_down and shift_is_down
         self._shift_was_down = shift_is_down
-        
-        if shift_clicked or (shift_is_down and not 
-                             self._selecting and 
+
+        if shift_clicked or (shift_is_down and not
+                             self._selecting and
                              key in TextInputWidget._non_insertable_keys):
             self._selection_pos = self.cursor_pos
             self._selecting = True
-            
+
         if key == spyral.keys.left:
             self._move_cursor_left(mods & spyral.mods.ctrl)
-        elif key == spyral.keys.right: 
+        elif key == spyral.keys.right:
             self._move_cursor_right(mods & spyral.mods.ctrl)
         elif key == spyral.keys.home:
             self.cursor_pos = 0
@@ -634,17 +634,17 @@ class TextInputWidget(BaseWidget):
                 if self.validate(unicode):
                     self._insert_char(self.cursor_pos, unicode)
                     self.cursor_pos+= 1
-                
+
         if not shift_is_down or (shift_is_down and key not in TextInputWidget._non_insertable_keys):
             self._selecting = False
             self._render_text()
         if self._selecting:
             self._render_text()
-    
+
     def _handle_mouse_over(self, event): pass
     def _handle_mouse_out(self, event): pass
     def _handle_key_up(self, event): pass
-    
+
     def _handle_mouse_up(self, event):
         self.cursor_pos = self._compute_cursor_pos(event.pos)
     def _handle_mouse_down(self, event):
@@ -656,7 +656,7 @@ class TextInputWidget(BaseWidget):
             self._selecting = False
         self.cursor_pos = self._compute_cursor_pos(event.pos)
         # set cursor position to mouse position
-        if self.default_value: 
+        if self.default_value:
             self.value = ''
             self.default_value = False
         self._render_text()
@@ -684,7 +684,7 @@ class TextInputWidget(BaseWidget):
         self._back.image = self._image_plain
         self._focused = False
         self._cursor.visible = False
-        self.default_value = self._default_value_permanant  
+        self.default_value = self._default_value_permanant
 
 
 # Module Magic

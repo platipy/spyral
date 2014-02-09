@@ -57,28 +57,28 @@ class View(object):
         self._scene()._add_view(self)
         self._parent()._add_child(self)
         self._scene().apply_style(self)
-        
+
     def _add_child(self, entity):
         """
         Starts keeping track of the entity as a child of this view.
-        
+
         :param entity: The new entity to keep track of.
         :type entity: a View or a Sprite.
         """
         self._children.add(entity)
         if isinstance(entity, View):
             self._child_views.add(entity)
-        
+
     def _remove_child(self, entity):
         """
-        Stops keeping track of the entity as a child of this view, if it exists. 
-        
+        Stops keeping track of the entity as a child of this view, if it exists.
+
         :param entity: The entity to keep track of.
         :type entity: a View or a Sprite.
         """
         self._children.discard(entity)
         self._child_views.discard(entity)
-        
+
     def kill(self):
         """
         Completely remove any parent's links to this view. When you want to
@@ -89,15 +89,15 @@ class View(object):
         self._children.clear()
         self._child_views.clear()
         self._scene()._kill_view(self)
-        
+
     def _get_mask(self):
         """
         Return this View's mask, a spyral.Rect representing the collidable area.
-        :rtype: :class:`Rect <spyral.Rect>` if this value has been set, 
+        :rtype: :class:`Rect <spyral.Rect>` if this value has been set,
         otherwise it will be `None`.
         """
         return self._mask
-        
+
     def _set_mask(self, mask):
         """
         Set this View's mask. Triggers a recomputation of the collision box.
@@ -107,7 +107,7 @@ class View(object):
         """
         self._mask = mask
         self._set_collision_box()
-    
+
     def _set_collision_box_tree(self):
         """
         Set this View's collision box, and then also recursively recompute
@@ -127,7 +127,7 @@ class View(object):
         self._set_collision_box_tree()
         # Notify any listeners (probably children) that I have changed
         changed_event = spyral.Event(name="changed", view=self)
-        spyral.event.handle("spyral.internal.view.changed", 
+        spyral.event.handle("spyral.internal.view.changed",
                             changed_event,
                             self.scene)
 
@@ -144,7 +144,7 @@ class View(object):
     def _get_pos(self):
         """
         Returns the position of this View.
-        
+
         :rtype: `Vec2D <spyral.Vec2D>`
         """
         return self._pos
@@ -163,7 +163,7 @@ class View(object):
     def _get_layer(self):
         """
         Returns the layer that this View belongs on.
-        
+
         :rtype: String
         """
         return self._layer
@@ -211,43 +211,43 @@ class View(object):
 
     def _get_width(self):
         return self._size[0]
-            
+
     def _set_width(self, width):
         self._set_size(width, self._get_height())
 
     def _get_height(self):
         return self._size[1]
-            
+
     def _set_height(self, height):
         self._set_size(self._get_width(), height)
 
     def _get_output_width(self):
         return self._output_size[0]
-            
+
     def _set_output_width(self, width):
         self._set_output_size((width, self._get_output_height()))
 
     def _get_output_height(self):
         return self._output_size[1]
-            
+
     def _set_output_height(self, height):
         self._set_output_size((self._get_output_width(), height))
-        
+
     def _get_crop_width(self):
         return self._crop_size[0]
-            
+
     def _set_crop_width(self, width):
         self._set_crop_size((width, self._get_crop_height()))
 
     def _get_crop_height(self):
         return self._crop_size[1]
-            
+
     def _set_crop_height(self, height):
         self._set_crop_size((self._get_crop_width(), height))
 
     def _get_size(self):
         return self._size
-        
+
     def _set_size(self, size):
         if size == self._size:
             return
@@ -256,16 +256,16 @@ class View(object):
 
     def _get_output_size(self):
         return self._output_size
-        
+
     def _set_output_size(self, size):
         if size == self._output_size:
             return
         self._output_size = spyral.Vec2D(size)
         self._changed()
-        
+
     def _get_crop_size(self):
         return self._crop_size
-        
+
     def _set_crop_size(self, size):
         if size == self._crop_size:
             return
@@ -282,22 +282,22 @@ class View(object):
             return
         self._output_size = self._size * spyral.Vec2D(scale)
         self._changed()
-            
+
     def _get_scale_x(self):
         return self._get_scale()[0]
-        
+
     def _get_scale_y(self):
         return self._get_scale()[1]
-        
+
     def _set_scale_x(self, x):
         self._set_scale((x, self._get_scale()[1]))
 
     def _set_scale_y(self, y):
         self._set_scale((self._get_scale()[0], y))
-                
+
     def _get_visible(self):
         return self._visible
-        
+
     def _set_visible(self, visible):
         if self._visible == visible:
             return
@@ -312,16 +312,16 @@ class View(object):
             return
         self._crop = crop
         self._changed()
-        
-    
+
+
     def _get_parent(self):
         return self._parent()
     def _get_scene(self):
         return self._scene()
-        
+
     def _get_rect(self):
         return spyral.Rect(self._pos, self.size)
-    
+
     def _set_rect(self, *rect):
         if len(rect) == 1:
             r = rect[0]
@@ -360,7 +360,7 @@ class View(object):
     parent = property(_get_parent)
     scene = property(_get_scene)
     rect = property(_get_rect, _set_rect)
-    
+
     def _blit(self, blit):
         if self.visible:
             blit.position += self.position
@@ -368,7 +368,7 @@ class View(object):
             if self.crop:
                 blit.clip(spyral.Rect((0, 0), self.crop_size))
             self._parent()._blit(blit)
-        
+
     def _static_blit(self, key, blit):
         if self.visible:
             blit.position += self.position
@@ -376,14 +376,14 @@ class View(object):
             if self.crop:
                 blit.clip(spyral.Rect((0, 0), self.crop_size))
             self._parent()._static_blit(key, blit)
-    
+
     def _warp_collision_box(self, box):
         box.position += self.position
         box.apply_scale(self.scale)
         if self.crop:
             box.clip(spyral.Rect((0, 0), self.crop_size))
         return self._parent()._warp_collision_box(box)
-    
+
     def _set_collision_box(self):
         if self._mask is not None:
             pos = self._mask.topleft - self._offset
@@ -394,13 +394,13 @@ class View(object):
         c = spyral.util._CollisionBox(pos, area)
         warped_box = self._parent()._warp_collision_box(c)
         self._scene()._set_collision_box(self, warped_box.rect)
-            
+
     def __stylize__(self, properties):
-        simple = ['pos', 'x', 'y', 'position', 
+        simple = ['pos', 'x', 'y', 'position',
                   'width', 'height', 'size',
                   'output_width', 'output_height', 'output_size',
                   'anchor', 'layer', 'layers', 'visible',
-                  'scale', 'scale_x', 'scale_y', 
+                  'scale', 'scale_x', 'scale_y',
                   'crop', 'crop_width', 'crop_height', 'crop_size']
         for property in simple:
             if property in properties:

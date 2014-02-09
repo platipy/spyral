@@ -32,7 +32,7 @@ class Game(spyral.Scene):
                 
         debug = spyral.DebugText(self, "1) Red square in middle of room", (255, 0, 255))
         debug.anchor = 'midbottom'
-        debug.position = self.rect.midbottom
+        debug.pos = self.rect.midbottom
         def test_react(event):
             debug.text = event.widget.value
         self.once = True

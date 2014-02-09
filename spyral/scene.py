@@ -19,18 +19,18 @@ def WeakMethod(func):
         return _wm(func)
     except TypeError:
         return func
-        
+
 class Scene(object):
     """
-    Creates a new Scene. When a scene is not active, no events will be processed 
+    Creates a new Scene. When a scene is not active, no events will be processed
         for it.
-    
+
     :param size: The `size` of the scene internally (or "virtually"). See `View size and Window size`_ for more details.
     :type size: width, height
     :param max_ups: Maximum updates to process per second. By default, `max_ups`
         is pulled from the director.
     :type max_ups: int
-    :param max_fps: Maximum frames to draw per second. By default, `max_fps` is 
+    :param max_fps: Maximum frames to draw per second. By default, `max_fps` is
         pulled from the director.
     :type max_fps: int
     """
@@ -59,7 +59,7 @@ class Scene(object):
             i = spyral.Image(size=size)
             i.fill(color)
             return i
-        
+
         self._style_functions['_get_spyral_path'] = spyral._get_spyral_path
         self._style_functions['TestingBox'] = TestingBox
 
@@ -85,7 +85,7 @@ class Scene(object):
         self._child_views = []
         self._layer_tree = _LayerTree(self)
         self._sprites = set()
-        
+
         self.register('director.scene.enter', self.redraw)
 
         self.register('director.update', self.handle_events)
@@ -98,14 +98,14 @@ class Scene(object):
 
         # Loading default styles
         self.load_style(spyral._get_spyral_path() + 'resources/form_defaults.spys')
-    
+
     # Actor Handling
     def _register_actor(self, actor, greenlet):
-        """ 
+        """
         Internal method to add a new `actor` to this scene.
         """
         self._greenlets[actor] = greenlet
-                    
+
     def _run_actors_greenlet(self, delta, _):
         """
         Helper method for run_actors to TODO: What does this do?
@@ -129,13 +129,13 @@ class Scene(object):
             if d is False:
                 break
             g.switch(d, True)
-    
+
 
     # Event Handling
     def _queue_event(self, type, event = None):
         """
         Internal method to add a new `event` to be handled by this scene.
-        
+
         TODO: This shouldn't be private; people often need to queue new events
         """
         if self._handling_events:
@@ -145,7 +145,7 @@ class Scene(object):
 
     def _reg_internal(self, namespace, handlers, args, kwargs, priority, dynamic):
         """
-        Convenience method for registering a new event; other variations 
+        Convenience method for registering a new event; other variations
         exist to keep the signature convenient and easy.
         """
         if namespace.endswith(".*"):
@@ -154,14 +154,14 @@ class Scene(object):
         for handler in handlers:
             self._handlers[namespace].append((handler, args, kwargs, priority, dynamic))
         self._handlers[namespace].sort(key=operator.itemgetter(3))
-        
+
     def _get_namespaces(self, namespace):
         """
         Internal method for returning all the registered namespaces that are in
         the given namespace. TODO: Could we document what exactly a namespace is?
         """
         return [n for n in self._namespaces if namespace.startswith(n)]
-        
+
     def _send_event_to_handler(self, event, handler, args, kwargs, priority, dynamic):
         """
         Internal method to dispatch events to their handlers.
@@ -188,7 +188,7 @@ class Scene(object):
             args = []
             kwargs = {}
         elif args is None and kwargs is None:
-            # Autodetect the arguments 
+            # Autodetect the arguments
             try:
                 funct = handler.f
             except AttributeError:
@@ -214,7 +214,7 @@ class Scene(object):
             kwargs = {}
         if handler is not None:
             handler(*args, **kwargs)
-    
+
     def _handle_event(self, type, event = None):
         """
         For a given event, send the event information to all registered handlers
@@ -222,7 +222,7 @@ class Scene(object):
         for handler_info in itertools.chain.from_iterable(self._handlers[namespace] for namespace in self._get_namespaces(type)):
             if self._send_event_to_handler(event, *handler_info):
                 break
-                    
+
     def handle_events(self):
         """
         Run through all the events and handle them.
@@ -241,7 +241,7 @@ class Scene(object):
         """
         Registers an event `handler` to a namespace. Whenever an event in that `event_namespace` is fired, the event `handler`
         will execute with that event. For more information, see `Event Namespaces`_.
-        
+
         :param event_namespace: the namespace of the event, e.g. "input.mouse.left.click" or "pong.score".
         :type event_namespace: string
         :param handler: A function that will handle the event. The first argument to the function will be the event.
@@ -258,15 +258,15 @@ class Scene(object):
     def register_dynamic(self, event_namespace, handler_string, args = None, kwargs = None, priority = 0):
         """
         Similar to :func:`spyral.Scene.register` function, except that instead of passing in a function, you pass in the name of a property of this scene that holds a function. For more information, see `Event Namespaces`_.
-        
+
         Example::
-        
+
             class MyScene(Scene):
                 def __init__(self):
                     ...
                     self.register_dynamic("orc.dies", "something") #TODO: I can't think of a good example...
                     ...
-                    
+
         TODO: Also, we need to mention how you can have multiple dots in the handler_string!
         """
         self._reg_internal(event_namespace, (handler_string,), args, kwargs, priority, True)
@@ -284,11 +284,11 @@ class Scene(object):
         instead of just one.
         """
         self._reg_internal(event_namespace, handler_strings, args, kwargs, priority, True)
-        
+
     def unregister(self, event_namespace, handler):
         """
         Unregisters a registered handler for that namespace. Dynamic handler strings are supported as well. For more information, see `Event Namespaces`_.
-        
+
         :param event_namespace: An event namespace
         :type event_namespace: string
         :param handler: The handler to unregister.
@@ -312,10 +312,10 @@ class Scene(object):
         ns = [n for n in self._namespaces if n.startswith(namespace)]
         for namespace in ns:
             self._handlers[namespace] = []
-            
+
     def clear_all_events(self):
         self._handlers.clear()
-        
+
     def set_event_source(self, source):
         """
         TODO: What's the status on this?
@@ -352,7 +352,7 @@ class Scene(object):
     def load_style(self, path):
         """
         Loads the style file in *path* and applies it to this Scene and any Sprites that it contains. See `Stylable Properties`_ for more details.
-        
+
         :param path: the location of the style file to load. Usually has the extension ".spys".
         :type path: string
         """
@@ -382,9 +382,9 @@ class Scene(object):
     def add_style_function(self, name, function):
         """
         Adds a new function that will then be available to be used in a stylesheet file.
-        
+
         Example::
-        
+
             import random
             class MyScene(spyral.Scene):
                 def __init__(self):
@@ -393,8 +393,8 @@ class Scene(object):
                     self.add_style_function("randint", random.randint)
                     # inside of style file you can now use the randint function!
                     ...
-                
-        
+
+
         :param name: The name the function will go by in the style file.
         :type name: string
         :param function: The actual function to add to the style file.
@@ -421,10 +421,10 @@ class Scene(object):
 
     def _get_height(self):
         return self._get_size()[1]
-    
+
     def _get_rect(self):
         return spyral.Rect((0,0), self.size)
-        
+
     def _get_scene(self):
         return self._scene()
     def _get_parent(self):
@@ -436,10 +436,10 @@ class Scene(object):
     width = property(_get_width)
     #: Read-only property that returns the height of the Scene (int).
     height = property(_get_height)
-    
+
     scene = property(_get_scene)
     parent = property(_get_parent)
-    
+
     rect = property(_get_rect)
 
     def _set_background(self, image):
@@ -449,10 +449,10 @@ class Scene(object):
             raise spyral.BackgroundSizeError("Background size must match the scene's size.")
         self._background = pygame.transform.smoothscale(surface, self._surface.get_size())
         self._clear_this_frame.append(self._background.get_rect())
-        
+
     def _get_background(self):
         return self._background
-        
+
     #: Sets the background of this scene to the `image` (:class:`Image <spyral.Image>`). The `image` must be the same size as the background. A background will be handled intelligently by Spyral; it knows to only redraw portions of it rather than the whole thing.
     background = property(_get_background, _set_background)
 
@@ -479,7 +479,7 @@ class Scene(object):
             del self._collision_boxes[sprite]
         for view in self._invalidating_views.keys():
             self._invalidating_views[view].discard(sprite)
-            
+
     def _kill_view(self, view):
         if view in self._invalidating_views:
             del self._invalidating_views[view]
@@ -502,7 +502,7 @@ class Scene(object):
         blit.finalize()
         self._static_blits[key] = blit
         self._clear_this_frame.append(blit.rect)
-        
+
     def _invalidate_views(self, view):
         if view in self._invalidating_views:
             for sprite in self._invalidating_views[view]:
@@ -542,7 +542,7 @@ class Scene(object):
         dynamic_blits = len(self._blits)
         blits = self._blits + list(self._static_blits.values())
         blits.sort(key=operator.attrgetter('layer'))
-        
+
         # Clear this is a list of things which need to be cleared
         # on this frame and marked dirty on the next
         clear_this = self._clear_this_frame
@@ -558,9 +558,9 @@ class Scene(object):
         self._soft_clear = []
         screen_rect = screen.get_rect()
         drawn_static = 0
-        
+
         blit_flags_available = pygame.version.vernum < (1, 8)
-        
+
         for blit in blits:
             blit_rect = blit.rect
             blit_flags = blit.flags if blit_flags_available else 0
@@ -611,7 +611,7 @@ class Scene(object):
     def redraw(self):
         """
         Force the entire visible window to be completely redrawn.
-        
+
         This is particularly useful for Sugar, which loves to put artifacts over
         our window.
         """
@@ -619,7 +619,7 @@ class Scene(object):
 
     def _get_layer_position(self, view, layer):
         return self._layer_tree.get_layer_position(view, layer)
-    
+
     def _set_view_layer(self, view, layer):
         self._layer_tree.set_view_layer(view, layer)
     def _set_view_layers(self, view, layers):
@@ -640,10 +640,10 @@ class Scene(object):
             pass
         else:
             raise spyral.LayersAlreadySetError("You can only define the layers for a scene once.")
-            
+
     def _get_layers(self):
         return self._layers
-        
+
     #: Returns the list of layers for this Scene, which are represented by strings. The first layer is at the bottom, and the last is at the top.
     layers = property(_get_layers)
 
@@ -656,15 +656,15 @@ class Scene(object):
             pos = pos / self._scale
             return pos
         return None
-        
+
     def _add_child(self, entity): pass
     def _remove_child(self, entity): pass
-        
+
     def _warp_collision_box(self, box):
         box.apply_scale(self._scale)
         box.finalize()
         return box
-    
+
     def _set_collision_box(self, entity, box):
         self._collision_boxes[entity] = box
 

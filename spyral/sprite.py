@@ -1,49 +1,118 @@
 import spyral
-import pygame as pygame
+import pygame
 from weakref import ref as _wref
 import math
 
+
 _all_sprites = []
 
-
 def _switch_scene():
+    """
+    Ensure that dead sprites are removed from the list and that sprites are
+    redrawn on a scene change.
+    """
     global _all_sprites
-    _all_sprites = [s for s in _all_sprites if s() is not None and s()
-                    ._expire_static()]
+    _all_sprites = [s for s in _all_sprites
+                      if s() is not None and s()._expire_static()]
 
 
 class Sprite(object):
     """
-    Sprites are how images are positioned and drawn onto the screen. 
-    They aggregate information such as where to be drawn, layering
-    information, and more together.
-        
-    Sprites have the following built-in attributes.
-    
-    ============    ============
-    Attribute       Description
-    ============    ============
-    pos             The position of a sprite in 2D coordinates, represented as a :class:`Vec2D <spyral.Vec2D>`
-    position        An alias for pos
-    x               The x coordinate of the sprite, which will remain synced with the position`
-    y               The y coordinate of the sprite, which will remain synced with the position`
-    anchor          Defines an `anchor point <anchors>` where coordinates are relative to on the image.
-    layer           The name of the layer this sprite belongs to. See `layering <spyral_layering>` for more.
-    image           The image for this sprite
-    visible         A boolean that represents whether this sprite should be drawn.
-    width           Width of the image after all transforms.
-    height          Height of the image after all transforms.
-    size            (width, height) of the image after all transforms.
-    scale           A scale factor for resizing the image. It will always contain a :class:`spyral.Vec2D` with an x factor and a y factor, but it can be set to a numeric value which will be set for both coordinates.
-    scale_x         The x factor of the scaling. Kept in sync with scale
-    scale_y         The y factor of the scaling. Kept in sync with scale
-    flip_x          A boolean that determines whether the image should be flipped horizontally
-    flip_y          A boolean that determines whether the image should be flipped vertically
-    angle           An angle to rotate the image by. Rotation is computed after scaling and flipping, and keeps the center of the original image aligned with the center of the rotated image.
-    parent          The parent of this sprite, either a View or a Scene. Read-only.
-    scene           The scene that this sprite belongs to. Read-only.
-    mask            A rect to use instead of the current image's rect for computing collisions. `None` if the image's rect should be used.
-    ============    ============
+    Sprites are how images are positioned and drawn onto the screen.
+    They aggregate together information such as where to be drawn, layering
+    information, and more.
+
+    .. attribute::pos
+
+        The position of a sprite in 2D coordinates, represented as a
+        :class:`Vec2D <spyral.Vec2D>`
+
+    .. attribute:: x
+
+        The x coordinate of the sprite, which will remain synced with the
+        position. Number.
+
+    .. attribute:: y
+
+        The y coordinate of the sprite, which will remain synced with the
+        position. Number
+
+    .. attribute:: anchor
+
+        Defines an `anchor point <anchors>` where coordinates are relative to on
+        the image. String.
+
+    .. attribute:: layer
+
+        String. The name of the layer this sprite belongs to. See
+        `layering <spyral_layering>` for more.
+
+    .. attribute:: image
+
+        The :class:`Image <spyral.Image>` for this sprite.
+
+    .. attribute:: visible
+
+        A boolean indicating whether this sprite should be drawn.
+
+    .. attribute:: width
+
+        The width of the image after all transforms. Read-only number.
+
+    .. attribute:: height
+
+        The height of the image after all transforms. Read-only number.
+
+    .. attribute:: size
+
+        The size of the image after all transforms. Read-only
+        :class:`Vec2D <spyral.Vec2D>`
+
+    .. attribute:: scale
+
+        A scale factor for resizing the image. When read, it will always contain
+        a :class:`spyral.Vec2D` with an x factor and a y factor, but it can be
+        set to a numeric value which wil ensure identical scaling along both
+        axes.
+
+    .. attribute:: scale_x
+
+        The x factor of the scaling that's kept in sync with scale. Number.
+
+    .. attribute:: scale_y
+
+        The y factor of the scaling that's kept in sync with scale. Number.
+
+    .. attribute:: flip_x
+
+        A boolean that determines whether the image should be flipped
+        horizontally.
+
+    .. attribute:: flip_y
+
+        A boolean that determines whether the image should be flipped
+        vertically.
+
+    .. attribute:: angle
+
+        An angle to rotate the image by. Rotation is computed after scaling and
+        flipping, and keeps the center of the original image aligned with the
+        center of the rotated image.
+
+    .. attribute:: parent
+
+        The parent of this sprite, either a :class:`View <spyral.View>` or a
+        :class:`Scene <spyral.Scene>`. Read-only.
+
+    .. attribute:: scene
+
+        The top-level scene that this sprite belongs to. Read-only.
+
+    .. attribute:: mask
+
+        A :class:`Rect <spyral.Rect>` to use instead of the current image's rect
+        for computing collisions. `None` if the image's rect should be used.
+
     """
 
     def __stylize__(self, properties):
@@ -54,7 +123,7 @@ class Sprite(object):
         necessary.
         """
         if 'image' in properties:
-            image = properties.pop('image') 
+            image = properties.pop('image')
             if isinstance(image, str):
                 image = spyral.Image(image)
             setattr(self, 'image', image)
@@ -94,12 +163,12 @@ class Sprite(object):
         self._animations = []
         self._progress = {}
         self._mask = None
-        
+
         view._add_child(self)
 
         self._scene()._register_sprite(self)
         self._scene().apply_style(self)
-        self._scene().register('director.render', self.draw)
+        self._scene().register('director.render', self._draw)
 
     def _set_static(self):
         """
@@ -135,15 +204,15 @@ class Sprite(object):
 
         offset = spyral.util.anchor_offset(self._anchor, size[0], size[1])
 
-        self._offset = spyral.Vec2D(offset) - self._transform_offset        
-            
+        self._offset = spyral.Vec2D(offset) - self._transform_offset
+
     def _recalculate_transforms(self):
         """
         Calculates the transforms that need to be applied to this sprite's
         image. In order: flipping, scaling, and rotation.
         """
         source = self._image._surf
-        
+
         # flip
         if self._flip_x or self._flip_y:
             source = pygame.transform.flip(source, self._flip_x, self._flip_y)
@@ -166,7 +235,7 @@ class Sprite(object):
             source = pygame.transform.rotate(source, angle).convert_alpha()
             new = source.get_rect().center
             self._transform_offset = old - new
-        
+
         self._transform_image = source
         self._recalculate_offset()
         self._expire_static()
@@ -180,7 +249,7 @@ class Sprite(object):
         for property in animation.properties:
             if property in values:
                 setattr(self, property, values[property])
-                
+
     def _run_animations(self, delta):
         """
         For a given time-step (delta), perform a step of all the animations
@@ -210,7 +279,7 @@ class Sprite(object):
     # Getters and Setters
     def _get_rect(self):
         return spyral.Rect(self._pos, self.size)
-    
+
     def _set_rect(self, *rect):
         if len(rect) == 1:
             r = rect[0]
@@ -223,7 +292,7 @@ class Sprite(object):
             self.x, self.y, self.width, self.height = args
         else:
             raise ValueError("TODO: You done goofed.")
-    
+
     def _get_pos(self):
         return self._pos
 
@@ -279,14 +348,14 @@ class Sprite(object):
     def _get_width(self):
         if self._transform_image:
             return self._transform_image.get_width()
-            
+
     def _set_width(self, width):
         self._set_scale((width / self._get_width(), self._scale[1]))
 
     def _get_height(self):
         if self._transform_image:
             return self._transform_image.get_height()
-            
+
     def _set_height(self, height):
         self._set_scale((self._scale[0], height / self._get_height()))
 
@@ -294,7 +363,7 @@ class Sprite(object):
         if self._transform_image:
             return spyral.Vec2D(self._transform_image.get_size())
         return spyral.Vec2D(0, 0)
-        
+
     def _set_size(self, size):
         self._set_scale((width / self._get_width(), height / self._get_height()))
 
@@ -309,22 +378,22 @@ class Sprite(object):
         self._scale = spyral.Vec2D(scale)
         self._recalculate_transforms()
         self._expire_static()
-            
+
     def _get_scale_x(self):
         return self._scale[0]
-        
+
     def _get_scale_y(self):
         return self._scale[1]
-        
+
     def _set_scale_x(self, x):
         self._set_scale((x, self._scale[1]))
 
     def _set_scale_y(self, y):
         self._set_scale((self._scale[0], y))
-        
+
     def _get_angle(self):
         return self._angle
-        
+
     def _set_angle(self, angle):
         if self._angle == angle:
             return
@@ -333,7 +402,7 @@ class Sprite(object):
 
     def _get_flip_x(self):
         return self._flip_x
-    
+
     def _set_flip_x(self, flip_x):
         if self._flip_x == flip_x:
             return
@@ -342,33 +411,30 @@ class Sprite(object):
 
     def _get_flip_y(self):
         return self._flip_y
-    
+
     def _set_flip_y(self, flip_y):
         if self._flip_y == flip_y:
             return
         self._flip_y = flip_y
         self._recalculate_transforms()
-        
+
     def _get_visible(self):
         """
         Determines whether this Sprite will be drawn, either True or ``False``.
         """
         return self._visible
-        
+
     def _set_visible(self, visible):
         if self._visible == visible:
             return
         self._visible = visible
         self._expire_static()
-    
+
     def _get_scene(self):
         return self._scene()
     def _get_view(self):
         return self._view()
 
-    #: Determines where this Sprite is drawn in the Scene (or View).
-    position = property(_get_pos, _set_pos)
-    #: Alias for position
     pos = property(_get_pos, _set_pos)
     layer = property(_get_layer, _set_layer)
     image = property(_get_image, _set_image)
@@ -389,16 +455,7 @@ class Sprite(object):
     scene = property(_get_scene)
     view = property(_get_view)
 
-    def get_rect(self):
-        """
-        Returns a :class:`rect <spyral.Rect>` representing where this
-        sprite will be drawn.
-        """
-        return spyral.Rect(
-            (self._pos[0] - self._offset[0], self._pos[1] - self._offset[1]),
-            self.size)
-
-    def draw(self):
+    def _draw(self):
         if not self.visible:
             return
         if self._image is None:
@@ -417,7 +474,7 @@ class Sprite(object):
                               self._computed_layer,
                               self._blend_flags,
                               False)
-        
+
         if self._make_static or self._age > 4:
             b.static = True
             self._make_static = False
@@ -426,7 +483,7 @@ class Sprite(object):
             return
         self._view()._blit(b)
         self._age += 1
-    
+
     def _set_collision_box(self):
         if self.image is None:
             return
@@ -447,7 +504,7 @@ class Sprite(object):
     def __del__(self):
         if self._scene():
             self._scene()._remove_static_blit(self)
-        
+
     def animate(self, animation):
         """
         Animates this sprite given an animation. Read more about :class:`animation <spyral.animation>`.
