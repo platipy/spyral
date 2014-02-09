@@ -128,7 +128,8 @@ class Sprite(object):
                 image = spyral.Image(image)
             setattr(self, 'image', image)
         simple = ['pos', 'x', 'y', 'position', 'anchor', 'layer', 'visible',
-                  'scale', 'scale_x', 'scale_y', 'flip_x', 'flip_y', 'angle']
+                  'scale', 'scale_x', 'scale_y', 'flip_x', 'flip_y', 'angle',
+                  'mask']
         for property in simple:
             if property in properties:
                 value = properties.pop(property)
@@ -136,7 +137,7 @@ class Sprite(object):
         if len(properties) > 0:
             spyral.exceptions.unused_style_warning(self, properties.iterkeys())
 
-    def __init__(self, view):
+    def __init__(self, parent):
         _all_sprites.append(_wref(self))
         self._age = 0
         self._static = False
@@ -152,8 +153,8 @@ class Sprite(object):
         self._offset = spyral.Vec2D(0, 0)
         self._scale = spyral.Vec2D(1.0, 1.0)
         self._scaled_image = None
-        self._view = _wref(view)
-        self._scene = _wref(view.scene)
+        self._parent = _wref(parent)
+        self._scene = _wref(parent.scene)
         self._angle = 0
         self._crop = None
         self._transform_image = None
@@ -164,7 +165,7 @@ class Sprite(object):
         self._progress = {}
         self._mask = None
 
-        view._add_child(self)
+        parent._add_child(self)
 
         self._scene()._register_sprite(self)
         self._scene().apply_style(self)
@@ -309,7 +310,7 @@ class Sprite(object):
         if layer == self._layer:
             return
         self._layer = layer
-        self._computed_layer = self._scene()._get_layer_position(self._view(), layer)
+        self._computed_layer = self._scene()._get_layer_position(self._parent(), layer)
         self._expire_static()
 
     def _get_image(self):
@@ -432,8 +433,8 @@ class Sprite(object):
 
     def _get_scene(self):
         return self._scene()
-    def _get_view(self):
-        return self._view()
+    def _get_parent(self):
+        return self._parent()
 
     pos = property(_get_pos, _set_pos)
     layer = property(_get_layer, _set_layer)
@@ -453,7 +454,7 @@ class Sprite(object):
     visible = property(_get_visible, _set_visible)
     rect = property(_get_rect, _set_rect)
     scene = property(_get_scene)
-    view = property(_get_view)
+    parent = property(_get_parent)
 
     def _draw(self):
         if not self.visible:
@@ -479,9 +480,9 @@ class Sprite(object):
             b.static = True
             self._make_static = False
             self._static = True
-            self._view()._static_blit(self, b)
+            self._parent()._static_blit(self, b)
             return
-        self._view()._blit(b)
+        self._parent()._blit(b)
         self._age += 1
 
     def _set_collision_box(self):
@@ -492,18 +493,14 @@ class Sprite(object):
         else:
             area = self._mask
         c = spyral.util._CollisionBox(self._pos - self._offset, area)
-        warped_box = self._view()._warp_collision_box(c)
+        warped_box = self._parent()._warp_collision_box(c)
         self._scene()._set_collision_box(self, warped_box.rect)
 
     def kill(self):
         self._scene().unregister("director.render", self.draw)
         self._scene()._unregister_sprite(self)
         self._scene()._remove_static_blit(self)
-        self._view().remove_child(self)
-
-    def __del__(self):
-        if self._scene():
-            self._scene()._remove_static_blit(self)
+        self._parent().remove_child(self)
 
     def animate(self, animation):
         """
@@ -511,8 +508,8 @@ class Sprite(object):
         """
         for a in self._animations:
             if a.properties.intersection(animation.properties):
-                raise ValueError(
-                    "Cannot animate on propety %s twice" % animation.property)
+                raise ValueError("Cannot animate on propety %s twice" % 
+                                 animation.property)
         if len(self._animations) == 0:
             self._scene().register('director.update',
                                  self._run_animations,

@@ -94,7 +94,7 @@ class Rect(object):
             return self._h
 
         raise AttributeError("type object 'rect' "
-                             "has no attribute '{}'".format(name))
+                             "has no attribute '%s'" % name)
 
     def __setattr__(self, name, val):
         # This could use _a lot_ more error checking

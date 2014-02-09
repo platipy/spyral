@@ -121,8 +121,8 @@ class MultiAnimation(Animation):
         for animation in animations:
             i = animation.properties.intersection(self.properties)
             if i:
-                message = "Cannot animate on the same properties twice: {}"
-                raise ValueError(message.format(i))
+                message = "Cannot animate on the same properties twice: %s"
+                raise ValueError(message % i)
             self.properties.update(animation.properties)
             self._animations.append(animation)
             self.duration = max(self.duration, animation.duration)
@@ -135,9 +135,9 @@ class MultiAnimation(Animation):
         for prop, others in clobbering_animations:
             overlapping_properties = self.properties.intersection(others)
             if prop in self.properties and overlapping_properties:
-                message = "Cannot animate on {} and {} in the same animation."
-                raise ValueError(message.format(prop,
-                                                overlapping_properties.pop()))
+                message = "Cannot animate on %s and %s in the same animation."
+                raise ValueError(message % (prop,
+                                            overlapping_properties.pop()))
         self.loop = kwargs.get('loop', self.loop)
 
     def evaluate(self, sprite, progress):
