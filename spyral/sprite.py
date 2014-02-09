@@ -19,108 +19,16 @@ def _switch_scene():
 class Sprite(object):
     """
     Sprites are how images are positioned and drawn onto the screen.
-    They aggregate together information such as where to be drawn, layering
-    information, and more.
-
-    .. attribute::pos
-
-        The position of a sprite in 2D coordinates, represented as a
-        :class:`Vec2D <spyral.Vec2D>`
-
-    .. attribute:: x
-
-        The x coordinate of the sprite, which will remain synced with the
-        position. Number.
-
-    .. attribute:: y
-
-        The y coordinate of the sprite, which will remain synced with the
-        position. Number
-
-    .. attribute:: anchor
-
-        Defines an `anchor point <anchors>` where coordinates are relative to on
-        the image. String.
-
-    .. attribute:: layer
-
-        String. The name of the layer this sprite belongs to. See
-        `layering <spyral_layering>` for more.
-
-    .. attribute:: image
-
-        The :class:`Image <spyral.Image>` for this sprite.
-
-    .. attribute:: visible
-
-        A boolean indicating whether this sprite should be drawn.
-
-    .. attribute:: width
-
-        The width of the image after all transforms. Read-only number.
-
-    .. attribute:: height
-
-        The height of the image after all transforms. Read-only number.
-
-    .. attribute:: size
-
-        The size of the image after all transforms. Read-only
-        :class:`Vec2D <spyral.Vec2D>`
-
-    .. attribute:: scale
-
-        A scale factor for resizing the image. When read, it will always contain
-        a :class:`spyral.Vec2D` with an x factor and a y factor, but it can be
-        set to a numeric value which wil ensure identical scaling along both
-        axes.
-
-    .. attribute:: scale_x
-
-        The x factor of the scaling that's kept in sync with scale. Number.
-
-    .. attribute:: scale_y
-
-        The y factor of the scaling that's kept in sync with scale. Number.
-
-    .. attribute:: flip_x
-
-        A boolean that determines whether the image should be flipped
-        horizontally.
-
-    .. attribute:: flip_y
-
-        A boolean that determines whether the image should be flipped
-        vertically.
-
-    .. attribute:: angle
-
-        An angle to rotate the image by. Rotation is computed after scaling and
-        flipping, and keeps the center of the original image aligned with the
-        center of the rotated image.
-
-    .. attribute:: parent
-
-        The parent of this sprite, either a :class:`View <spyral.View>` or a
-        :class:`Scene <spyral.Scene>`. Read-only.
-
-    .. attribute:: scene
-
-        The top-level scene that this sprite belongs to. Read-only.
-
-    .. attribute:: mask
-
-        A :class:`Rect <spyral.Rect>` to use instead of the current image's rect
-        for computing collisions. `None` if the image's rect should be used.
-
+    They aggregate together information such as where to be drawn,
+    layering information, and more.
     """
 
     def __stylize__(self, properties):
         """
-        The __stylize__ function is called during initialization to set up properties
-        taken from a style function. Sprites that want to override default styling
-        behavior should implement this class, although that should rarely be
-        necessary.
+        The __stylize__ function is called during initialization to set up
+        properties taken from a style function. Sprites that want to override
+        default styling behavior should implement this class, although that
+        should rarely be necessary.
         """
         if 'image' in properties:
             image = properties.pop('image')
@@ -295,6 +203,10 @@ class Sprite(object):
             raise ValueError("TODO: You done goofed.")
 
     def _get_pos(self):
+        """
+        The position of a sprite in 2D coordinates, represented as a
+        :class:`Vec2D <spyral.Vec2D>`
+        """
         return self._pos
 
     def _set_pos(self, pos):
@@ -304,6 +216,10 @@ class Sprite(object):
         self._expire_static()
 
     def _get_layer(self):
+        """
+        String. The name of the layer this sprite belongs to. See
+        `layering <spyral_layering>` for more.
+        """
         return self._layer
 
     def _set_layer(self, layer):
@@ -314,6 +230,9 @@ class Sprite(object):
         self._expire_static()
 
     def _get_image(self):
+        """
+        The :class:`Image <spyral.Image>` for this sprite.
+        """
         return self._image
 
     def _set_image(self, image):
@@ -325,18 +244,29 @@ class Sprite(object):
         self._expire_static()
 
     def _get_x(self):
+        """
+        The x coordinate of the sprite, which will remain synced with the
+        position. Number.
+        """
         return self._get_pos()[0]
 
     def _set_x(self, x):
         self._set_pos((x, self._get_y()))
 
     def _get_y(self):
+        """
+        The y coordinate of the sprite, which will remain synced with the
+        position. Number
+        """
         return self._get_pos()[1]
 
     def _set_y(self, y):
         self._set_pos((self._get_x(), y))
 
     def _get_anchor(self):
+        """
+        Defines an `anchor point <anchors>` where coordinates are relative to on the image. String.
+        """
         return self._anchor
 
     def _set_anchor(self, anchor):
@@ -347,6 +277,9 @@ class Sprite(object):
         self._expire_static()
 
     def _get_width(self):
+        """
+        The width of the image after all transforms. Read-only number.
+        """
         if self._transform_image:
             return self._transform_image.get_width()
 
@@ -354,6 +287,9 @@ class Sprite(object):
         self._set_scale((width / self._get_width(), self._scale[1]))
 
     def _get_height(self):
+        """
+        The height of the image after all transforms. Read-only number.
+        """
         if self._transform_image:
             return self._transform_image.get_height()
 
@@ -361,6 +297,10 @@ class Sprite(object):
         self._set_scale((self._scale[0], height / self._get_height()))
 
     def _get_size(self):
+        """
+        The size of the image after all transforms. Read-only
+        :class:`Vec2D <spyral.Vec2D>`
+        """
         if self._transform_image:
             return spyral.Vec2D(self._transform_image.get_size())
         return spyral.Vec2D(0, 0)
@@ -369,6 +309,12 @@ class Sprite(object):
         self._set_scale((width / self._get_width(), height / self._get_height()))
 
     def _get_scale(self):
+        """
+        A scale factor for resizing the image. When read, it will always contain
+        a :class:`spyral.Vec2D` with an x factor and a y factor, but it can be
+        set to a numeric value which wil ensure identical scaling along both
+        axes.
+        """
         return self._scale
 
     def _set_scale(self, scale):
@@ -381,18 +327,29 @@ class Sprite(object):
         self._expire_static()
 
     def _get_scale_x(self):
+        """
+        The x factor of the scaling that's kept in sync with scale. Number.
+        """
         return self._scale[0]
-
-    def _get_scale_y(self):
-        return self._scale[1]
 
     def _set_scale_x(self, x):
         self._set_scale((x, self._scale[1]))
+
+    def _get_scale_y(self):
+        """
+        The y factor of the scaling that's kept in sync with scale. Number.
+        """
+        return self._scale[1]
 
     def _set_scale_y(self, y):
         self._set_scale((self._scale[0], y))
 
     def _get_angle(self):
+        """
+        An angle to rotate the image by. Rotation is computed after scaling and
+        flipping, and keeps the center of the original image aligned with the
+        center of the rotated image.
+        """
         return self._angle
 
     def _set_angle(self, angle):
@@ -402,6 +359,10 @@ class Sprite(object):
         self._recalculate_transforms()
 
     def _get_flip_x(self):
+        """
+        A boolean that determines whether the image should be flipped
+        horizontally.
+        """
         return self._flip_x
 
     def _set_flip_x(self, flip_x):
@@ -411,6 +372,10 @@ class Sprite(object):
         self._recalculate_transforms()
 
     def _get_flip_y(self):
+        """
+        A boolean that determines whether the image should be flipped
+        vertically.
+        """
         return self._flip_y
 
     def _set_flip_y(self, flip_y):
@@ -421,7 +386,7 @@ class Sprite(object):
 
     def _get_visible(self):
         """
-        Determines whether this Sprite will be drawn, either True or ``False``.
+        A boolean indicating whether this sprite should be drawn.
         """
         return self._visible
 
@@ -432,9 +397,28 @@ class Sprite(object):
         self._expire_static()
 
     def _get_scene(self):
+        """
+        The top-level scene that this sprite belongs to. Read-only.
+        """
         return self._scene()
+        
     def _get_parent(self):
+        """
+        The parent of this sprite, either a :class:`View <spyral.View>` or a
+        :class:`Scene <spyral.Scene>`. Read-only.
+        """
         return self._parent()
+        
+    def _get_mask(self):
+        """
+        A :class:`Rect <spyral.Rect>` to use instead of the current image's rect
+        for computing collisions. `None` if the image's rect should be used.
+        """
+        return self._mask
+    
+    def _set_mask(self, mask):
+        self._mask = mask
+        self._set_collision_box()
 
     pos = property(_get_pos, _set_pos)
     layer = property(_get_layer, _set_layer)
@@ -455,6 +439,7 @@ class Sprite(object):
     rect = property(_get_rect, _set_rect)
     scene = property(_get_scene)
     parent = property(_get_parent)
+    mask = property(_get_mask, _set_mask)
 
     def _draw(self):
         if not self.visible:
