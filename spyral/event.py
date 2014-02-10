@@ -434,7 +434,7 @@ class Keys(object):
         self.load_keys_from_file(spyral._get_spyral_path() +
                                  'resources/default_key_mappings.txt')
         self._fix_bad_names([("return", "enter"),
-                             ("break", "brk"])
+                             ("break", "brk")])
      
     def _fix_bad_names(self, renames):
         """
