@@ -62,7 +62,7 @@ class Scene(object):
         if size is not None:
             self._set_size(size)
         display_size = self._surface.get_size()
-        self._background = spyral.Image._new_spyral_surface(display_size)
+        self._background = spyral.image._new_spyral_surface(display_size)
         self._background.fill((255, 255, 255))
         self._surface.blit(self._background, (0, 0))
         self._blits = []

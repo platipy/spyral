@@ -135,11 +135,11 @@ class Sprite(object):
             new_size = self._scale * self._image.size
             new_size = (int(new_size[0]), int(new_size[1]))
             if 0 in new_size:
-                self._transform_image = spyral.Image._new_spyral_surface((1,1))
+                self._transform_image = spyral.image._new_spyral_surface((1,1))
                 self._recalculate_offset()
                 self._expire_static()
                 return
-            new_surf = spyral.Image._new_spyral_surface(new_size)
+            new_surf = spyral.image._new_spyral_surface(new_size)
             source = pygame.transform.smoothscale(source, new_size, new_surf)
 
         # rotate

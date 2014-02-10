@@ -64,7 +64,7 @@ class MultiStateWidget(BaseWidget):
             if self._nine_slice:
                 size = self._padding + self._content_size
                 nine_slice_image = spyral.Image(self._image_locations[state])
-                self._images[state] = spyral.Image.render_nine_slice(nine_slice_image, size)
+                self._images[state] = spyral.image.render_nine_slice(nine_slice_image, size)
             else:
                 self._images[state] = spyral.Image(self._image_locations[state])
         self.button.image = self._images[self._state]
@@ -341,8 +341,8 @@ class TextInputWidget(BaseWidget):
         self._image_plain = spyral.Image(self._image_locations['focused'])
         self._image_focused = spyral.Image(self._image_locations['unfocused'])
         if self._nine_slice:
-            self._image_plain = spyral.Image.render_nine_slice(self._image_plain, (width, height))
-            self._image_focused = spyral.Image.render_nine_slice(self._image_focused, (width, height))
+            self._image_plain = spyral.image.render_nine_slice(self._image_plain, (width, height))
+            self._image_focused = spyral.image.render_nine_slice(self._image_focused, (width, height))
 
     def __stylize__(self, properties):
         self._padding = properties.pop('padding', 4)
@@ -485,10 +485,10 @@ class TextInputWidget(BaseWidget):
             pre_missed = self.font.get_size(self._value[:end])[0] - pre.width - highlight.width + 1
             if self._value[:start]:
                 post_missed = self.font.get_size(self._value)[0] - post.width - pre.width - highlight.width - 1
-                self._rendered_text = spyral.Image.from_sequence((pre, highlight, post), 'right', [pre_missed, post_missed])
+                self._rendered_text = spyral.image.from_sequence((pre, highlight, post), 'right', [pre_missed, post_missed])
             else:
                 post_missed = self.font.get_size(self._value)[0] - post.width - highlight.width
-                self._rendered_text = spyral.Image.from_sequence((highlight, post), 'right', [post_missed])
+                self._rendered_text = spyral.image.from_sequence((highlight, post), 'right', [post_missed])
 
         else:
             self._rendered_text = self.font.render(self._value)

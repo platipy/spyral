@@ -70,7 +70,7 @@ def scale_surface(s, target_size):
     if new_size == s.get_size():
         return s
     t = pygame.transform.smoothscale(s, new_size,
-                                     spyral.Image._new_spyral_surface(new_size))
+                                     spyral.image._new_spyral_surface(new_size))
     return t
 
 class _Blit(object):

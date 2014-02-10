@@ -6,6 +6,149 @@ import pygame
 import spyral
 import copy
 
+def _new_spyral_surface(size):
+    """
+    Internal method for creating a new Spyral-compliant Pygame surface.
+    """
+    return pygame.Surface((int(size[0]),
+                           int(size[1])),
+                          pygame.SRCALPHA, 32).convert_alpha()                          
+
+def from_sequence(images, orientation="right", padding=0):
+    """
+    Static class method that returns a new Image from a list of images by
+    placing them next to each other.
+
+    :param images: A list of images to lay out.
+    :type images: List of :class:`Image <spyral.Image>`
+    :param str orientation: Either 'left', 'right', 'above', 'below', or
+                            'square' (square images will be placed in a grid
+                            shape, like a chess board).
+    :param padding: The padding between each image. Can be specified as a
+                    scalar number (for constant padding between all images)
+                    or a list (for different paddings between each image).
+    :type padding: int or a list of ints.
+    :returns: A new :class:`Image <spyral.Image>`
+    """
+    if orientation == 'square':
+        length = int(math.ceil(math.sqrt(len(images))))
+        max_height = 0
+        for index, image in enumerate(images):
+            if index % length == 0:
+                x = 0
+                y += max_height
+                max_height = 0
+            else:
+                x += image.width
+                max_height = max(max_height, image.height)
+            sequence.append((image, (x, y)))
+    else:
+        if orientation in ('left', 'right'):
+            selector = spyral.Vec2D(1, 0)
+        else:
+            selector = spyral.Vec2D(0, 1)
+
+        if orientation in ('left', 'above'):
+            reversed(images)
+
+        if type(padding) in (float, int, long):
+            padding = [padding] * len(images)
+        else:
+            padding = list(padding)
+            padding.append(0)
+        base = spyral.Vec2D(0, 0)
+        sequence = []
+        for image, padding in zip(images, padding):
+            sequence.append((image, base))
+            base = base + selector * (image.size + (padding, padding))
+    return from_conglomerate(sequence)
+
+def from_conglomerate(sequence):
+    """
+    Static class method that generates a new image from a sequence of
+    (image, position) pairs. These images will be placed onto a singe image
+    large enough to hold all of them. More explicit and less convenient than
+    :ref:`from_seqeuence <spyral.image.from_sequence>`.
+
+    :param sequence: A list of (image, position) pairs, where the positions
+                     are :class:`Vec2D <spyral.Vec2D>` s.
+    :type sequence: List of image, position pairs.
+    :returns: A new :class:`Image <spyral.Image>`
+    """
+    width, height = 0, 0
+    for image, (x, y) in sequence:
+        width = max(width, x+image.width)
+        height = max(height, y+image.height)
+    new = Image(size=(width, height))
+    for image, (x, y) in sequence:
+        new.draw_image(image, (x, y))
+    return new
+
+def render_nine_slice(image, size):
+    """
+    Stretches out an image by dividing it into a 3x3 grid, and stretching
+    the sides and center, leaving the corners the same size. This is ideal
+    for buttons and other rectangular shapes.
+
+    :param image: The image to stretch.
+    :type image: :class:`Image <spyral.Image>`
+    :param size: The new (width, height) of this image.
+    :type size: :class:`Vec2D <spyral.Vec2D>`
+    :returns: A new :class:`Image <spyral.Image>` similar to the old one.
+    """
+    bs = spyral.Vec2D(size)
+    bw = size[0]
+    bh = size[1]
+    ps = image.size / 3
+    pw = int(ps[0])
+    ph = int(ps[1])
+    surf = image._surf
+    # Hack: If we don't make it one px large things get cut
+    image = spyral.Image(size=bs + (1, 1))
+    s = image._surf
+    # should probably fix the math instead, but it works for now
+
+    topleft = surf.subsurface(pygame.Rect((0, 0), ps))
+    left = surf.subsurface(pygame.Rect((0, ph), ps))
+    bottomleft = surf.subsurface(pygame.Rect((0, 2*pw), ps))
+    top = surf.subsurface(pygame.Rect((pw, 0), ps))
+    mid = surf.subsurface(pygame.Rect((pw, ph), ps))
+    bottom = surf.subsurface(pygame.Rect((pw, 2*ph), ps))
+    topright = surf.subsurface(pygame.Rect((2*pw, 0), ps))
+    right = surf.subsurface(pygame.Rect((2*ph, pw), ps))
+    bottomright = surf.subsurface(pygame.Rect((2*ph, 2*pw), ps))
+
+    # corners
+    s.blit(topleft, (0, 0))
+    s.blit(topright, (bw - pw, 0))
+    s.blit(bottomleft, (0, bh - ph))
+    s.blit(bottomright, bs - ps)
+
+    # left and right border
+    for y in range(ph, bh - ph - ph, ph):
+        s.blit(left, (0, y))
+        s.blit(right, (bw - pw, y))
+    s.blit(left, (0, bh - ph - ph))
+    s.blit(right, (bw - pw, bh - ph - ph))
+    # top and bottom border
+    for x in range(pw, bw - pw - pw, pw):
+        s.blit(top, (x, 0))
+        s.blit(bottom, (x, bh - ph))
+    s.blit(top, (bw - pw - pw, 0))
+    s.blit(bottom, (bw - pw - pw, bh - ph))
+
+    # center
+    for x in range(pw, bw - pw - pw, pw):
+        for y in range(ph, bh - ph - ph, ph):
+            s.blit(mid, (x, y))
+
+    for x in range(pw, bw - pw - pw, pw):
+        s.blit(mid, (x, bh - ph - ph))
+    for y in range(ph, bh - ph - ph, ph):
+        s.blit(mid, (bw - pw - pw, y))
+    s.blit(mid, (bw - pw - pw, bh - ph - ph))
+    return image
+
 class Image(object):
     """
     The image is the basic drawable item in spyral. They can be created
@@ -35,7 +178,7 @@ class Image(object):
             raise ValueError("Must specify exactly one of size and filename.")
 
         if size is not None:
-            self._surf = Image._new_spyral_surface(size)
+            self._surf = _new_spyral_surface(size)
             self._name = None
         else:
             self._surf = pygame.image.load(filename).convert_alpha()
@@ -259,144 +402,6 @@ class Image(object):
         spyral.util.scale_surface.clear(self._surf)
         return self
 
-    @classmethod
-    def from_sequence(cls, images, orientation="right", padding=0):
-        """
-        Static class method that returns a new Image from a list of images by
-        placing them next to each other.
-
-        :param images: A list of images to lay out.
-        :type images: List of :class:`Image <spyral.Image>`
-        :param str orientation: Either 'left', 'right', 'above', 'below', or
-                                'square' (square images will be placed in a grid
-                                shape, like a chess board).
-        :param padding: The padding between each image. Can be specified as a
-                        scalar number (for constant padding between all images)
-                        or a list (for different paddings between each image).
-        :type padding: int or a list of ints.
-        :returns: A new :class:`Image <spyral.Image>`
-        """
-        if orientation == 'square':
-            length = int(math.ceil(math.sqrt(len(images))))
-            max_height = 0
-            for index, image in enumerate(images):
-                if index % length == 0:
-                    x = 0
-                    y += max_height
-                    max_height = 0
-                else:
-                    x += image.width
-                    max_height = max(max_height, image.height)
-                sequence.append((image, (x, y)))
-        else:
-            if orientation in ('left', 'right'):
-                selector = spyral.Vec2D(1, 0)
-            else:
-                selector = spyral.Vec2D(0, 1)
-
-            if orientation in ('left', 'above'):
-                reversed(images)
-
-            if type(padding) in (float, int, long):
-                padding = [padding] * len(images)
-            else:
-                padding = list(padding)
-                padding.append(0)
-            base = spyral.Vec2D(0, 0)
-            sequence = []
-            for image, padding in zip(images, padding):
-                sequence.append((image, base))
-                base = base + selector * (image.size + (padding, padding))
-        return Image.from_conglomerate(sequence)
-
-    @classmethod
-    def from_conglomerate(cls, sequence):
-        """
-        Static class method that generates a new image from a sequence of
-        (image, position) pairs. These images will be placed onto a singe image
-        large enough to hold all of them. More explicit and less convenient than
-        :ref:`from_seqeuence <spyral.Image.from_sequence>`.
-
-        :param sequence: A list of (image, position) pairs, where the positions
-                         are :class:`Vec2D <spyral.Vec2D>` s.
-        :type sequence: List of image, position pairs.
-        :returns: A new :class:`Image <spyral.Image>`
-        """
-        width, height = 0, 0
-        for image, (x, y) in sequence:
-            width = max(width, x+image.width)
-            height = max(height, y+image.height)
-        new = Image(size=(width, height))
-        for image, (x, y) in sequence:
-            new.draw_image(image, (x, y))
-        return new
-
-    @classmethod
-    def render_nine_slice(cls, image, size):
-        """
-        Stretches out an image by dividing it into a 3x3 grid, and stretching
-        the sides and center, leaving the corners the same size. This is ideal
-        for buttons and other rectangular shapes.
-
-        :param image: The image to stretch.
-        :type image: :class:`Image <spyral.Image>`
-        :param size: The new (width, height) of this image.
-        :type size: :class:`Vec2D <spyral.Vec2D>`
-        :returns: A new :class:`Image <spyral.Image>` similar to the old one.
-        """
-        bs = spyral.Vec2D(size)
-        bw = size[0]
-        bh = size[1]
-        ps = image.size / 3
-        pw = int(ps[0])
-        ph = int(ps[1])
-        surf = image._surf
-        # Hack: If we don't make it one px large things get cut
-        image = spyral.Image(size=bs + (1, 1))
-        s = image._surf
-        # should probably fix the math instead, but it works for now
-
-        topleft = surf.subsurface(pygame.Rect((0, 0), ps))
-        left = surf.subsurface(pygame.Rect((0, ph), ps))
-        bottomleft = surf.subsurface(pygame.Rect((0, 2*pw), ps))
-        top = surf.subsurface(pygame.Rect((pw, 0), ps))
-        mid = surf.subsurface(pygame.Rect((pw, ph), ps))
-        bottom = surf.subsurface(pygame.Rect((pw, 2*ph), ps))
-        topright = surf.subsurface(pygame.Rect((2*pw, 0), ps))
-        right = surf.subsurface(pygame.Rect((2*ph, pw), ps))
-        bottomright = surf.subsurface(pygame.Rect((2*ph, 2*pw), ps))
-
-        # corners
-        s.blit(topleft, (0, 0))
-        s.blit(topright, (bw - pw, 0))
-        s.blit(bottomleft, (0, bh - ph))
-        s.blit(bottomright, bs - ps)
-
-        # left and right border
-        for y in range(ph, bh - ph - ph, ph):
-            s.blit(left, (0, y))
-            s.blit(right, (bw - pw, y))
-        s.blit(left, (0, bh - ph - ph))
-        s.blit(right, (bw - pw, bh - ph - ph))
-        # top and bottom border
-        for x in range(pw, bw - pw - pw, pw):
-            s.blit(top, (x, 0))
-            s.blit(bottom, (x, bh - ph))
-        s.blit(top, (bw - pw - pw, 0))
-        s.blit(bottom, (bw - pw - pw, bh - ph))
-
-        # center
-        for x in range(pw, bw - pw - pw, pw):
-            for y in range(ph, bh - ph - ph, ph):
-                s.blit(mid, (x, y))
-
-        for x in range(pw, bw - pw - pw, pw):
-            s.blit(mid, (x, bh - ph - ph))
-        for y in range(ph, bh - ph - ph, ph):
-            s.blit(mid, (bw - pw - pw, y))
-        s.blit(mid, (bw - pw - pw, bh - ph - ph))
-        return image
-
     def rotate(self, angle):
         """
         Rotates the image by angle degrees clockwise. This may change the image
@@ -449,15 +454,6 @@ class Image(object):
         new._surf = self._surf.copy()
         return new
 
-    @classmethod
-    def _new_spyral_surface(self, size):
-        """
-        Internal method for creating a new Spyral-compliant Pygame surface.
-        """
-        return pygame.Surface((int(size[0]),
-                               int(size[1])),
-                              pygame.SRCALPHA, 32).convert_alpha()
-
     def crop(self, position, size=None):
         """
         Removes the edges of an image, keeping the internal rectangle specified
@@ -476,7 +472,7 @@ class Image(object):
             rect = spyral.Rect(position)
         else:
             rect = spyral.Rect(position, size)
-        new = Image._new_spyral_surface(size)
+        new = _new_spyral_surface(size)
         new.blit(self._surf, (0, 0), (rect.pos, rect.size))
         self._surf = new
         self._version += 1
