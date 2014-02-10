@@ -10,13 +10,6 @@ from itertools import chain
 from layertree import _LayerTree
 from collections import defaultdict
 from weakref import ref as _wref
-from weakmethod import WeakMethod as _wm
-
-def WeakMethod(func):
-    try:
-        return _wm(func)
-    except TypeError:
-        return func
 
 class Scene(object):
     """
@@ -26,12 +19,10 @@ class Scene(object):
     :param size: The `size` of the scene internally (or "virtually"). See
                  `View size and Window size`_ for more details.
     :type size: width, height
-    :param max_ups: Maximum updates to process per second. By default, `max_ups`
-        is pulled from the director.
-    :type max_ups: int
-    :param max_fps: Maximum frames to draw per second. By default, `max_fps` is
-        pulled from the director.
-    :type max_fps: int
+    :param int max_ups: Maximum updates to process per second. By default,
+                        `max_ups` is pulled from the director.
+    :param int max_fps: Maximum frames to draw per second. By default,
+                        `max_fps` is pulled from the director.
     """
     def __init__(self, size = None, max_ups=None, max_fps=None):
         time_source = time.time
@@ -80,13 +71,13 @@ class Scene(object):
         self._layer_tree = _LayerTree(self)
         self._sprites = set()
 
-        spyral.event.register('director.scene.enter', self.redraw, 
+        spyral.event.register('director.scene.enter', self.redraw,
                               scene=self)
         spyral.event.register('director.update', self._handle_events,
                               scene=self)
         spyral.event.register('director.update', self._run_actors, ('delta',),
                               scene=self)
-        spyral.event.register('spyral.internal.view.changed', 
+        spyral.event.register('spyral.internal.view.changed',
                               self._invalidate_views, scene=self)
 
         # View interface
@@ -102,12 +93,18 @@ class Scene(object):
         """
         Internal method to add a new :class:`Actor <spyral.Actor>` to this
         scene.
+
+        :param actor: The name of the actor object.
+        :type actor: :class:`Actor <spyral.Actor>`
+        :param greenlet greenlet: The greenlet context for this actor.
         """
         self._greenlets[actor] = greenlet
 
     def _run_actors_greenlet(self, delta, _):
         """
         Helper method for running the actors.
+
+        :param float delta: The amount of time progressed.
         """
         for actor, greenlet in self._greenlets.iteritems():
             delta, rerun = greenlet.switch(delta)
@@ -119,6 +116,8 @@ class Scene(object):
         """
         Main loop for running actors, switching between their different
         contexts.
+
+        :param float delta: The amount of time progressed.
         """
         g = greenlet.greenlet(self._run_actors_greenlet)
         while True:
@@ -129,20 +128,21 @@ class Scene(object):
                 break
             g.switch(d, True)
 
-
     # Event Handling
-    def _queue_event(self, type, event = None):
+    def _queue_event(self, type, event=None):
         """
         Internal method to add a new `event` to be handled by this scene.
 
-        TODO: This shouldn't be private; people often need to queue new events
+        :param str type: The name of the event to queue
+        :param event: Metadata about this event.
+        :type event: :class:`Event <spyral.Event>`
         """
         if self._handling_events:
             self._pending.append((type, event))
         else:
             self._events.append((type, event))
 
-    def _reg_internal(self, namespace, handlers, args, 
+    def _reg_internal(self, namespace, handlers, args,
                       kwargs, priority, dynamic):
         """
         Convenience method for registering a new event; other variations
@@ -152,7 +152,7 @@ class Scene(object):
             namespace = namespace[:-2]
         self._namespaces.add(namespace)
         for handler in handlers:
-            self._handlers[namespace].append((handler, args, kwargs, 
+            self._handlers[namespace].append((handler, args, kwargs,
                                               priority, dynamic))
         self._handlers[namespace].sort(key=operator.itemgetter(3))
 
@@ -163,7 +163,7 @@ class Scene(object):
         """
         return [n for n in self._namespaces if namespace.startswith(n)]
 
-    def _send_event_to_handler(self, event, handler, args, 
+    def _send_event_to_handler(self, event, handler, args,
                                kwargs, priority, dynamic):
         """
         Internal method to dispatch events to their handlers.
@@ -178,7 +178,7 @@ class Scene(object):
                 if default != fillval:
                     return default
                 raise TypeError("Handler expects an argument of named"
-                                "%s, %s does not have that." % 
+                                "%s, %s does not have that." %
                                 (arg, str(event)))
         if dynamic is True:
             h = handler
@@ -210,7 +210,7 @@ class Scene(object):
             d = len(h_args) - len(h_defaults)
             if d > 0:
                 h_defaults = [fillval] * d + list(*h_defaults)
-            args = [_get_arg_val(arg, default) for arg, default 
+            args = [_get_arg_val(arg, default) for arg, default
                                                in zip(h_args, h_defaults)]
             kwargs = {}
         elif args is None:
@@ -226,8 +226,8 @@ class Scene(object):
         """
         For a given event, send the event information to all registered handlers
         """
-        handlers = chain.from_iterable(self._handlers[namespace] 
-                                            for namespace 
+        handlers = chain.from_iterable(self._handlers[namespace]
+                                            for namespace
                                             in self._get_namespaces(type))
         for handler_info in handlers:
             if self._send_event_to_handler(event, *handler_info):
@@ -256,11 +256,9 @@ class Scene(object):
         :param handler: The handler to unregister.
         :type handler: a function or string.
         """
-        if not isinstance(handler, str):
-            handler = WeakMethod(handler)
         if event_namespace.endswith(".*"):
             event_namespace = event_namespace[:-2]
-        self._handlers[event_namespace] = [h for h 
+        self._handlers[event_namespace] = [h for h
                                              in self._handlers[event_namespace]
                                              if h[0].method != handler.method]
 
@@ -284,9 +282,16 @@ class Scene(object):
         """
         self._handlers.clear()
 
-    def set_event_source(self, source):
+    def _get_event_source(self):
         """
+        The event source can be used to control event playback. Although
+        normally events are given through the operating system, you can enforce
+        events being played from a file; there is also a mechanism for recording
+        events to a file.
         """
+        return self._event_source
+
+    def _set_event_source(self, source):
         self._event_source = source
 
 
@@ -318,10 +323,13 @@ class Scene(object):
 
     def load_style(self, path):
         """
-        Loads the style file in *path* and applies it to this Scene and any Sprites that it contains. See `Stylable Properties`_ for more details.
+        Loads the style file in *path* and applies it to this Scene and any
+        Sprites and Views that it contains. See `Stylable Properties`_ for more
+        details.
 
-        :param path: the location of the style file to load. Usually has the extension ".spys".
-        :type path: string
+        :param path: The location of the style file to load. Should have the
+                     extension ".spys".
+        :type path: str
         """
         spyral._style.parse(open(path, "r").read(), self)
         self._apply_style(self)
@@ -329,7 +337,7 @@ class Scene(object):
     def _apply_style(self, obj):
         """
         Applies any loaded styles from this scene to the object.
-        
+
         :param object obj: Any object
         """
         if not hasattr(obj, "__stylize__"):
@@ -375,6 +383,11 @@ class Scene(object):
 
     # Rendering
     def _get_size(self):
+        """
+        Read-only property that returns a :class:`Vec2D <spyral.Vec2D>` of the
+        width and height of the Scene's size. See `View size and Window size`_
+        for more details. This property can only be set once.
+        """
         if self._size is None:
             raise spyral.SceneHasNoSizeException("You should specify a size in "
                                                  "the constructor or in a "
@@ -390,45 +403,63 @@ class Scene(object):
                        rsize[1] / size[1])
 
     def _get_width(self):
+        """
+        The width of this scene. Read-only number.
+        """
         return self._get_size()[0]
 
     def _get_height(self):
+        """
+        The height of this scene. Read-only number.
+        """
         return self._get_size()[1]
 
     def _get_rect(self):
+        """
+        Returns a :class:`Rect <spyral.Rect>` representing the position (0, 0)
+        and size of this Scene.
+        """
         return spyral.Rect((0,0), self.size)
 
     def _get_scene(self):
+        """
+        Returns this scene. Read-only.
+        """
         return self._scene()
+
     def _get_parent(self):
+        """
+        Returns this scene. Read-only.
+        """
         return self._scene()
 
-    #: Read-only property that returns a :class:`Vec2D <spyral.Vec2D>` of the
-    #: width and height of the Scene's size. See `View size and Window size`_
-    #: for more details.
-    size = property(_get_size)
-    #: Read-only property that returns the width of the Scene (int).
-    width = property(_get_width)
-    #: Read-only property that returns the height of the Scene (int).
-    height = property(_get_height)
 
+    size = property(_get_size)
+    width = property(_get_width)
+    height = property(_get_height)
     scene = property(_get_scene)
     parent = property(_get_parent)
-
     rect = property(_get_rect)
 
     def _set_background(self, image):
         surface = image._surf
         scene = spyral._get_executing_scene()
         if surface.get_size() != self.size:
-            raise spyral.BackgroundSizeError("Background size must match the scene's size.")
-        self._background = pygame.transform.smoothscale(surface, self._surface.get_size())
+            raise spyral.BackgroundSizeError("Background size must match "
+                                             "the scene's size.")
+        size = self._surface.get_size()
+        self._background = pygame.transform.smoothscale(surface, size)
         self._clear_this_frame.append(self._background.get_rect())
 
     def _get_background(self):
+        """
+        The background of this scene. The given :class:`Image <spyral.Image>`
+        must be the same size as the Scene. A background will be handled
+        intelligently by Spyral; it knows to only redraw portions of it rather
+        than the whole thing, unlike a Sprite.
+        """
         return self._background
 
-    #: Sets the background of this scene to the `image` (:class:`Image <spyral.Image>`). The `image` must be the same size as the background. A background will be handled intelligently by Spyral; it knows to only redraw portions of it rather than the whole thing.
     background = property(_get_background, _set_background)
 
     def _register_sprite(self, sprite):
@@ -456,6 +487,9 @@ class Scene(object):
             self._invalidating_views[view].discard(sprite)
 
     def _kill_view(self, view):
+        """
+        Remove all references to the view from within this Scene.
+        """
         if view in self._invalidating_views:
             del self._invalidating_views[view]
         if view in self._collision_boxes:
@@ -463,22 +497,28 @@ class Scene(object):
         self._layer_tree.remove_view(view)
 
     def _blit(self, blit):
+        """
+        Apply any scaling associated with the Scene to the Blit, then finalize
+        it. Note that Scene's don't apply cropping.
+        """
         blit.apply_scale(self._scale)
-        #blit.clip(self._rect)
         blit.finalize()
         self._blits.append(blit)
 
     def _static_blit(self, key, blit):
         """
-        Identifies that this sprite will be statically blit from now.
+        Identifies that this sprite will be statically blit from now, and
+        applies scaling and finalization to the blit.
         """
         blit.apply_scale(self._scale)
-        #blit.clip(self._rect)
         blit.finalize()
         self._static_blits[key] = blit
         self._clear_this_frame.append(blit.rect)
 
     def _invalidate_views(self, view):
+        """
+        Expire any sprites that belong to the view being invalidated.
+        """
         if view in self._invalidating_views:
             for sprite in self._invalidating_views[view]:
                 sprite._expire_static()
@@ -594,65 +634,125 @@ class Scene(object):
         self._clear_this_frame.append(pygame.Rect(self._rect))
 
     def _get_layer_position(self, view, layer):
+        """
+        For the given view and layer, calculate its position in the depth order.
+        """
         return self._layer_tree.get_layer_position(view, layer)
 
     def _set_view_layer(self, view, layer):
+        """
+        Set the layer that the view is on within layer tree.
+        """
         self._layer_tree.set_view_layer(view, layer)
+
     def _set_view_layers(self, view, layers):
+        """
+        Set the view's layers within the layer tree.
+        """
         self._layer_tree.set_view_layers(view, layers)
+
     def _add_view(self, view):
+        """
+        Register the given view within this scene.
+        """
         self._layer_tree.add_view(view)
 
     def _set_layers(self, layers):
-        # Potential caveat: If you change layers after blitting, previous blits may be wrong
-        # for a frame, static ones wrong until they expire
+        """
+        Potential caveat: If you change layers after blitting, previous blits
+        may be wrong for a frame, static ones wrong until they expire
+        """
         if self._layers == []:
             self._layer_tree.set_view_layers(self, layers)
             self._layers = layers
         elif self._layers == layers:
             pass
         else:
-            raise spyral.LayersAlreadySetError("You can only define the layers for a scene once.")
+            raise spyral.LayersAlreadySetError("You can only define the layers "
+                                               "for a scene once.")
 
     def _get_layers(self):
+        """
+        A list of strings representing the layers that are available for this
+        scene. The first layer is at the bottom, and the last is at the top.
+
+        Note that the layers can only be set once.
+        """
         return self._layers
 
-    #: Returns the list of layers for this Scene, which are represented by strings. The first layer is at the bottom, and the last is at the top.
     layers = property(_get_layers, _set_layers)
 
-    def world_to_local(self, pos):
+    def _add_child(self, entity):
         """
-        TODO: Rename, decide if necessary, perhaps auto-scale the event coordinates inside the scene.
+        Add this child to the Scene; since only Views care about their children,
+        this function does nothing.
         """
-        pos = spyral.Vec2D(pos)
-        if self._rect.collidepoint(pos):
-            pos = pos / self._scale
-            return pos
-        return None
+        pass
 
-    def _add_child(self, entity): pass
-    def _remove_child(self, entity): pass
+    def _remove_child(self, entity):
+        """
+        Remove this child to the Scene; since only Views care about their
+        children, this function does nothing.
+        """
+        pass
 
     def _warp_collision_box(self, box):
+        """
+        Modify the given collision box according to this Scene's scaling, and
+        then finalize it.
+        """
         box.apply_scale(self._scale)
         box.finalize()
         return box
 
     def _set_collision_box(self, entity, box):
+        """
+        Registers the given entity (a View or Sprite) with the given
+        CollisionBox.
+        """
         self._collision_boxes[entity] = box
 
     def collide_sprite(self, first, second):
+        """
+        Returns whether the first sprite is colliding with the second.
+
+        :param first: A sprite
+        :type first: :class:`Sprite <spyral.Sprite>`
+        :param second: Another sprite
+        :type second: :class:`Sprite <spyral.Sprite>`
+        :returns: A ``bool``
+        """
         if first not in self._collision_boxes or second not in self._collision_boxes:
             return False
         first_box = self._collision_boxes[first]
         second_box = self._collision_boxes[second]
         return first_box.collide_rect(second_box)
-    def collide_point(self, sprite, pos):
+
+    def collide_point(self, sprite, point):
+        """
+        Returns whether the sprite is colliding with the point.
+
+        :param sprite: A sprite
+        :type sprite: :class:`Sprite <spyral.Sprite>`
+        :param point: A point
+        :type point: :class:`Vec2D <spyral.Vec2D>`
+        :returns: A ``bool``
+        """
         if sprite not in self._collision_boxes:
             return False
         sprite_box = self._collision_boxes[sprite]
-        return sprite_box.collide_point(pos)
+        return sprite_box.collide_point(point)
+
     def collide_rect(self, sprite, rect):
+        """
+        Returns whether the sprite is colliding with the rect.
+
+        :param sprite: A sprite
+        :type sprite: :class:`Sprite <spyral.Sprite>`
+        :param rect: A rect
+        :type rect: :class:`Rect <spyral.Rect>`
+        :returns: A ``bool``
+        """
         if sprite not in self._collision_boxes:
             return False
         sprite_box = self._collision_boxes[sprite]

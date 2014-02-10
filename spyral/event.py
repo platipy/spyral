@@ -110,9 +110,9 @@ def handle(event_name, event=None, scene=None):
                            "input.mouse.up", or "pong.score".
     :param event: An Event object that holds properties for the event.
     :type event: :class:`Event <spyral.event.Event>`
-    :param _scene: The scene to queue this event on; if `None` is given, the
+    :param scene: The scene to queue this event on; if ``None`` is given, the
                    currently executing scene will be used.
-    :type _scene: :class:`Scene <spyral.Scene>` or `None`.
+    :type scene: :class:`Scene <spyral.Scene>` or ``None``.
     """
     if scene is None:
         scene = spyral._get_executing_scene()
@@ -127,7 +127,7 @@ def register(event_namespace, handler,
 
     :param event_namespace: the namespace of the event, e.g. 
                             "input.mouse.left.click" or "pong.score".
-    :type event_namespace: string
+    :type event_namespace: str
     :param handler: A function that will handle the event. The first
                     argument to the function will be the event.
     :type handler: function
@@ -137,10 +137,12 @@ def register(event_namespace, handler,
     :param kwargs: any additional keyword arguments that need to be
                    passed into the handler.
     :type kwargs: dict
-    :param priority: the higher the `priority`, the sooner this handler will
-                     be called in reaction to the event, relative to the
-                     other event handlers registered.
-    :type priority: int
+    :param int priority: the higher the `priority`, the sooner this handler will
+                         be called in reaction to the event, relative to the
+                         other event handlers registered.
+    :param scene: The scene to register this event on; if it is ``None``, then
+                  it will be attached to the currently running scene.
+    :type scene: :class:`Scene <spyral.Scene>` or ``None``
     """
     if scene is None:
         scene = spyral._get_executing_scene()
@@ -150,7 +152,7 @@ def register(event_namespace, handler,
 def register_dynamic(event_namespace, handler_string, 
                      args=None, kwargs=None, priority=0, scene=None):
     """
-    Similar to :func:`spyral.Scene.register` function, except that instead
+    Similar to :func:`spyral.event.register` function, except that instead
     of passing in a function, you pass in the name of a property of this
     scene that holds a function. For more information, see
     `Event Namespaces`_.
@@ -162,6 +164,24 @@ def register_dynamic(event_namespace, handler_string,
                 ...
                 self.register_dynamic("orc.dies", "future_function")
                 ...
+    
+    :param str event_namespace: The namespace of the event, e.g. 
+                                "input.mouse.left.click" or "pong.score".
+    :param str handler: The name of an attribute on this scene that will hold
+                        a function. The first argument to the function will be
+                        the event.
+    :param args: any additional arguments that need to be passed in
+                 to the handler.
+    :type args: sequence
+    :param kwargs: any additional keyword arguments that need to be
+                   passed into the handler.
+    :type kwargs: dict
+    :param int priority: the higher the `priority`, the sooner this handler will
+                         be called in reaction to the event, relative to the
+                         other event handlers registered.
+    :param scene: The scene to register this event on; if it is ``None``, then
+                  it will be attached to the currently running scene.
+    :type scene: :class:`Scene <spyral.Scene>` or ``None``
     """
     if scene is None:
         scene = spyral._get_executing_scene()
@@ -171,9 +191,26 @@ def register_dynamic(event_namespace, handler_string,
 def register_multiple(event_namespace, handlers, args=None, 
                       kwargs=None, priority=0, scene=None):
     """
-    Similar to :func:`spyral.Scene.register` function, except a sequence of
+    Similar to :func:`spyral.event.register` function, except a sequence of
     `handlers` are be given instead of just one. For more information, see
     `Event Namespaces`_.
+    
+    :param str event_namespace: the namespace of the event, e.g. 
+                            "input.mouse.left.click" or "pong.score".
+    :type event_namespace: string
+    :param str handler: A list of functions that will be run on this event.
+    :param args: any additional arguments that need to be passed in
+                 to the handler.
+    :type args: sequence
+    :param kwargs: any additional keyword arguments that need to be
+                   passed into the handler.
+    :type kwargs: dict
+    :param int priority: the higher the `priority`, the sooner this handler will
+                         be called in reaction to the event, relative to the
+                         other event handlers registered.
+    :param scene: The scene to register this event on; if it is ``None``, then
+                  it will be attached to the currently running scene.
+    :type scene: :class:`Scene <spyral.Scene>` or ``None``
     """
     if scene is None:
         scene = spyral._get_executing_scene()
@@ -185,6 +222,25 @@ def register_multiple_dynamic(event_namespace, handler_strings, args=None,
     """
     Similar to :func:`spyral.Scene.register` function, except a sequence of
     strings representing handlers can be given instead of just one.
+    
+    :param event_namespace: the namespace of the event, e.g. 
+                            "input.mouse.left.click" or "pong.score".
+    :type event_namespace: string
+    :param str handler: A list of names of an attribute on this scene that will
+                        hold a function. The first argument to the function will
+                        be the event.
+    :param args: any additional arguments that need to be passed in
+                 to the handler.
+    :type args: sequence
+    :param kwargs: any additional keyword arguments that need to be
+                   passed into the handler.
+    :type kwargs: dict
+    :param int priority: the higher the `priority`, the sooner this handler will
+                         be called in reaction to the event, relative to the
+                         other event handlers registered.
+    :param scene: The scene to register this event on; if it is ``None``, then
+                  it will be attached to the currently running scene.
+    :type scene: :class:`Scene <spyral.Scene>` or ``None``
     """
     if scene is None:
         scene = spyral._get_executing_scene()
@@ -200,9 +256,14 @@ def unregister(event_namespace, handler, scene=None):
     :param str event_namespace: An event namespace
     :param handler: The handler to unregister.
     :type handler: a function or string.
+    :param scene: The scene to unregister the event; if it is ``None``, then
+                  it will be attached to the currently running scene.
+    :type scene: :class:`Scene <spyral.Scene>` or ``None``
     """
     if scene is None:
         scene = spyral._get_executing_scene()
+    if not isinstance(handler, str):
+        handler = WeakMethod(handler)
     scene._unregister(event_namespace, handler)
 
 def clear_namespace(namespace, scene=None):
@@ -211,6 +272,9 @@ def clear_namespace(namespace, scene=None):
     provided `namespace`. For more information, see `Event Namespaces`_.
 
     :param str namespace: The complete namespace.
+    :param scene: The scene to clear the namespace of; if it is ``None``, then
+                  it will be attached to the currently running scene.
+    :type scene: :class:`Scene <spyral.Scene>` or ``None``
     """
     if scene is None:
         scene = spyral._get_executing_scene()
