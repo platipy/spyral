@@ -1,8 +1,11 @@
-Scenes and the Director
+.. toctree::
+    :maxdepth: 2
+    
+    docs/director
 
 Sprites have the following built-in attributes.
 
-==============    ============
+    ==============    ============
     Attribute         Description
     ==============    ============
     pos               The position of a sprite in 2D coordinates, represented as a :class:`Vec2D <spyral.Vec2D>`. (Default: (0, 0))
