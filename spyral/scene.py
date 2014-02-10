@@ -716,10 +716,12 @@ class Scene(object):
         """
         Returns whether the first sprite is colliding with the second.
 
-        :param first: A sprite
-        :type first: :class:`Sprite <spyral.Sprite>`
-        :param second: Another sprite
-        :type second: :class:`Sprite <spyral.Sprite>`
+        :param first: A sprite or view
+        :type first: :class:`Sprite <spyral.Sprite>` or a 
+                     :class:`View <spyral.View>`
+        :param second: Another sprite or view
+        :type second: :class:`Sprite <spyral.Sprite>` or a 
+                      :class:`View <spyral.View>`
         :returns: A ``bool``
         """
         if first not in self._collision_boxes or second not in self._collision_boxes:

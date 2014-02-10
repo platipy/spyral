@@ -7,34 +7,6 @@ class View(object):
 
     Views have the following built-in attributes
 
-    ==============    ============
-    Attribute         Description
-    ==============    ============
-    pos               The position of a sprite in 2D coordinates, represented as a :class:`Vec2D <spyral.Vec2D>`. (Default: (0, 0))
-    position          An alias for pos
-    x                 The x coordinate of the sprite, which will remain synced with the position
-    y                 The y coordinate of the sprite, which will remain synced with the position
-    size              The (width, height) of this view's coordinate space (:class:`Vec2D <spyral.Vec2d>`). (Default: size of the parent)
-    width             The width of the view.
-    height            The height of the view
-    output_size       The (width, height) of this view when drawn on the parent (:class:`Vec2D <spyral.Vec2d>`). (Default: size of the parent)
-    output_width      The width of this view when drawn on the parent.
-    output_height     The height of this view when drawn on the parent.
-    scale             A scale factor from the size to the output_size for the view. It will always contain a :class:`Vec2D <spyral.Vec2D>` with an x factor and a y factor, but it can be set to a numeric value which will be set for both coordinates.
-    scale_x           The x factor of the scaling. Kept in sync with scale
-    scale_y           The y factor of the scaling. Kept in sync with scale
-    anchor            Defines an `anchor point <anchors>` where coordinates are relative to in the view.
-    layer             The name of the layer this view belongs to in it's parent. See `layering <spyral_layering>` for more.
-    layers            A list of layers that the children of this view can be in. See `layering <spyral_layering>` for more.
-    visible           A boolean that represents whether this view should be drawn (default: True).
-    crop              A boolean that determines whether the view should crop anything outside of it's size (default: True)
-    crop_size         The (width, height) of the area that will be cropped; anything outside of this region will be removed
-    crop_width        The width of the cropped area
-    crop_height       The height of the cropped area
-    parent            The first parent View or Scene that this View belongs to. Read-only.
-    scene             The Scene that this View belongs to. Read-only.
-    mask              A rect to use instead of the current image's rect for computing collisions. `None` if the view's rect should be used.
-    ==============    ============
     """
     def __init__(self, parent):
 
@@ -136,25 +108,23 @@ class View(object):
         Recalculates the offset of this View.
         """
         if self._mask:
-            self._offset = spyral.util.anchor_offset(self._anchor, self._mask.size[0], self._mask.size[1])
+            self._offset = spyral.util.anchor_offset(self._anchor, 
+                                                     self._mask.size[0], 
+                                                     self._mask.size[1])
         else:
-            self._offset = spyral.util.anchor_offset(self._anchor, self._size[0], self._size[1])
+            self._offset = spyral.util.anchor_offset(self._anchor, 
+                                                     self._size[0], 
+                                                     self._size[1])
 
     # Properties
     def _get_pos(self):
         """
-        Returns the position of this View.
-
-        :rtype: `Vec2D <spyral.Vec2D>`
+        Returns the position (`Vec2D <spyral.Vec2D>`) of this View within its
+        parent.
         """
         return self._pos
 
     def _set_pos(self, pos):
-        """
-        Set the position for this View.
-        :param pos: The new location for this View.
-        :type pos: `Vec2D <spyral.Vec2D>` or an iterable of length two
-        """
         if pos == self._pos:
             return
         self._pos = spyral.Vec2D(pos)
@@ -162,9 +132,7 @@ class View(object):
 
     def _get_layer(self):
         """
-        Returns the layer that this View belongs on.
-
-        :rtype: String
+        The layer (a ``str``) that this View is on, within its parent.
         """
         return self._layer
 
@@ -176,6 +144,12 @@ class View(object):
         self._changed()
 
     def _get_layers(self):
+        """
+        A list of strings representing the layers that are available for this
+        view. The first layer is at the bottom, and the last is at the top.
+
+        Note that the layers can only be set once.
+        """
         return tuple(self._layers)
 
     def _set_layers(self, layers):
@@ -185,21 +159,34 @@ class View(object):
         elif self._layers == layers:
             pass
         else:
-            raise spyral.LayersAlreadySetError("You can only define the layers for a view once.")
+            raise spyral.LayersAlreadySetError("You can only define the "
+                                               "layers for a view once.")
 
     def _get_x(self):
+        """
+        The x coordinate of the view, which will remain synced with the
+        position. Number.
+        """
         return self._get_pos()[0]
 
     def _set_x(self, x):
         self._set_pos((x, self._get_y()))
 
     def _get_y(self):
+        """
+        The y coordinate of the view, which will remain synced with the
+        position. Number.
+        """
         return self._get_pos()[1]
 
     def _set_y(self, y):
         self._set_pos((self._get_x(), y))
 
     def _get_anchor(self):
+        """
+        Defines an `anchor point <anchors>` where coordinates are relative to
+        on the view. String.
+        """
         return self._anchor
 
     def _set_anchor(self, anchor):
@@ -210,42 +197,64 @@ class View(object):
         self._changed()
 
     def _get_width(self):
+        """
+        The width of the view. Number.
+        """
         return self._size[0]
 
     def _set_width(self, width):
         self._set_size(width, self._get_height())
 
     def _get_height(self):
+        """
+        The height of the view. Number.
+        """
         return self._size[1]
 
     def _set_height(self, height):
         self._set_size(self._get_width(), height)
 
     def _get_output_width(self):
+        """
+        The width of this view when drawn on the parent. Number.
+        """
         return self._output_size[0]
 
     def _set_output_width(self, width):
         self._set_output_size((width, self._get_output_height()))
 
     def _get_output_height(self):
+        """
+        The height of this view when drawn on the parent. Number.
+        """
         return self._output_size[1]
 
     def _set_output_height(self, height):
         self._set_output_size((self._get_output_width(), height))
 
     def _get_crop_width(self):
+        """
+        The width of the cropped area. Number.
+        """
         return self._crop_size[0]
 
     def _set_crop_width(self, width):
         self._set_crop_size((width, self._get_crop_height()))
 
     def _get_crop_height(self):
+        """
+        The height of the cropped area. Number.
+        """
         return self._crop_size[1]
 
     def _set_crop_height(self, height):
         self._set_crop_size((self._get_crop_width(), height))
 
     def _get_size(self):
+        """
+        The (width, height) of this view's coordinate space
+        (:class:`Vec2D <spyral.Vec2d>`). Defaults to size of the parent.
+        """
         return self._size
 
     def _set_size(self, size):
@@ -255,6 +264,10 @@ class View(object):
         self._changed()
 
     def _get_output_size(self):
+        """
+        The (width, height) of this view when drawn on the parent
+        (:class:`Vec2D <spyral.Vec2d>`). Defaults to size of the parent.
+        """
         return self._output_size
 
     def _set_output_size(self, size):
@@ -264,6 +277,10 @@ class View(object):
         self._changed()
 
     def _get_crop_size(self):
+        """
+        The (width, height) of the area that will be cropped; anything outside
+        of this region will be removed when the crop is active.
+        """
         return self._crop_size
 
     def _set_crop_size(self, size):
@@ -273,6 +290,12 @@ class View(object):
         self._changed()
 
     def _get_scale(self):
+        """
+        A scale factor from the size to the output_size for the view. It will
+        always contain a :class:`Vec2D <spyral.Vec2D>` with an x factor and a
+        y factor, but it can be set to a numeric value which will be set for
+        both coordinates.
+        """
         return self._output_size / self._size
 
     def _set_scale(self, scale):
@@ -284,9 +307,15 @@ class View(object):
         self._changed()
 
     def _get_scale_x(self):
+        """
+        The x factor of the scaling. Kept in sync with scale. Number.
+        """
         return self._get_scale()[0]
 
     def _get_scale_y(self):
+        """
+        The y factor of the scaling. Kept in sync with scale. Number.
+        """
         return self._get_scale()[1]
 
     def _set_scale_x(self, x):
@@ -296,6 +325,10 @@ class View(object):
         self._set_scale((self._get_scale()[0], y))
 
     def _get_visible(self):
+        """
+        Whether or not this View and its children will be drawn (``bool``).
+        Defaults to ``False``.
+        """
         return self._visible
 
     def _set_visible(self, visible):
@@ -305,6 +338,10 @@ class View(object):
         self._changed()
 
     def _get_crop(self):
+        """
+        A ``bool`` that determines whether the view should crop anything
+        outside of it's size (default: True).
+        """
         return self._crop
 
     def _set_crop(self, crop):
@@ -315,11 +352,25 @@ class View(object):
 
 
     def _get_parent(self):
+        """
+        The first parent :class:`View <spyral.View>` or 
+        :class:`Scene <spyral.Scene>` that this View belongs to. Read-only.
+        """
         return self._parent()
+        
     def _get_scene(self):
+        """
+        The top-most parent :class:`Scene <spyral.Scene>` that this View
+        belongs to. Read-only.
+        """
         return self._scene()
 
     def _get_rect(self):
+        """
+        A :class:`Rect <spyral.Rect>` representing the position and size of
+        this View. Can be set through a ``Rect``, a 2-tuple of position and
+        size, or a 4-tuple.
+        """
         return spyral.Rect(self._pos, self.size)
 
     def _set_rect(self, *rect):
@@ -362,6 +413,10 @@ class View(object):
     rect = property(_get_rect, _set_rect)
 
     def _blit(self, blit):
+        """
+        If this View is visible, applies offseting, scaling, and cropping
+        before passing it up the transformation chain.
+        """
         if self.visible:
             blit.position += self.position
             blit.apply_scale(self.scale)
@@ -370,6 +425,10 @@ class View(object):
             self._parent()._blit(blit)
 
     def _static_blit(self, key, blit):
+        """
+        If this View is visible, applies offseting, scaling, and cropping
+        before passing it up the transformation chain.
+        """
         if self.visible:
             blit.position += self.position
             blit.apply_scale(self.scale)
@@ -378,6 +437,10 @@ class View(object):
             self._parent()._static_blit(key, blit)
 
     def _warp_collision_box(self, box):
+        """
+        Transforms the given collision box according to this view's scaling,
+        cropping, and offset; then passes the box to this boxes parent.
+        """
         box.position += self.position
         box.apply_scale(self.scale)
         if self.crop:
@@ -385,6 +448,9 @@ class View(object):
         return self._parent()._warp_collision_box(box)
 
     def _set_collision_box(self):
+        """
+        Updates this View's collision box.
+        """
         if self._mask is not None:
             pos = self._mask.topleft - self._offset
             area = spyral.Rect((0,0), self._mask.size)
@@ -396,6 +462,13 @@ class View(object):
         self._scene()._set_collision_box(self, warped_box.rect)
 
     def __stylize__(self, properties):
+        """
+        Applies the *properties* to this scene. This is called when a style
+        is applied.
+
+        :param properties: a mapping of property names (strings) to values.
+        :type properties: dict
+        """
         simple = ['pos', 'x', 'y', 'position',
                   'width', 'height', 'size',
                   'output_width', 'output_height', 'output_size',
@@ -410,8 +483,32 @@ class View(object):
             spyral.exceptions.unused_style_warning(self, properties.iterkeys())
 
     def collide_sprite(self, other):
+        """
+        Returns whether this view is colliding with the sprite or view.
+
+        :param other: A sprite or a view
+        :type other: :class:`Sprite <spyral.Sprite>` or a 
+                     :class:`View <spyral.View>`
+        :returns: A ``bool``
+        """
         return self._scene().collide_sprite(self, other)
+        
     def collide_point(self, pos):
+        """
+        Returns whether this view is colliding with the point.
+
+        :param point: A point
+        :type point: :class:`Vec2D <spyral.Vec2D>`
+        :returns: A ``bool``
+        """
         return self._scene().collide_point(self, pos)
+        
     def collide_rect(self, rect):
+        """
+        Returns whether this view is colliding with the rect.
+
+        :param rect: A rect
+        :type rect: :class:`Rect <spyral.Rect>`
+        :returns: A ``bool``
+        """
         return self._scene().collide_rect(self, rect)
