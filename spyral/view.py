@@ -467,7 +467,7 @@ class View(object):
         is applied.
 
         :param properties: a mapping of property names (strings) to values.
-        :type properties: dict
+        :type properties: ``dict``
         """
         simple = ['pos', 'x', 'y', 'position',
                   'width', 'height', 'size',

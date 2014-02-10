@@ -433,6 +433,17 @@ class Keys(object):
         self.reverse_map = {}
         self.load_keys_from_file(spyral._get_spyral_path() +
                                  'resources/default_key_mappings.txt')
+        self._fix_bad_names([("return", "enter"),
+                             ("break", "brk"])
+     
+    def _fix_bad_names(self, renames):
+        """
+        Used to replace any binding names with non-python keywords.
+        """
+        for original, new in renames:
+            setattr(self, new, getattr(self, original))
+            delattr(self, original)
+        
 
     def load_keys_from_file(self, filename):
         fp = open(filename)

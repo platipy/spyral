@@ -21,17 +21,24 @@ class BaseWidget(spyral.View):
         self.mask = spyral.Rect(self.pos, self.size)
 
     def _changed(self):
+        """
+        Called when the Widget is changed; since Widget's masks are a function
+        of their component widgets, it needs to be notified.
+        """
         self._recalculate_mask()
         spyral.View._changed(self)
 
     def _recalculate_mask(self):
+        """
+        Recalculate this widget's mask based on its size, position, and padding.
+        """
         self.mask = spyral.Rect(self.pos, self.size + self.padding)
 
 # Widget Implementations
 
 class MultiStateWidget(BaseWidget):
     """
-    The MultiStateWidget is an abstract widget with multiple states. It is can
+    The MultiStateWidget is an abstract widget with multiple states. It should
     be subclassed and implemented to have different behavior based on its
     states.
 
@@ -39,7 +46,11 @@ class MultiStateWidget(BaseWidget):
     image into a 3x3 grid of images that can be stretched into a button. This
     is a boolean property.
 
-    *states* should be a list of the possible states that the widget can be in.
+    :param form: The parent form that this Widget belongs to.
+    :type form: :class:`Form <spyral.Form>`
+    :param str name: The name of this widget.
+    :param states: A list of the possible states that the widget can be in.
+    :type states: A ``list`` of ``str``.
     """
     def __init__(self, form, name, states):
         self._states = states
@@ -85,9 +96,17 @@ class MultiStateWidget(BaseWidget):
         self._on_state_change()
 
     def _get_value(self):
+        """
+        Returns the current value of this widget; defaults to the ``state`` of
+        the widget.
+        """
         return self._state
 
     def _get_state(self):
+        """
+        This widget's state; when changed, a form.<name>.<widget>.changed
+        event will be triggered. Represented as a ``str``.
+        """
         return self._state
 
     def _set_nine_slice(self, nine_slice):
@@ -95,6 +114,10 @@ class MultiStateWidget(BaseWidget):
         self._render_images()
 
     def _get_nine_slice(self):
+        """
+        The :class:`Image <spyral.Image>` that will be nine-sliced into this
+        widget's background.
+        """
         return self._nine_slice
 
     def _set_padding(self, padding):
@@ -106,13 +129,20 @@ class MultiStateWidget(BaseWidget):
 
     def _get_padding(self):
         """
-        TODO: _get_padding documentation
+        A :class:`Vec2D <spyral.Vec2D>` that represents the horizontal and
+        vertical padding associated with this button. Can also be set with a
+        ``int`` for equal amounts of padding, although it will always return a
+        :class:`Vec2D <spyral.Vec2D>`.
         """
         return self._padding
 
     def _set_content_size(self, size):
         """
-        TODO: _set_content_size documentation
+        The size of the content within this button, used to calculate the mask.
+        A :class:`Vec2D <spyral.Vec2D>`
+        
+        ..todo:: It's most likely the case that this needs to be refactored into
+        the mask property, since they're probably redundant with each other.
         """
         self._content_size = size
         self._render_images()
@@ -121,9 +151,16 @@ class MultiStateWidget(BaseWidget):
         return self._get_content_size
 
     def _on_size_change(self):
+        """
+        A function triggered whenever this widget changes size.
+        """
         pass
 
     def _get_anchor(self):
+        """
+        Defines an `anchor point <anchors>` where coordinates are relative to
+        on the widget. ``str``.
+        """
         return self._anchor
 
     def _set_anchor(self, anchor):
@@ -140,6 +177,13 @@ class MultiStateWidget(BaseWidget):
     content_size = property(_get_content_size, _set_content_size)
 
     def __stylize__(self, properties):
+        """
+        Applies the *properties* to this scene. This is called when a style
+        is applied.
+
+        :param properties: a mapping of property names (strings) to values.
+        :type properties: ``dict``
+        """
         self._padding = properties.pop('padding', 4)
         if not isinstance(self._padding, spyral.Vec2D):
             self._padding = spyral.Vec2D(self._padding, self._padding)
@@ -156,9 +200,16 @@ class ButtonWidget(MultiStateWidget):
     A ButtonWidget is a simple button that can be pressed. It can have some
     text. If you don't specify an explicit width, then it will be sized
     according to it's text.
+    
+    :param form: The parent form that this Widget belongs to.
+    :type form: :class:`Form <spyral.Form>`
+    :param str name: The name of this widget.
+    :param str text: The text that will be rendered on this button.
     """
     def __init__(self, form, name, text = "Okay"):
-        MultiStateWidget.__init__(self, form, name, ['up', 'down', 'down_focused', 'down_hovered', 'up_focused', 'up_hovered'])
+        MultiStateWidget.__init__(self, form, name, 
+                                  ['up', 'down', 'down_focused', 'down_hovered',
+                                   'up_focused', 'up_hovered'])
 
         self._text_sprite = spyral.Sprite(self)
         self._text_sprite.layer = "content"
@@ -166,12 +217,18 @@ class ButtonWidget(MultiStateWidget):
         self.text = text
 
     def _get_value(self):
+        """
+        Whether or not this widget is currently ``"up"`` or ``"down"``.
+        """
         if "up" in self._state:
             return "up"
         else:
             return "down"
 
     def _get_text(self):
+        """
+        The text rendered on this button (``str``).
+        """
         return self._text
 
     def _set_text(self, text):
@@ -181,16 +238,28 @@ class ButtonWidget(MultiStateWidget):
         self._render_images()
 
     def _on_state_change(self):
-        self._text_sprite.pos = spyral.util.anchor_offset(self._anchor, self._padding[0] / 2, self._padding[1] / 2)
+        """
+        A function triggered whenever this widget changes size.
+        """
+        self._text_sprite.pos = spyral.util.anchor_offset(self._anchor, 
+                                                          self._padding[0] / 2,
+                                                          self._padding[1] / 2)
 
     value = property(_get_value)
     text = property(_get_text, _set_text)
 
     def _handle_mouse_up(self, event):
+        """
+        The function called when the mouse is released while on this widget.
+        """
         if self.state.startswith('down'):
             self.state = self.state.replace('down', 'up')
 
     def _handle_mouse_down(self, event):
+        """
+        The function called when the mouse is pressed while on this widget.
+        Fires a ``clicked`` event.
+        """
         if self.state.startswith('up'):
             self.state = self.state.replace('up', 'down')
             e = spyral.Event(name="clicked", widget=self, form=self.form, value=self._get_value())
@@ -200,27 +269,46 @@ class ButtonWidget(MultiStateWidget):
                                     e)
 
     def _handle_mouse_out(self, event):
+        """
+        The function called when this button is no longer being hovered over.
+        """
         if "_hovered" in self.state:
             self.state = self.state.replace('_hovered', '')
 
     def _handle_mouse_over(self, event):
+        """
+        The function called when the mouse starts hovering over this button.
+        """
         if not "_hovered" in self.state:
             self.state = self.state.replace('_focused', '') + "_hovered"
 
     def _handle_mouse_motion(self, event):
+        """
+        The function called when the mouse moves while over this button.
+        """
         pass
 
     def _handle_focus(self, event):
+        """
+        Applies the focus state to this widget
+        """
         if self.state in ('up', 'down'):
             self.state+= '_focused'
 
     def _handle_blur(self, event):
+        """
+        Removes the focused state from this widget.
+        """
         if self.state in ('up_focused', 'down_focused'):
             self.state = self.state.replace('_focused', '')
 
     def _handle_key_down(self, event):
-        if event.key in (32, 13):
+        """
+        When the 
+        """
+        if event.key in (event.keys.return, event.keys.space):
             self.handle_mouse_down(event)
+            
     def _handle_key_up(self, event):
         if event.key in (32, 13):
             self.handle_mouse_up(event)
@@ -252,7 +340,8 @@ class ToggleButtonWidget(ButtonWidget):
 
 class CheckboxWidget(ToggleButtonWidget):
     """
-    A CheckboxWidget is similar to a ToggleButtonWidget, only it doesn't have text.
+    A CheckboxWidget is similar to a ToggleButtonWidget, only it doesn't have
+    text.
     """
     def __init__(self, form, name):
         ToggleButtonWidget.__init__(self, form, name, "")
