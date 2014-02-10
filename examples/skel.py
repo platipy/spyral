@@ -15,8 +15,7 @@ class Game(spyral.Scene):
     """
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
-        
-        self.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", sys.exit)
 
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes

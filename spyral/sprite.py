@@ -80,7 +80,8 @@ class Sprite(object):
 
         self._scene()._register_sprite(self)
         self._scene()._apply_style(self)
-        self._scene().register('director.render', self._draw)
+        spyral.event.register('director.render', self._draw, 
+                              scene=self._scene())
 
     def _set_static(self):
         """
@@ -509,7 +510,8 @@ class Sprite(object):
         memory if there are other references to it; if you need to do that,
         remember to ``del`` the reference to it.
         """
-        self._scene().unregister("director.render", self._draw)
+        spyral.event.unregister("director.render", self._draw, 
+                                scene=self._scene())
         self._scene()._unregister_sprite(self)
         self._scene()._remove_static_blit(self)
         self._parent()._remove_child(self)
@@ -527,9 +529,10 @@ class Sprite(object):
                 raise ValueError("Cannot animate on propety %s twice" %
                                  animation.property)
         if len(self._animations) == 0:
-            self._scene().register('director.update',
-                                 self._run_animations,
-                                 ('delta', ))
+            spyral.event.register('director.update',
+                                  self._run_animations,
+                                  ('delta', ),
+                                  scene=self._scene())
         self._animations.append(animation)
         self._progress[animation] = 0
         self._evaluate(animation, 0.0)
@@ -547,8 +550,9 @@ class Sprite(object):
             self._animations.remove(animation)
             del self._progress[animation]
             if len(self._animations) == 0:
-                self._scene().unregister('director.update', 
-                                         self._run_animations)
+                spyral.event.unregister('director.update', 
+                                        self._run_animations,
+                                        scene=self._scene())
                 e = spyral.Event(animation=animation, sprite=self)
                 spyral.event.handle("sprites.%s.animation.end", e)
 

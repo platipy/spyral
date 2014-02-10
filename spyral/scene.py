@@ -80,10 +80,14 @@ class Scene(object):
         self._layer_tree = _LayerTree(self)
         self._sprites = set()
 
-        self.register('director.scene.enter', self.redraw)
-        self.register('director.update', self._handle_events)
-        self.register('director.update', self._run_actors, ('delta',))
-        self.register('spyral.internal.view.changed', self._invalidate_views)
+        spyral.event.register('director.scene.enter', self.redraw, 
+                              scene=self)
+        spyral.event.register('director.update', self._handle_events,
+                              scene=self)
+        spyral.event.register('director.update', self._run_actors, ('delta',),
+                              scene=self)
+        spyral.event.register('spyral.internal.view.changed', 
+                              self._invalidate_views, scene=self)
 
         # View interface
         self._scene = _wref(self)
@@ -242,72 +246,7 @@ class Scene(object):
             self._events = self._pending
             self._pending = []
 
-    def register(self, event_namespace, handler, 
-                 args = None, kwargs = None, priority = 0):
-        """
-        Registers an event `handler` to a namespace. Whenever an event in that
-        `event_namespace` is fired, the event `handler` will execute with that
-        event. For more information, see `Event Namespaces`_.
-
-        :param event_namespace: the namespace of the event, e.g. 
-                                "input.mouse.left.click" or "pong.score".
-        :type event_namespace: string
-        :param handler: A function that will handle the event. The first
-                        argument to the function will be the event.
-        :type handler: function
-        :param args: any additional arguments that need to be passed in
-                     to the handler.
-        :type args: sequence
-        :param kwargs: any additional keyword arguments that need to be
-                       passed into the handler.
-        :type kwargs: dict
-        :param priority: the higher the `priority`, the sooner this handler will
-                         be called in reaction to the event, relative to the
-                         other event handlers registered.
-        :type priority: int
-        """
-        self._reg_internal(event_namespace, (WeakMethod(handler),), 
-                           args, kwargs, priority, False)
-
-    def register_dynamic(self, event_namespace, handler_string, 
-                         args = None, kwargs = None, priority = 0):
-        """
-        Similar to :func:`spyral.Scene.register` function, except that instead
-        of passing in a function, you pass in the name of a property of this
-        scene that holds a function. For more information, see
-        `Event Namespaces`_.
-
-        Example::
-
-            class MyScene(Scene):
-                def __init__(self):
-                    ...
-                    self.register_dynamic("orc.dies", "future_function")
-                    ...
-        """
-        self._reg_internal(event_namespace, (handler_string,), 
-                           args, kwargs, priority, True)
-
-    def register_multiple(self, event_namespace, handlers, 
-                          args = None, kwargs = None, priority = 0):
-        """
-        Similar to :func:`spyral.Scene.register` function, except a sequence of
-        `handlers` are be given instead of just one. For more information, see
-        `Event Namespaces`_.
-        """
-        self._reg_internal(event_namespace, map(WeakMethod, handlers),
-                           args, kwargs, priority, False)
-
-    def register_multiple_dynamic(self, event_namespace, handler_strings, 
-                                  args = None, kwargs = None, priority = 0):
-        """
-        Similar to :func:`spyral.Scene.register` function, except a sequence of
-        strings representing handlers can be given instead of just one.
-        """
-        self._reg_internal(event_namespace, handler_strings, 
-                           args, kwargs, priority, True)
-
-    def unregister(self, event_namespace, handler):
+    def _unregister(self, event_namespace, handler):
         """
         Unregisters a registered handler for that namespace. Dynamic handler
         strings are supported as well. For more information, see
@@ -325,7 +264,7 @@ class Scene(object):
                                              in self._handlers[event_namespace]
                                              if h[0].method != handler.method]
 
-    def clear_namespace(self, namespace):
+    def _clear_namespace(self, namespace):
         """
         Clears all handlers from namespaces that are at least as specific as the
         provided `namespace`. For more information, see `Event Namespaces`_.
@@ -393,21 +332,21 @@ class Scene(object):
         
         :param object obj: Any object
         """
-        if not hasattr(object, "__stylize__"):
+        if not hasattr(obj, "__stylize__"):
             raise spyral.NotStylableError(("%r is not an object"
-                                           "which can be styled.") % object)
+                                           "which can be styled.") % obj)
         properties = {}
-        for cls in reversed(object.__class__.__mro__[:-1]):
+        for cls in reversed(obj.__class__.__mro__[:-1]):
             name = cls.__name__
             if name not in self._style_properties:
                 continue
             properties.update(self._style_properties[name])
-        if hasattr(object, "__style__"):
-            name = getattr(object, "__style__")
+        if hasattr(obj, "__style__"):
+            name = getattr(obj, "__style__")
             if name in self._style_properties:
                 properties.update(self._style_properties[name])
         if properties != {}:
-            object.__stylize__(properties)
+            obj.__stylize__(properties)
 
     def add_style_function(self, name, function):
         """

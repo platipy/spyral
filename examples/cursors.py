@@ -24,7 +24,7 @@ class Game(spyral.Scene):
         except ValueError, error:
             print "Correctly failed to load the bad cursor (%s)" % (error,)
         spyral.cursor.set_cursor(spyral.cursor.MonochromeCursor("valid_cursor.xbm"))
-        self.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", sys.exit)
 
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes

@@ -48,8 +48,8 @@ class Game(spyral.Scene):
             StupidSprite(self)
         add_new_box()
         
-        self.register('system.quit', sys.exit)            
-        self.register('input.keyboard.down', add_new_box)
+        spyral.event.register('system.quit', sys.exit)            
+        spyral.event.register('input.keyboard.down', add_new_box)
         
 if __name__ == "__main__":
     spyral.director.init(SIZE)

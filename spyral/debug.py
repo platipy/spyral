@@ -60,7 +60,7 @@ class FPSSprite(spyral.Sprite):
                                 15, color)
         self._render(0, 0)
         self._update_in = 5
-        self.register("director.update", self._update)
+        spyral.event.register("director.update", self._update, scene=scene)
 
     def _render(self, fps, ups):
         """

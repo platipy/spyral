@@ -37,10 +37,10 @@ class Game(spyral.Scene):
             debug.text = event.widget.value
         self.once = True
         
-        self.register("system.quit", sys.exit)
-        self.register("form.RegisterForm.okay.changed", test_print)
-        self.register("form.RegisterForm.name.changed", test_react)
-        self.register("director.update", self.report_boxes)
+        spyral.event.register("system.quit", sys.exit)
+        spyral.event.register("form.RegisterForm.okay.changed", test_print)
+        spyral.event.register("form.RegisterForm.name.changed", test_react)
+        spyral.event.register("director.update", self.report_boxes)
         
         
     def report_boxes(self):

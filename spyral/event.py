@@ -26,6 +26,13 @@ import spyral
 import os
 import random
 import base64
+from weakmethod import WeakMethod as _wm
+
+def WeakMethod(func):
+    try:
+        return _wm(func)
+    except TypeError:
+        return func
 
 _TYPE_TO_ATTRS = None
 _TYPE_TO_TYPE = None
@@ -77,7 +84,7 @@ def _init():
         pygame.VIDEOEXPOSE: "system.video_expose",
     }
 
-def queue(event_name, event=None, _scene=None):
+def queue(event_name, event=None, scene=None):
     """
     Queues a new event in the system, meaning that it will be run at the next
     available opportunity.
@@ -86,15 +93,15 @@ def queue(event_name, event=None, _scene=None):
                            "input.mouse.up", or "pong.score".
     :param event: An Event object that holds properties for the event.
     :type event: :class:`Event <spyral.event.Event>`
-    :param _scene: The scene to queue this event on; if `None` is given, the
+    :param scene: The scene to queue this event on; if `None` is given, the
                    currently executing scene will be used.
-    :type _scene: :class:`Scene <spyral.Scene>` or `None`.
+    :type scene: :class:`Scene <spyral.Scene>` or `None`.
     """
-    if _scene is None:
-        _scene = spyral._get_executing_scene()
-    _scene._queue_event(event_name, event)
+    if scene is None:
+        scene = spyral._get_executing_scene()
+    scene._queue_event(event_name, event)
 
-def handle(event_name, event=None, _scene=None):
+def handle(event_name, event=None, scene=None):
     """
     Instructs spyral to execute the handlers for this event right now. When you
     have a custom event, this is the function you call to have the event occur.
@@ -107,9 +114,107 @@ def handle(event_name, event=None, _scene=None):
                    currently executing scene will be used.
     :type _scene: :class:`Scene <spyral.Scene>` or `None`.
     """
-    if _scene is None:
-        _scene = spyral._get_executing_scene()
-    _scene._handle_event(event_name, event)
+    if scene is None:
+        scene = spyral._get_executing_scene()
+    scene._handle_event(event_name, event)
+    
+def register(event_namespace, handler, 
+             args=None, kwargs=None, priority=0, scene=None):
+    """
+    Registers an event `handler` to a namespace. Whenever an event in that
+    `event_namespace` is fired, the event `handler` will execute with that
+    event. For more information, see `Event Namespaces`_.
+
+    :param event_namespace: the namespace of the event, e.g. 
+                            "input.mouse.left.click" or "pong.score".
+    :type event_namespace: string
+    :param handler: A function that will handle the event. The first
+                    argument to the function will be the event.
+    :type handler: function
+    :param args: any additional arguments that need to be passed in
+                 to the handler.
+    :type args: sequence
+    :param kwargs: any additional keyword arguments that need to be
+                   passed into the handler.
+    :type kwargs: dict
+    :param priority: the higher the `priority`, the sooner this handler will
+                     be called in reaction to the event, relative to the
+                     other event handlers registered.
+    :type priority: int
+    """
+    if scene is None:
+        scene = spyral._get_executing_scene()
+    scene._reg_internal(event_namespace, (WeakMethod(handler),), 
+                        args, kwargs, priority, False)
+
+def register_dynamic(event_namespace, handler_string, 
+                     args=None, kwargs=None, priority=0, scene=None):
+    """
+    Similar to :func:`spyral.Scene.register` function, except that instead
+    of passing in a function, you pass in the name of a property of this
+    scene that holds a function. For more information, see
+    `Event Namespaces`_.
+
+    Example::
+
+        class MyScene(Scene):
+            def __init__(self):
+                ...
+                self.register_dynamic("orc.dies", "future_function")
+                ...
+    """
+    if scene is None:
+        scene = spyral._get_executing_scene()
+    scene._reg_internal(event_namespace, (handler_string,), 
+                        args, kwargs, priority, True)
+
+def register_multiple(event_namespace, handlers, args=None, 
+                      kwargs=None, priority=0, scene=None):
+    """
+    Similar to :func:`spyral.Scene.register` function, except a sequence of
+    `handlers` are be given instead of just one. For more information, see
+    `Event Namespaces`_.
+    """
+    if scene is None:
+        scene = spyral._get_executing_scene()
+    scene._reg_internal(event_namespace, map(WeakMethod, handlers),
+                        args, kwargs, priority, False)
+
+def register_multiple_dynamic(event_namespace, handler_strings, args=None,
+                              kwargs=None, priority=0, scene=None):
+    """
+    Similar to :func:`spyral.Scene.register` function, except a sequence of
+    strings representing handlers can be given instead of just one.
+    """
+    if scene is None:
+        scene = spyral._get_executing_scene()
+    scene._reg_internal(event_namespace, handler_strings, 
+                        args, kwargs, priority, True)
+
+def unregister(event_namespace, handler, scene=None):
+    """
+    Unregisters a registered handler for that namespace. Dynamic handler
+    strings are supported as well. For more information, see
+    `Event Namespaces`_.
+
+    :param str event_namespace: An event namespace
+    :param handler: The handler to unregister.
+    :type handler: a function or string.
+    """
+    if scene is None:
+        scene = spyral._get_executing_scene()
+    scene._unregister(event_namespace, handler)
+
+def clear_namespace(namespace, scene=None):
+    """
+    Clears all handlers from namespaces that are at least as specific as the
+    provided `namespace`. For more information, see `Event Namespaces`_.
+
+    :param str namespace: The complete namespace.
+    """
+    if scene is None:
+        scene = spyral._get_executing_scene()
+    scene._clear_namespace(namespace)
 
 def _pygame_to_spyral(event):
     """

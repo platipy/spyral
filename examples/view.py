@@ -148,19 +148,19 @@ class Game(spyral.Scene):
             pass
             #print self.blue_block.x
     
-        self.register("input.keyboard.down.down", key_down)
-        self.register("input.keyboard.down.up", key_up)
-        self.register("input.keyboard.down.left", key_left)
-        self.register("input.keyboard.down.right", key_right)
+        spyral.event.register("input.keyboard.down.down", key_down)
+        spyral.event.register("input.keyboard.down.up", key_up)
+        spyral.event.register("input.keyboard.down.left", key_left)
+        spyral.event.register("input.keyboard.down.right", key_right)
         tests = tester()
         def next_test():
             try:
                 next(tests)
             except StopIteration:
                 sys.exit()
-        self.register("input.keyboard.down.space", next_test)
+        spyral.event.register("input.keyboard.down.space", next_test)
         #self.register("director.update", )
-        self.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", sys.exit)
 
 if __name__ == "__main__":
     spyral.director.init(SIZE)

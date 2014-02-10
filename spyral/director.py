@@ -99,13 +99,13 @@ def replace(scene):
     :type scene: :class:`Scene <spyral.Scene>`
     """
     if _stack:
-        spyral.event.handle('director.scene.exit', _scene=_stack[-1])
+        spyral.event.handle('director.scene.exit', scene=_stack[-1])
         old = _stack.pop()
         spyral.sprite._switch_scene()
     _stack.append(scene)
     spyral.event.handle('director.scene.enter',
                         event=spyral.Event(scene=scene),
-                        _scene=scene)
+                        scene=scene)
     # Empty all events!
     pygame.event.get()
 
@@ -119,12 +119,12 @@ def pop():
     """
     if len(_stack) < 1:
         return
-    spyral.event.handle('director.scene.exit', _scene=_stack[-1])
+    spyral.event.handle('director.scene.exit', scene=_stack[-1])
     scene = _stack.pop()
     spyral.sprite._switch_scene()
     if _stack:
         scene = _stack[-1]
-        spyral.event.handle('director.scene.enter', _scene=scene)
+        spyral.event.handle('director.scene.enter', scene=scene)
     else:
         exit(0)
     pygame.event.get()
@@ -140,11 +140,11 @@ def push(scene):
     :type scene: :class:`Scene <spyral.Scene>`
     """
     if _stack:
-        spyral.event.handle('director.scene.exit', _scene=_stack[-1])
+        spyral.event.handle('director.scene.exit', scene=_stack[-1])
         old = _stack[-1]
         spyral.sprite._switch_scene()
     _stack.append(scene)
-    spyral.event.handle('director.scene.enter', _scene=scene)
+    spyral.event.handle('director.scene.enter', scene=scene)
     # Empty all events!
     pygame.event.get()
 

@@ -1,4 +1,4 @@
-try:
+    try:
     import _path
 except NameError:
     pass
@@ -19,7 +19,7 @@ class Game(spyral.Scene):
         CustomSprite(self, "Blue")
         CustomSprite(self, "Green")
 
-        self.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", sys.exit)
 
 
 if __name__ == "__main__":

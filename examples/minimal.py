@@ -21,7 +21,7 @@ my_sprite.image = spyral.Image(size=(16,16)).fill((255,255,255))
 
 # You register events with functions
 import sys
-my_scene.register("system.quit", spyral.quit)
+spyral.event.register("system.quit", spyral.quit)
 
 # This will run your game. Execution will stop here until the game ends.
 spyral.director.run(scene=my_scene) 

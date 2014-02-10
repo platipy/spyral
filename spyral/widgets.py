@@ -329,7 +329,7 @@ class TextInputWidget(BaseWidget):
         self._render_backs()
         self._back.image = self._image_plain
 
-        self.scene.register("director.update", self._update)
+        spyral.event.register("director.update", self._update, scene=scene)
 
     def _recalculate_mask(self):
         self.mask = spyral.Rect(self.x+self.padding, self.y+self.padding, self.box_width+self.padding, self._box_height+self.padding)

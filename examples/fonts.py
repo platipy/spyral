@@ -54,7 +54,7 @@ class Game(spyral.Scene):
         text = GuidedText(self, "DejaVuSans.ttf", "!@#$%^&*()_+<", self.height * 6. / 8)
         text = GuidedText(self, "DejaVuSans.ttf", ".>/?;:'\"[{]}|\\~`", self.height * 7. / 8)
         
-        self.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", sys.exit)
 
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes

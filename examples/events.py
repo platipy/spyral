@@ -22,11 +22,11 @@ if __name__ == "__main__":
     my_sprite = spyral.Sprite(my_scene)
     my_sprite.image = spyral.Image(size=(50,50))
     
-    my_scene.register("system.quit", sys.exit)
+    spyral.event.register("system.quit", sys.exit)
     
     def key_down(event):
         print event.key, event.unicode, event.mod
     
-    my_scene.register("input.keyboard.down.k", key_down)
+    spyral.event.register("input.keyboard.down.k", key_down)
     
     spyral.director.run(scene=my_scene) # This will run your game. It will not return.

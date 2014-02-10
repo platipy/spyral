@@ -72,11 +72,11 @@ class AnimationExamples(Scene):
         instructions.render("n: next example  p: previous example  q: quit")
         
         # Register all event handlers
-        self.register('system.quit', sys.exit)
-        self.register('input.keyboard.down.p', self.previous)
-        self.register('input.keyboard.down.n', self.next)
-        self.register('input.keyboard.down.q', sys.exit)
-        self.register('input.keyboard.down.escape', sys.exit)
+        spyral.event.register('system.quit', sys.exit)
+        spyral.event.register('input.keyboard.down.p', self.previous)
+        spyral.event.register('input.keyboard.down.n', self.next)
+        spyral.event.register('input.keyboard.down.q', sys.exit)
+        spyral.event.register('input.keyboard.down.escape', sys.exit)
 
                                 
     def set_animation(self):

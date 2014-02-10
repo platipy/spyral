@@ -19,8 +19,8 @@ class Level2(spyral.Scene):
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
         self.background = spyral.Image(size=SIZE).fill(BG_COLOR)
-        self.register("input.keyboard.down.j", self.check_first)
-        self.register("system.quit", sys.exit)
+        spyral.event.register("input.keyboard.down.j", self.check_first)
+        spyral.event.register("system.quit", sys.exit)
     
     def check_first(self):
         global first_scene
@@ -56,10 +56,10 @@ class Game(spyral.Scene):
         old_sprite = over
         
         self.khan = over.should_be_dead
-        self.register("system.quit", sys.exit)
-        self.register("input.keyboard.down.k", over.should_be_dead)
-        self.register("input.keyboard.down.e", over._get_mask)
-        self.register("input.keyboard.down.j", self.advance)
+        spyral.event.register("system.quit", sys.exit)
+        spyral.event.register("input.keyboard.down.k", over.should_be_dead)
+        spyral.event.register("input.keyboard.down.e", over._get_mask)
+        spyral.event.register("input.keyboard.down.j", self.advance)
         
         objgraph.show_backrefs([old_sprite], filename='sprite-alive.png', filter= lambda x: not isinstance(x, types.FrameType), extra_ignore = [id(locals()), id(globals())], max_depth=7)
     
