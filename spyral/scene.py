@@ -2,13 +2,11 @@ from __future__ import division
 import spyral
 import pygame
 import time
-import collections
 import operator
-import itertools
 import greenlet
 import inspect
 import sys
-import math
+from itertools import chain
 from layertree import _LayerTree
 from collections import defaultdict
 from weakref import ref as _wref
@@ -25,7 +23,8 @@ class Scene(object):
     Creates a new Scene. When a scene is not active, no events will be processed
         for it.
 
-    :param size: The `size` of the scene internally (or "virtually"). See `View size and Window size`_ for more details.
+    :param size: The `size` of the scene internally (or "virtually"). See
+                 `View size and Window size`_ for more details.
     :type size: width, height
     :param max_ups: Maximum updates to process per second. By default, `max_ups`
         is pulled from the director.
@@ -42,7 +41,7 @@ class Scene(object):
             max_ups=max_ups or spyral.director._max_ups)
         self.clock.use_wait = True
 
-        self._handlers = collections.defaultdict(lambda: [])
+        self._handlers = defaultdict(lambda: [])
         self._namespaces = set()
         self._event_source = spyral.event.LiveEventHandler()
         self._handling_events = False
@@ -55,20 +54,15 @@ class Scene(object):
         self._style_properties = defaultdict(lambda: {})
         self._style_functions = {}
 
-        def TestingBox(size, color):
-            i = spyral.Image(size=size)
-            i.fill(color)
-            return i
-
         self._style_functions['_get_spyral_path'] = spyral._get_spyral_path
-        self._style_functions['TestingBox'] = TestingBox
 
         self._size = None
         self._scale = spyral.Vec2D(1.0, 1.0) #None
         self._surface = pygame.display.get_surface()
         if size is not None:
             self._set_size(size)
-        self._background = pygame.surface.Surface(self._surface.get_size())
+        display_size = self._surface.get_size()
+        self._background = spyral.Image._new_spyral_surface(display_size)
         self._background.fill((255, 255, 255))
         self._surface.blit(self._background, (0, 0))
         self._blits = []
@@ -87,9 +81,8 @@ class Scene(object):
         self._sprites = set()
 
         self.register('director.scene.enter', self.redraw)
-
-        self.register('director.update', self.handle_events)
-        self.register('director.update', self.run_actors, ('delta',))
+        self.register('director.update', self._handle_events)
+        self.register('director.update', self._run_actors, ('delta',))
         self.register('spyral.internal.view.changed', self._invalidate_views)
 
         # View interface
@@ -97,18 +90,20 @@ class Scene(object):
         self._views = []
 
         # Loading default styles
-        self.load_style(spyral._get_spyral_path() + 'resources/form_defaults.spys')
+        self.load_style(spyral._get_spyral_path() +
+                        'resources/form_defaults.spys')
 
     # Actor Handling
     def _register_actor(self, actor, greenlet):
         """
-        Internal method to add a new `actor` to this scene.
+        Internal method to add a new :class:`Actor <spyral.Actor>` to this
+        scene.
         """
         self._greenlets[actor] = greenlet
 
     def _run_actors_greenlet(self, delta, _):
         """
-        Helper method for run_actors to TODO: What does this do?
+        Helper method for running the actors.
         """
         for actor, greenlet in self._greenlets.iteritems():
             delta, rerun = greenlet.switch(delta)
@@ -116,10 +111,10 @@ class Scene(object):
                 delta, rerun = greenlet.switch(delta)
         return False
 
-    def run_actors(self, delta):
+    def _run_actors(self, delta):
         """
-        TODO: Is this an internal method? What circumstances warrant it being called explicitly?
-        Main loop for running actors (until they TODO: What causes the loop to stop?
+        Main loop for running actors, switching between their different
+        contexts.
         """
         g = greenlet.greenlet(self._run_actors_greenlet)
         while True:
@@ -143,7 +138,8 @@ class Scene(object):
         else:
             self._events.append((type, event))
 
-    def _reg_internal(self, namespace, handlers, args, kwargs, priority, dynamic):
+    def _reg_internal(self, namespace, handlers, args, 
+                      kwargs, priority, dynamic):
         """
         Convenience method for registering a new event; other variations
         exist to keep the signature convenient and easy.
@@ -152,17 +148,19 @@ class Scene(object):
             namespace = namespace[:-2]
         self._namespaces.add(namespace)
         for handler in handlers:
-            self._handlers[namespace].append((handler, args, kwargs, priority, dynamic))
+            self._handlers[namespace].append((handler, args, kwargs, 
+                                              priority, dynamic))
         self._handlers[namespace].sort(key=operator.itemgetter(3))
 
     def _get_namespaces(self, namespace):
         """
         Internal method for returning all the registered namespaces that are in
-        the given namespace. TODO: Could we document what exactly a namespace is?
+        the given namespace.
         """
         return [n for n in self._namespaces if namespace.startswith(n)]
 
-    def _send_event_to_handler(self, event, handler, args, kwargs, priority, dynamic):
+    def _send_event_to_handler(self, event, handler, args, 
+                               kwargs, priority, dynamic):
         """
         Internal method to dispatch events to their handlers.
         """
@@ -175,7 +173,9 @@ class Scene(object):
             else:
                 if default != fillval:
                     return default
-                raise TypeError("Handler expects an argument of named %s, %s does not have that." % (arg, str(event)))
+                raise TypeError("Handler expects an argument of named"
+                                "%s, %s does not have that." % 
+                                (arg, str(event)))
         if dynamic is True:
             h = handler
             handler = self
@@ -184,7 +184,7 @@ class Scene(object):
                 if handler is None:
                     return
         if handler is sys.exit and args is None and kwargs is None:
-            # This is a dirty hack. If only Python's builtin functions worked better
+            # Dirty hack to deal with python builtins
             args = []
             kwargs = {}
         elif args is None and kwargs is None:
@@ -196,7 +196,9 @@ class Scene(object):
             try:
                 h_argspec = inspect.getargspec(funct)
             except Exception, e:
-                raise Exception("Unfortunate Python Problem! %s isn't supported by Python's inspect module! Oops." % str(handler))
+                raise Exception(("Unfortunate Python Problem! "
+                                 "%s isn't supported by Python's "
+                                 "inspect module! Oops.") % str(handler))
             h_args = h_argspec.args
             h_defaults = h_argspec.defaults or tuple()
             if len(h_args) > 0 and 'self' == h_args[0]:
@@ -204,7 +206,8 @@ class Scene(object):
             d = len(h_args) - len(h_defaults)
             if d > 0:
                 h_defaults = [fillval] * d + list(*h_defaults)
-            args = [_get_arg_val(arg, default) for arg, default in zip(h_args, h_defaults)]
+            args = [_get_arg_val(arg, default) for arg, default 
+                                               in zip(h_args, h_defaults)]
             kwargs = {}
         elif args is None:
             args = []
@@ -219,14 +222,16 @@ class Scene(object):
         """
         For a given event, send the event information to all registered handlers
         """
-        for handler_info in itertools.chain.from_iterable(self._handlers[namespace] for namespace in self._get_namespaces(type)):
+        handlers = chain.from_iterable(self._handlers[namespace] 
+                                            for namespace 
+                                            in self._get_namespaces(type))
+        for handler_info in handlers:
             if self._send_event_to_handler(event, *handler_info):
                 break
 
-    def handle_events(self):
+    def _handle_events(self):
         """
         Run through all the events and handle them.
-        TODO: Should be internal
         """
         self._handling_events = True
         do = True
@@ -237,60 +242,78 @@ class Scene(object):
             self._events = self._pending
             self._pending = []
 
-    def register(self, event_namespace, handler, args = None, kwargs = None, priority = 0):
+    def register(self, event_namespace, handler, 
+                 args = None, kwargs = None, priority = 0):
         """
-        Registers an event `handler` to a namespace. Whenever an event in that `event_namespace` is fired, the event `handler`
-        will execute with that event. For more information, see `Event Namespaces`_.
+        Registers an event `handler` to a namespace. Whenever an event in that
+        `event_namespace` is fired, the event `handler` will execute with that
+        event. For more information, see `Event Namespaces`_.
 
-        :param event_namespace: the namespace of the event, e.g. "input.mouse.left.click" or "pong.score".
+        :param event_namespace: the namespace of the event, e.g. 
+                                "input.mouse.left.click" or "pong.score".
         :type event_namespace: string
-        :param handler: A function that will handle the event. The first argument to the function will be the event.
+        :param handler: A function that will handle the event. The first
+                        argument to the function will be the event.
         :type handler: function
-        :param args: any additional arguments that need to be passed in to the handler.
+        :param args: any additional arguments that need to be passed in
+                     to the handler.
         :type args: sequence
-        :param kwargs: any additional keyword arguments that need to be passed into the handler.
+        :param kwargs: any additional keyword arguments that need to be
+                       passed into the handler.
         :type kwargs: dict
-        :param priority: the higher the `priority`, the sooner this handler will be called in reaction to the event, relative to the other event handlers registered.
+        :param priority: the higher the `priority`, the sooner this handler will
+                         be called in reaction to the event, relative to the
+                         other event handlers registered.
         :type priority: int
         """
-        self._reg_internal(event_namespace, (WeakMethod(handler),), args, kwargs, priority, False)
+        self._reg_internal(event_namespace, (WeakMethod(handler),), 
+                           args, kwargs, priority, False)
 
-    def register_dynamic(self, event_namespace, handler_string, args = None, kwargs = None, priority = 0):
+    def register_dynamic(self, event_namespace, handler_string, 
+                         args = None, kwargs = None, priority = 0):
         """
-        Similar to :func:`spyral.Scene.register` function, except that instead of passing in a function, you pass in the name of a property of this scene that holds a function. For more information, see `Event Namespaces`_.
+        Similar to :func:`spyral.Scene.register` function, except that instead
+        of passing in a function, you pass in the name of a property of this
+        scene that holds a function. For more information, see
+        `Event Namespaces`_.
 
         Example::
 
             class MyScene(Scene):
                 def __init__(self):
                     ...
-                    self.register_dynamic("orc.dies", "something") #TODO: I can't think of a good example...
+                    self.register_dynamic("orc.dies", "future_function")
                     ...
+        """
+        self._reg_internal(event_namespace, (handler_string,), 
+                           args, kwargs, priority, True)
 
-        TODO: Also, we need to mention how you can have multiple dots in the handler_string!
+    def register_multiple(self, event_namespace, handlers, 
+                          args = None, kwargs = None, priority = 0):
         """
-        self._reg_internal(event_namespace, (handler_string,), args, kwargs, priority, True)
+        Similar to :func:`spyral.Scene.register` function, except a sequence of
+        `handlers` are be given instead of just one. For more information, see
+        `Event Namespaces`_.
+        """
+        self._reg_internal(event_namespace, map(WeakMethod, handlers),
+                           args, kwargs, priority, False)
 
-    def register_multiple(self, event_namespace, handlers, args = None, kwargs = None, priority = 0):
+    def register_multiple_dynamic(self, event_namespace, handler_strings, 
+                                  args = None, kwargs = None, priority = 0):
         """
-        Similar to :func:`spyral.Scene.register` function, except a sequence of `handlers` are be given
-        instead of just one. For more information, see `Event Namespaces`_.
+        Similar to :func:`spyral.Scene.register` function, except a sequence of
+        strings representing handlers can be given instead of just one.
         """
-        self._reg_internal(event_namespace, map(WeakMethod, handlers), args, kwargs, priority, False)
-
-    def register_multiple_dynamic(self, event_namespace, handler_strings, args = None, kwargs = None, priority = 0):
-        """
-        Similar to :func:`spyral.Scene.register` function, except a sequence of strings representing handlers can be given
-        instead of just one.
-        """
-        self._reg_internal(event_namespace, handler_strings, args, kwargs, priority, True)
+        self._reg_internal(event_namespace, handler_strings, 
+                           args, kwargs, priority, True)
 
     def unregister(self, event_namespace, handler):
         """
-        Unregisters a registered handler for that namespace. Dynamic handler strings are supported as well. For more information, see `Event Namespaces`_.
+        Unregisters a registered handler for that namespace. Dynamic handler
+        strings are supported as well. For more information, see
+        `Event Namespaces`_.
 
-        :param event_namespace: An event namespace
-        :type event_namespace: string
+        :param str event_namespace: An event namespace
         :param handler: The handler to unregister.
         :type handler: a function or string.
         """
@@ -298,14 +321,16 @@ class Scene(object):
             handler = WeakMethod(handler)
         if event_namespace.endswith(".*"):
             event_namespace = event_namespace[:-2]
-        self._handlers[event_namespace] = [h for h in self._handlers[event_namespace] if h[0].method != handler.method]
+        self._handlers[event_namespace] = [h for h 
+                                             in self._handlers[event_namespace]
+                                             if h[0].method != handler.method]
 
     def clear_namespace(self, namespace):
         """
-        Clears all handlers from namespaces that are at least as specific as the provided `namespace`. For more information, see `Event Namespaces`_.
-        TODO: We need an Appendix on event namespaces
-        :param namespace: The complete namespace.
-        :type namespace: string
+        Clears all handlers from namespaces that are at least as specific as the
+        provided `namespace`. For more information, see `Event Namespaces`_.
+
+        :param str namespace: The complete namespace.
         """
         if namespace.endswith(".*"):
             namespace = namespace[:-2]
@@ -313,12 +338,15 @@ class Scene(object):
         for namespace in ns:
             self._handlers[namespace] = []
 
-    def clear_all_events(self):
+    def _clear_all_events(self):
+        """
+        Completely clear all registered events for this scene. This is a very
+        dangerous function, and should almost never be used.
+        """
         self._handlers.clear()
 
     def set_event_source(self, source):
         """
-        TODO: What's the status on this?
         """
         self._event_source = source
 
@@ -357,15 +385,17 @@ class Scene(object):
         :type path: string
         """
         spyral._style.parse(open(path, "r").read(), self)
-        self.apply_style(self)
+        self._apply_style(self)
 
-    def apply_style(self, object):
+    def _apply_style(self, obj):
         """
-        TODO: Should this be an internal method?
-        Applies any loaded styles to this scene.
+        Applies any loaded styles from this scene to the object.
+        
+        :param object obj: Any object
         """
         if not hasattr(object, "__stylize__"):
-            raise spyral.NotStylableError("%r is not an object which can be styled." % object)
+            raise spyral.NotStylableError(("%r is not an object"
+                                           "which can be styled.") % object)
         properties = {}
         for cls in reversed(object.__class__.__mro__[:-1]):
             name = cls.__name__
@@ -381,7 +411,8 @@ class Scene(object):
 
     def add_style_function(self, name, function):
         """
-        Adds a new function that will then be available to be used in a stylesheet file.
+        Adds a new function that will then be available to be used in a
+        stylesheet file.
 
         Example::
 
@@ -406,7 +437,10 @@ class Scene(object):
     # Rendering
     def _get_size(self):
         if self._size is None:
-            raise spyral.SceneHasNoSizeException("You should specify a size in the constructor or in a style file before other operations.")
+            raise spyral.SceneHasNoSizeException("You should specify a size in "
+                                                 "the constructor or in a "
+                                                 "style file before other "
+                                                 "operations.")
         return self._size
 
     def _set_size(self, size):
@@ -430,7 +464,9 @@ class Scene(object):
     def _get_parent(self):
         return self._scene()
 
-    #: Read-only property that returns a :class:`Vec2D <spyral.Vec2D>` of the width and height of the Scene's size. See `View size and Window size`_ for more details.
+    #: Read-only property that returns a :class:`Vec2D <spyral.Vec2D>` of the
+    #: width and height of the Scene's size. See `View size and Window size`_
+    #: for more details.
     size = property(_get_size)
     #: Read-only property that returns the width of the Scene (int).
     width = property(_get_width)
@@ -520,8 +556,9 @@ class Scene(object):
 
     def _draw(self):
         """
-        Internal method that is called by the :class:`Director <spyral.Director>` at the end of every .render() call to do
-        the actual drawing.
+        Internal method that is called by the
+        :class:`Director <spyral.Director>` at the end of every .render() call
+        to do the actual drawing.
         """
 
         # This function sits in a potential hot loop
@@ -627,10 +664,7 @@ class Scene(object):
     def _add_view(self, view):
         self._layer_tree.add_view(view)
 
-    def set_layers(self, layers):
-        """
-        TODO: Should this be internal?
-        """
+    def _set_layers(self, layers):
         # Potential caveat: If you change layers after blitting, previous blits may be wrong
         # for a frame, static ones wrong until they expire
         if self._layers == []:
@@ -645,7 +679,7 @@ class Scene(object):
         return self._layers
 
     #: Returns the list of layers for this Scene, which are represented by strings. The first layer is at the bottom, and the last is at the top.
-    layers = property(_get_layers)
+    layers = property(_get_layers, _set_layers)
 
     def world_to_local(self, pos):
         """

@@ -21,6 +21,9 @@ class Sprite(object):
     Sprites are how images are positioned and drawn onto the screen.
     They aggregate together information such as where to be drawn,
     layering information, and more.
+
+    :param parent: The parent that this Sprite will belong to.
+    :type parent: :class:`View <spyral.View>` or :class:`Scene <spyral.Scene>`
     """
 
     def __stylize__(self, properties):
@@ -76,7 +79,7 @@ class Sprite(object):
         parent._add_child(self)
 
         self._scene()._register_sprite(self)
-        self._scene().apply_style(self)
+        self._scene()._apply_style(self)
         self._scene().register('director.render', self._draw)
 
     def _set_static(self):
@@ -175,8 +178,9 @@ class Sprite(object):
                     self._evaluate(animation, progress - animation.duration)
                     self._progress[animation] = progress - animation.duration
                 elif animation.loop:
-                    self._evaluate(animation, progress - animation.duration + animation.loop)
-                    self._progress[animation] = progress - animation.duration + animation.loop
+                    current = progress - animation.duration + animation.loop
+                    self._evaluate(animation, current)
+                    self._progress[animation] = current
                 else:
                     completed.append(animation)
             else:
@@ -188,6 +192,10 @@ class Sprite(object):
 
     # Getters and Setters
     def _get_rect(self):
+        """
+        Returns a :class:`Rect <spyral.Rect>` representing the position and size
+        of this Sprite's image.
+        """
         return spyral.Rect(self._pos, self.size)
 
     def _set_rect(self, *rect):
@@ -227,7 +235,8 @@ class Sprite(object):
         if layer == self._layer:
             return
         self._layer = layer
-        self._computed_layer = self._scene()._get_layer_position(self._parent(), layer)
+        self._computed_layer = self._scene()._get_layer_position(self._parent(),
+                                                                 layer)
         self._expire_static()
 
     def _get_image(self):
@@ -266,7 +275,8 @@ class Sprite(object):
 
     def _get_anchor(self):
         """
-        Defines an `anchor point <anchors>` where coordinates are relative to on the image. String.
+        Defines an `anchor point <anchors>` where coordinates are relative to
+        on the image. String.
         """
         return self._anchor
 
@@ -307,7 +317,8 @@ class Sprite(object):
         return spyral.Vec2D(0, 0)
 
     def _set_size(self, size):
-        self._set_scale((width / self._get_width(), height / self._get_height()))
+        self._set_scale((width / self._get_width(), 
+                         height / self._get_height()))
 
     def _get_scale(self):
         """
@@ -402,21 +413,21 @@ class Sprite(object):
         The top-level scene that this sprite belongs to. Read-only.
         """
         return self._scene()
-        
+
     def _get_parent(self):
         """
         The parent of this sprite, either a :class:`View <spyral.View>` or a
         :class:`Scene <spyral.Scene>`. Read-only.
         """
         return self._parent()
-        
+
     def _get_mask(self):
         """
         A :class:`Rect <spyral.Rect>` to use instead of the current image's rect
         for computing collisions. `None` if the image's rect should be used.
         """
         return self._mask
-    
+
     def _set_mask(self, mask):
         self._mask = mask
         self._set_collision_box()
@@ -443,10 +454,16 @@ class Sprite(object):
     mask = property(_get_mask, _set_mask)
 
     def _draw(self):
+        """
+        Internal method for generating this sprite's blit, unless it is
+        invisible or currently static. If it has aged sufficiently or is being
+        forced, it will become static; otherwise, it ages one step.
+        """
         if not self.visible:
             return
         if self._image is None:
-            raise spyral.NoImageError("A sprite must have an image set before it can be drawn.")
+            raise spyral.NoImageError("A sprite must have an image"
+                                      " set before it can be drawn.")
         if self._image_version != self._image._version:
             self._image_version = self._image._version
             self._recalculate_transforms()
@@ -472,6 +489,9 @@ class Sprite(object):
         self._age += 1
 
     def _set_collision_box(self):
+        """
+        Updates this sprite's collision box.
+        """
         if self.image is None:
             return
         if self._mask is None:
@@ -483,18 +503,28 @@ class Sprite(object):
         self._scene()._set_collision_box(self, warped_box.rect)
 
     def kill(self):
-        self._scene().unregister("director.render", self.draw)
+        """
+        When you no longer need a Sprite, you can call this method to have it
+        removed from the Scene. This will not remove the sprite entirely from
+        memory if there are other references to it; if you need to do that,
+        remember to ``del`` the reference to it.
+        """
+        self._scene().unregister("director.render", self._draw)
         self._scene()._unregister_sprite(self)
         self._scene()._remove_static_blit(self)
-        self._parent().remove_child(self)
+        self._parent()._remove_child(self)
 
     def animate(self, animation):
         """
-        Animates this sprite given an animation. Read more about :class:`animation <spyral.animation>`.
+        Animates this sprite given an animation. Read more about
+        :class:`animation <spyral.animation>`.
+
+        :param animation: The animation to run.
+        :type animation: :class:`Animation <spyral.Animation>`
         """
         for a in self._animations:
             if a.properties.intersection(animation.properties):
-                raise ValueError("Cannot animate on propety %s twice" % 
+                raise ValueError("Cannot animate on propety %s twice" %
                                  animation.property)
         if len(self._animations) == 0:
             self._scene().register('director.update',
@@ -509,12 +539,16 @@ class Sprite(object):
     def stop_animation(self, animation):
         """
         Stops a given animation currently running on this sprite.
+
+        :param animation: The animation to stop.
+        :type animation: :class:`Animation <spyral.Animation>`
         """
         if animation in self._animations:
             self._animations.remove(animation)
             del self._progress[animation]
             if len(self._animations) == 0:
-                self._scene().unregister('director.update', self._run_animations)
+                self._scene().unregister('director.update', 
+                                         self._run_animations)
                 e = spyral.Event(animation=animation, sprite=self)
                 spyral.event.handle("sprites.%s.animation.end", e)
 
@@ -527,9 +561,39 @@ class Sprite(object):
             self.stop_animation(animation)
 
     def collide_sprite(self, other):
+        """
+        Returns whether this sprite is currently colliding with the other
+        sprite. This collision will be computed correctly regarding the sprites
+        offsetting and scaling within their views.
+
+        :param other: The other sprite
+        :type other: :class:`Sprite <spyral.Sprite>`
+        :returns: ``bool`` indicating whether this sprite is colliding with the
+                  other sprite.
+        """
         return self._scene().collide_sprite(self, other)
-    def collide_point(self, pos):
-        return self._scene().collide_point(self, pos)
+
+    def collide_point(self, point):
+        """
+        Returns whether this sprite is currently colliding with the position.
+        This uses the appropriate offsetting for the sprite within its views.
+
+        :param point: The point (relative to the window dimensions).
+        :type point: :class:`Vec2D <spyral.Vec2D>`
+        :returns: ``bool`` indicating whether this sprite is colliding with the
+                  position.
+        """
+        return self._scene().collide_point(self, point)
+
     def collide_rect(self, rect):
+        """
+        Returns whether this sprite is currently colliding with the rect. This
+        uses the appropriate offsetting for the sprite within its views.
+
+        :param rect: The rect (relative to the window dimensions).
+        :type rect: :class:`Rect <spyral.Rect>`
+        :returns: ``bool`` indicating whether this sprite is colliding with the
+                  rect.
+        """
         return self._scene().collide_rect(self, rect)
         

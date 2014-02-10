@@ -56,7 +56,7 @@ class View(object):
         self._scene = _wref(parent.scene)
         self._scene()._add_view(self)
         self._parent()._add_child(self)
-        self._scene().apply_style(self)
+        self._scene()._apply_style(self)
 
     def _add_child(self, entity):
         """

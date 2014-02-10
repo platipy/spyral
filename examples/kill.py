@@ -14,6 +14,7 @@ SIZE = (640, 480)
 BG_COLOR = (0, 0, 0)
 
 first_scene = None
+old_sprite = None
 class Level2(spyral.Scene):
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
@@ -23,9 +24,13 @@ class Level2(spyral.Scene):
     
     def check_first(self):
         global first_scene
+        global old_sprite
         #first_scene.clear_all_events()
         gc.collect()
-        objgraph.show_backrefs([first_scene], filename='scene.png', filter= lambda x: not isinstance(x, types.FrameType), extra_ignore = [id(locals()), id(globals())], max_depth=7)
+        objgraph.show_backrefs([old_sprite], filename='sprite-old.png', filter= lambda x: not isinstance(x, types.FrameType), extra_ignore = [id(locals()), id(globals())], max_depth=7)
+        old_sprite.kill()
+        objgraph.show_backrefs([old_sprite], filename='sprite-dead.png', filter= lambda x: not isinstance(x, types.FrameType), extra_ignore = [id(locals()), id(globals())], max_depth=7)
+        
         
     def advance(self):
         spyral.director.replace(Game())
@@ -37,6 +42,7 @@ class Game(spyral.Scene):
     """
     def __init__(self):
         global first_scene
+        global old_sprite
         spyral.Scene.__init__(self, SIZE)
         self.background = spyral.Image(size=SIZE).fill(BG_COLOR)
         first_scene = self
@@ -47,14 +53,18 @@ class Game(spyral.Scene):
         over = spyral.Sprite(v_bottom)
         over.image = spyral.Image(size=(50,50)).fill((255, 0, 0))
         over.should_be_dead = lambda :  10
+        old_sprite = over
         
         self.khan = over.should_be_dead
         self.register("system.quit", sys.exit)
         self.register("input.keyboard.down.k", over.should_be_dead)
+        self.register("input.keyboard.down.e", over._get_mask)
         self.register("input.keyboard.down.j", self.advance)
+        
+        objgraph.show_backrefs([old_sprite], filename='sprite-alive.png', filter= lambda x: not isinstance(x, types.FrameType), extra_ignore = [id(locals()), id(globals())], max_depth=7)
     
     def advance(self):
-        spyral.director.replace(Level2())
+        spyral.director.push(Level2())
 
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes
