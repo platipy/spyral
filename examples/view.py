@@ -45,29 +45,29 @@ class Game(spyral.Scene):
         spyral.Scene.__init__(self, SIZE)
         self.background = spyral.Image(size=SIZE).fill(BG_COLOR)
         screen = self.background.get_rect()
-        
+
         debug = spyral.DebugText(self, "1) Red square in middle of room", BLUE)
         debug.anchor = 'midbottom'
         debug.position = self.background.get_rect().midbottom
-        
+
         self.top_view = spyral.View(self)
         self.top_view.label = "TopV"
         self.top_view.pos = (0, 0)
         # TODO: To see it flip out, try commenting out the next line.
         self.top_view.crop = False
         self.top_view.crop_size = (40, 40)
-        
+
         self.bottom_view = spyral.View(self.top_view)
         self.bottom_view.label = "BottomV"
         self.bottom_view.pos = (0,0)
         self.bottom_view.crop = False
         self.bottom_view.crop_size = (20, 20)
-        
+
         self.red_block = spyral.Sprite(self.bottom_view)
         self.red_block.image = spyral.Image(size=SMALL).fill(RED)
         self.red_block.pos = screen.center
         self.red_block.anchor = "center"
-        
+
         def tester():
             debug.text = "2) Red square partially offscreen"
             self.red_block.pos = screen.midtop
@@ -113,41 +113,41 @@ class Game(spyral.Scene):
             self.bottom_view.crop_size = (20, 20)
             self.top_view.crop_size = (10, 10)
             yield
-        
+
         #self.blue_block = spyral.Sprite(self)
         #self.blue_block.image = spyral.Image(size=SMALL).fill(BLUE)
         #self.blue_block.pos = (40, 40)
-        
+
         #self.green_block = spyral.Sprite(top_view)
         #self.green_block.image = spyral.Image(size=SMALL).fill(GREEN)
         #self.green_block.pos = (0, 10)
-        
+
         #self.yellow_block = spyral.Sprite(self)
         #self.yellow_block.image = spyral.Image(size=SMALL).fill(YELLOW)
         #self.yellow_block.pos = (0, 0)
-        
+
         #self.red_block.animate(go_down)
-        #blocks = {self.red_block : go_down, 
-         #         self.blue_block: go_down, 
-          #        self.green_block: go_down, 
+        #blocks = {self.red_block : go_down,
+         #         self.blue_block: go_down,
+          #        self.green_block: go_down,
            #       self.yellow_block: go_down & go_right}
         #self.paused = itertools.cycle(blocks.keys())
         #def advance_pauser(event):
         #    skip = next(self.paused)
-            
-        
-        def key_down(event): 
+
+
+        def key_down(event):
             self.top_view.crop_height += 10
-        def key_up(event): 
+        def key_up(event):
             self.top_view.crop_height -= 10
-        def key_left(event): 
+        def key_left(event):
             self.top_view.crop_width -= 10
-        def key_right(event): 
+        def key_right(event):
             self.top_view.crop_width += 10
         def notify(event):
             pass
             #print self.blue_block.x
-    
+
         spyral.event.register("input.keyboard.down.down", key_down)
         spyral.event.register("input.keyboard.down.up", key_up)
         spyral.event.register("input.keyboard.down.left", key_left)

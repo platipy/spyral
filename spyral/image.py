@@ -12,7 +12,7 @@ def _new_spyral_surface(size):
     """
     return pygame.Surface((int(size[0]),
                            int(size[1])),
-                          pygame.SRCALPHA, 32).convert_alpha()                          
+                          pygame.SRCALPHA, 32).convert_alpha()
 
 def from_sequence(images, orientation="right", padding=0):
     """

@@ -25,24 +25,24 @@ class Game(spyral.Scene):
         my_form.password.pos = (200, 100)
         #my_form.pos = (16, 16)
         my_form.focus()
-        
+
         def test_print(event):
             if event.value == "down":
                 print "Pressed!", event.widget.name
-                
+
         debug = spyral.DebugText(self, "1) Red square in middle of room", (255, 0, 255))
         debug.anchor = 'midbottom'
         debug.pos = self.rect.midbottom
         def test_react(event):
             debug.text = event.widget.value
         self.once = True
-        
+
         spyral.event.register("system.quit", sys.exit)
         spyral.event.register("form.RegisterForm.okay.changed", test_print)
         spyral.event.register("form.RegisterForm.name.changed", test_react)
         spyral.event.register("director.update", self.report_boxes)
-        
-        
+
+
     def report_boxes(self):
         if self.once:
             for entity, rect in list(self._collision_boxes.iteritems()):
@@ -51,7 +51,7 @@ class Game(spyral.Scene):
                 s.pos = rect.topleft
                 s.layer = ":above"
             self.once = False
-        
+
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes
     spyral.keyboard.repeat = True

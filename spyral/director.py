@@ -214,7 +214,7 @@ def run(sugar=False, profiling=False, scene=None):
                 for event in events:
                     scene._queue_event(*spyral.event._pygame_to_spyral(event))
                 scene._handle_event("director.pre_update")
-                scene._handle_event("director.update", 
+                scene._handle_event("director.update",
                                     spyral.Event(delta=delta))
                 _tick += 1
                 scene._handle_event("director.post_update")

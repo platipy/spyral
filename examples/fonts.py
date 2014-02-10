@@ -12,25 +12,25 @@ class Text(spyral.Sprite):
     def __init__(self, scene, font, text):
         spyral.Sprite.__init__(self, scene)
         self.image = font.render(text)
-        
+
 class GuidedText(spyral.Sprite):
     def __init__(self, scene, font, text, y):
         spyral.Sprite.__init__(self, scene)
         big_font = spyral.Font(font, 36)
         small_font = spyral.Font(font, 11)
         self.image = big_font.render(text)
-        
+
         self.anchor = 'center'
         self.pos = scene.rect.center
         self.y = y
-        
+
         guides = [("baseline", big_font.ascent),
                   ("linesize", big_font.linesize)]
         for name, height in guides:
-            self.image.draw_rect((0,0,0), 
-                                 (0,0), 
+            self.image.draw_rect((0,0,0),
+                                 (0,0),
                                  (self.width, height),
-                                 border_width = 1, 
+                                 border_width = 1,
                                  anchor= 'topleft')
             guide = Text(scene, small_font, name)
             guide.pos = self.pos
@@ -45,7 +45,7 @@ class Game(spyral.Scene):
     """
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
-        
+
         text = GuidedText(self, "DejaVuSans.ttf", "ABCDEFGHIJKLM", self.height * 1. / 8)
         text = GuidedText(self, "DejaVuSans.ttf", "NOPQRSTUVWXYZ", self.height * 2. / 8)
         text = GuidedText(self, "DejaVuSans.ttf", "abcdefghijklm", self.height * 3. / 8)
@@ -53,7 +53,7 @@ class Game(spyral.Scene):
         text = GuidedText(self, "DejaVuSans.ttf", "1234567890-=,", self.height * 5. / 8)
         text = GuidedText(self, "DejaVuSans.ttf", "!@#$%^&*()_+<", self.height * 6. / 8)
         text = GuidedText(self, "DejaVuSans.ttf", ".>/?;:'\"[{]}|\\~`", self.height * 7. / 8)
-        
+
         spyral.event.register("system.quit", sys.exit)
 
 if __name__ == "__main__":

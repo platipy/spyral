@@ -52,7 +52,7 @@ the game load, game time will subjectively take longer but still remain
 accurate enough to keep game elements in synchronization.
 
 GameClock manages time in the following ways:
-        
+
     1.  Register special callback functions that will be run when they
         are due.
     2.  Schedule game logic updates at a constant speed, independent of
@@ -70,7 +70,7 @@ work on such platforms.
 USAGE
 
 Callback:
-    
+
     clock = GameClock(
         update_callback=update_world,
         frame_callback=draw_scene,
@@ -79,17 +79,17 @@ Callback:
         clock.tick()
 
 Special callbacks can be directly set and cleared at any time:
-    
+
     clock.update_callback = my_new_update
     clock.frame_callback = my_new_draw
     clock.pause_callback = my_new_pause
-    
+
     clock.update_callback = None
     clock.frame_callback = None
     clock.pause_callback = None
 
 Scheduling miscellanous callbacks:
-    
+
     def every_second_of_every_day(dt):
         "..."
     clock.schedule_interval(every_second_of_every_day, 1.0)

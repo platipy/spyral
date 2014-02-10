@@ -67,7 +67,7 @@ class Animation(object):
         Basically, complete a step of the animation. Returns a dictionary
         representing the changed property and its new value, e.g.:
         :code:`{"x": 100}`
-        
+
         Typically, you will use the sprite's animate function instead of calling
         this directly.
 

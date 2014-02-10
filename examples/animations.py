@@ -38,7 +38,7 @@ class TextSprite(Sprite):
     def __init__(self, scene, font):
         Sprite.__init__(self, scene)
         self.font = font
-        
+
     def render(self, text):
         self.image = self.font.render(text)
 
@@ -48,29 +48,29 @@ class AnimationExamples(Scene):
         bg = spyral.Image(size=SIZE)
         bg.fill(BG_COLOR)
         self.background = bg
-        
+
         font = spyral.Font(None, FONT_SIZE, FG_COLOR)
-        
+
         self.title = TextSprite(self, font)
         self.title.anchor = 'center'
         self.title.pos = (SIZE[0] / 2, 30)
         self.title.render("N")
-        
+
         self.block = Sprite(self)
         self.block.image = spyral.Image(size=(40,40))
         self.block.image.fill(FG_COLOR)
         self.block.y = 300
-        
+
         self.index = 0
-        
+
         self.set_animation()
-        
+
         instructions = TextSprite(self, font)
         instructions.anchor = 'midbottom'
         instructions.x = 320
         instructions.y = 470
         instructions.render("n: next example  p: previous example  q: quit")
-        
+
         # Register all event handlers
         spyral.event.register('system.quit', sys.exit)
         spyral.event.register('input.keyboard.down.p', self.previous)
@@ -78,7 +78,7 @@ class AnimationExamples(Scene):
         spyral.event.register('input.keyboard.down.q', sys.exit)
         spyral.event.register('input.keyboard.down.escape', sys.exit)
 
-                                
+
     def set_animation(self):
         self.title.render(ANIMATIONS[self.index][0])
         self.block.stop_all_animations()
@@ -86,12 +86,12 @@ class AnimationExamples(Scene):
         a = ANIMATIONS[self.index][1] + DELAY
         a.loop = True
         self.block.animate(a)
-        
+
     def next(self):
         self.index += 1
         self.index %= len(ANIMATIONS)
         self.set_animation()
-        
+
     def previous(self):
         self.index -= 1
         self.index %= len(ANIMATIONS)

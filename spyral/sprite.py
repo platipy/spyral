@@ -80,7 +80,7 @@ class Sprite(object):
 
         self._scene()._register_sprite(self)
         self._scene()._apply_style(self)
-        spyral.event.register('director.render', self._draw, 
+        spyral.event.register('director.render', self._draw,
                               scene=self._scene())
 
     def _set_static(self):
@@ -318,7 +318,7 @@ class Sprite(object):
         return spyral.Vec2D(0, 0)
 
     def _set_size(self, size):
-        self._set_scale((width / self._get_width(), 
+        self._set_scale((width / self._get_width(),
                          height / self._get_height()))
 
     def _get_scale(self):
@@ -510,7 +510,7 @@ class Sprite(object):
         memory if there are other references to it; if you need to do that,
         remember to ``del`` the reference to it.
         """
-        spyral.event.unregister("director.render", self._draw, 
+        spyral.event.unregister("director.render", self._draw,
                                 scene=self._scene())
         self._scene()._unregister_sprite(self)
         self._scene()._remove_static_blit(self)
@@ -550,7 +550,7 @@ class Sprite(object):
             self._animations.remove(animation)
             del self._progress[animation]
             if len(self._animations) == 0:
-                spyral.event.unregister('director.update', 
+                spyral.event.unregister('director.update',
                                         self._run_animations,
                                         scene=self._scene())
                 e = spyral.Event(animation=animation, sprite=self)

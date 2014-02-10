@@ -15,13 +15,13 @@ class Square(spyral.Sprite):
         self.direction = direction
         self.anchor = 'center'
         spyral.event.register("director.update", self.update)
-    
+
     def update(self):
         self.x += self.direction * 4
         if not self.collide_rect(self.scene.rect):
             self.x -= self.direction * 4
             self.flip()
-            
+
     def flip(self):
         self.direction *= -1
 
@@ -33,15 +33,15 @@ class Game(spyral.Scene):
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
         self.background = spyral.Image(size=SIZE).fill(BG_COLOR)
-        
+
         self.left_square = Square(self, 1, (0,255,0))
         self.left_square.pos = self.rect.midleft
         self.right_square = Square(self, -1)
         self.right_square.pos = self.rect.midright
-        
+
         spyral.event.register("system.quit", sys.exit)
         spyral.event.register("director.update", self.update)
-    
+
     def update(self):
         if self.left_square.collide_sprite(self.right_square):
             self.right_square.flip()
