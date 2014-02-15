@@ -57,6 +57,7 @@ class Event(object):
 _EVENT_NAMES = ['QUIT', 'ACTIVEEVENT', 'KEYDOWN', 'KEYUP', 'MOUSEMOTION',
                 'MOUSEBUTTONUP', 'VIDEORESIZE', 'VIDEOEXPOSE', 'USEREVENT',
                 'MOUSEBUTTONDOWN']
+MOUSE_MAP = ['left', 'middle', 'right', 'scroll_up', 'scroll_down']
 
 def _init():
     """
@@ -299,6 +300,14 @@ def _pygame_to_spyral(event):
     if event_type.startswith('input.keyboard'):
         k = keys.reverse_map.get(event.key, 'unknown')
         event_type += '.' + k
+    if event_type.startswith('input.mouse.motion'):
+        e.left, e.middle, e.right = event.buttons
+    elif event_type.startswith('input.mouse'):
+        try:
+            m = MOUSE_MAP[event.button-1]
+        except IndexError:
+            m = str(event.button)
+        event_type += '.' + m
 
     return (event_type, e)
 

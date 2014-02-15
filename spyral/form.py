@@ -61,9 +61,9 @@ class Form(spyral.View):
         # The instance of the currently mouse-downed widget
         self._mouse_down_on = None
 
-        spyral.event.register("input.mouse.up", self._handle_mouse_up,
+        spyral.event.register("input.mouse.up.left", self._handle_mouse_up,
                               scene=scene)
-        spyral.event.register("input.mouse.down", self._handle_mouse_down,
+        spyral.event.register("input.mouse.down.left", self._handle_mouse_down,
                               scene=scene)
         spyral.event.register("input.mouse.motion", self._handle_mouse_motion,
                               scene=scene)
