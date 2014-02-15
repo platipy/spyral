@@ -298,7 +298,7 @@ class Sprite(object):
 
     def _get_width(self):
         """
-        The width of the image after all transforms. Read-only number.
+        The width of the image after all transforms. Number.
         """
         if self._transform_image:
             return self._transform_image.get_width()
@@ -308,7 +308,7 @@ class Sprite(object):
 
     def _get_height(self):
         """
-        The height of the image after all transforms. Read-only number.
+        The height of the image after all transforms. Number.
         """
         if self._transform_image:
             return self._transform_image.get_height()
@@ -318,8 +318,7 @@ class Sprite(object):
 
     def _get_size(self):
         """
-        The size of the image after all transforms. Read-only
-        :class:`Vec2D <spyral.Vec2D>`
+        The size of the image after all transforms (:class:`Vec2D <spyral.Vec2D>`).
         """
         if self._transform_image:
             return spyral.Vec2D(self._transform_image.get_size())

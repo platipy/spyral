@@ -8,24 +8,6 @@ CustomSprite {
 	angle: 3.14/4
 }
 
-Red {
-	pos: (10, 10)
-	image: TestingBox((30, 30), (255, 0, 0))
-	layer: '1'
-}
-
-Green {
-	pos: (20, 20)
-	image: TestingBox((30, 30), (0, 255, 0))
-	layer: '3'
-}
-
-Blue {
-	pos: (30, 30)
-	image: TestingBox((30, 30), (0, 0, 255))
-	layer: '2'
-}
-
 RegisterForm.password {
 	pos: (30, 30)
 }

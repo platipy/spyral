@@ -21,7 +21,7 @@ ALL_BY_MODULE = {
     'spyral.vector' : ['Vec2D'],
     'spyral.rect' : ['Rect'],
     'spyral.animation' : ['Animation'],
-    'spyral.core' : ['init', 'quit', '_get_executing_scene'],
+    'spyral.core' : ['_init', '_quit', '_get_executing_scene'],
     'spyral.font' : ['Font'],
     'spyral.clock' : ['GameClock'],
     'spyral.event' : ['keys', 'mods', 'queue', 'Event',

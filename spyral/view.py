@@ -426,7 +426,7 @@ class View(object):
         before passing it up the transformation chain.
         """
         if self.visible:
-            blit.position += self.position
+            blit.position += self.pos
             blit.apply_scale(self.scale)
             if self.crop:
                 blit.clip(spyral.Rect((0, 0), self.crop_size))
@@ -438,7 +438,7 @@ class View(object):
         before passing it up the transformation chain.
         """
         if self.visible:
-            blit.position += self.position
+            blit.position += self.pos
             blit.apply_scale(self.scale)
             if self.crop:
                 blit.clip(spyral.Rect((0, 0), self.crop_size))
@@ -449,7 +449,7 @@ class View(object):
         Transforms the given collision box according to this view's scaling,
         cropping, and offset; then passes the box to this boxes parent.
         """
-        box.position += self.position
+        box.position += self.pos
         box.apply_scale(self.scale)
         if self.crop:
             box.clip(spyral.Rect((0, 0), self.crop_size))

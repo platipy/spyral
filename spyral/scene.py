@@ -322,7 +322,7 @@ class Scene(object):
             self._set_background(bg)
         if 'layers' in properties:
             layers = properties.pop('layers')
-            self.set_layers(layers)
+            self._set_layers(layers)
         if len(properties) > 0:
             spyral.exceptions.unused_style_warning(self, properties.iterkeys())
 
