@@ -301,10 +301,11 @@ def _pygame_to_spyral(event):
         k = keys.reverse_map.get(event.key, 'unknown')
         event_type += '.' + k
     if event_type.startswith('input.mouse.motion'):
-        e.left, e.middle, e.right = event.buttons
+        e.left, e.middle, e.right = map(bool, event.buttons)
     elif event_type.startswith('input.mouse'):
         try:
             m = MOUSE_MAP[event.button-1]
+            setattr(e, "button", m)
         except IndexError:
             m = str(event.button)
         event_type += '.' + m

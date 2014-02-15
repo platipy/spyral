@@ -88,14 +88,45 @@ Animations
 User Input
 """"""""""
 
-.. function:: "input.mouse.up" : Event(pos, button)
+.. function:: "input.mouse.down[.left | .right | .middle | .scroll_up | .scroll_down]" : Event(pos, button)
     
     :param pos: The location of the mouse cursor
     :type pos: 2-tuple
-    :param 
-    :param sprite: The sprite the animation is being played on
-    :type sprite: :class:`Sprite <spyral.Sprite>`
-    :triggered by: A new animation starting on a sprite.
+    :param str button: Either ``"left"``, ``"right"``, ``"middle"``, ``"scroll_up"``, or ``"scroll_down"``.
+    :triggered by: Either any mouse button being pressed, or a specific mouse button being pressed
+
+.. function:: "input.mouse.up[.left | .right | .middle | .scroll_up | .scroll_down]" : Event(pos, button)
+    
+    :param pos: The location of the mouse cursor
+    :type pos: 2-tuple
+    :param str button: Either ``"left"``, ``"right"``, ``"middle"``, ``"scroll_up"``, or ``"scroll_down"``.
+    :triggered by: Either any mouse button being released, or a specific mouse button being released
+    
+.. function:: "input.mouse.motion" : Event(pos, rel, buttons, left, right, middle)
+    
+    :param pos: The location of the mouse cursor
+    :type pos: 2-tuple
+    :param rel: The relative change in the location of the mouse cursor
+    :type rel: 2-tuple
+    :param buttons: a 3-tuple of boolean values corresponding to whether the left, middle, and right buttons are being pressed
+    :type buttons: 3-tuple
+    :param bool left: whether the left button is being pressed
+    :param bool middle: whether the middle button is being pressed
+    :param bool right: whether the right button is being pressed
+    :triggered by: The mouse being moved
+
+.. function:: "input.keyboard.up[.* | .f | .down | etc...]" : Event(unicode, key, mod)
+
+    :param unicode unicode: A printable representation of this key
+    :param int key: A keycode for this key, comparable to one found in :class:`Keys <spyral.event.keys>`
+    :param int mod: A keycode for this modifier, comparable to one found in :class:`Mods <spyral.event.mods>`
+    :triggered by: A key being released
+    
+.. function:: "input.keyboard.down[.* | .f | .down | etc...]" : Event(key, mod)
+
+    :param int key: A keycode for this key, comparable to one found in :class:`Keys <spyral.event.keys>`
+    :param int mod: A keycode for this modifier, comparable to one found in :class:`Mods <spyral.event.mods>`
+    :triggered by: A key being pressed
     
 System
 """"""
