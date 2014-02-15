@@ -90,8 +90,9 @@ User Input
 
 .. function:: "input.mouse.up" : Event(pos, button)
     
-    :param pos: The animation that is starting
-    :type animation: :class:`Animation <spyral.Animation>`
+    :param pos: The location of the mouse cursor
+    :type pos: 2-tuple
+    :param 
     :param sprite: The sprite the animation is being played on
     :type sprite: :class:`Sprite <spyral.Sprite>`
     :triggered by: A new animation starting on a sprite.

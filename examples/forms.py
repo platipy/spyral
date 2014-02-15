@@ -41,6 +41,10 @@ class Game(spyral.Scene):
         spyral.event.register("form.RegisterForm.okay.changed", test_print)
         spyral.event.register("form.RegisterForm.name.changed", test_react)
         spyral.event.register("director.update", self.report_boxes)
+        
+        def print_all(**kwargs):
+            print kwargs
+        spyral.event.register("input.mouse", print_all)
 
 
     def report_boxes(self):
