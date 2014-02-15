@@ -11,8 +11,8 @@
     .. attribute:: mods
 
         A special attribute for accessing the constants associated with a given
-        mod key. For instance, `spyral.mods.lshift` (left shift) and
-        `spyral.mods.ralt` (Right alt). This is useful for testing for keyboard
+        mod key. For instance, ``spyral.mods.lshift`` (left shift) and
+        ``spyral.mods.ralt`` (Right alt). This is useful for testing for keyboard
         events. A complete list of all the key
         constants can be found in the 
         :ref:`Keyboard Modifiers <ref.mods>` appendix.
@@ -41,8 +41,9 @@ _TYPE_TO_TYPE = None
 
 class Event(object):
     """
-    A simple representation of an event. Keyword arguments will be named
-    attributes of the Event::
+    A class for building for attaching data to an event. 
+    Keyword arguments will be named attributes of the Event when it is passed
+    into :func:`queue <spyral.event.queue>`.
 
         collision_event = Event(ball=ball, paddle=paddle)
         spyral.event.queue("ball.collides.paddle", collision_event)
