@@ -77,7 +77,9 @@ Images
         
     Methods
         draw_circle
-        
+
+.. _ref.anchors:
+
 Anchors
 -------
 
@@ -91,7 +93,10 @@ Anchors
 * midbottom
 * bottomright
 
-Events
+.. _ref.events:
+
+Event List
+----------
 
 .. _ref.keys:
 
@@ -103,6 +108,11 @@ Keyboard Keys
 Keyboard Modifiers
 ------------------
 
+.. _ref.layering:
+
+Layering
+--------
+
 Easings
 Animations
 Rects
@@ -110,3 +120,19 @@ Vec2Ds
 Widgets
 
 Styleable properties
+
+.. _ref.image_formats:
+
+Valid Image Formats
+-------------------
+
+* JPG
+* PNG
+* GIF (non animated)
+* BMP
+* PCX
+* TGA (uncompressed)
+* TIF
+* LBM (and PBM)
+* PBM (and PGM, PPM)
+* XPM

@@ -64,6 +64,29 @@ Events
 
 .. automodule:: spyral.event
     :members:
+    :exclude-members: EventHandler, LiveEventHandler, ReplayEventHandler
+    
+Event Handlers
+--------------
+
+Event Handlers are used to process events from the system and pass them into
+Spyral. In addition to the default EventHandler, there are other event handlers
+for recording and restoring events to a file; using these events, you could
+generate demos or functional tests of your game. EventHandlers are an
+advanced feature that can be set through a private attribute of scenes:
+``spyral.Scene._event_source``
+
+.. note:: Eventually, these event handlers will be set through the
+          dev launcher.
+
+.. autoclass:: spyral.event.EventHandler
+    :members:
+
+.. autoclass:: spyral.event.LiveEventHandler
+    :members:
+
+.. autoclass:: spyral.event.ReplayEventHandler
+    :members:
     
 .. _api.fonts:
 
@@ -79,6 +102,7 @@ Forms
 -----
     
 .. autoclass:: spyral.Form
+    :show-inheritance:
     :members:
     
 .. _api.images:
@@ -86,7 +110,7 @@ Forms
 Images
 ------
 
-.. autoclass:: spyral.Image
+.. automodule:: spyral.image
     :members:
     
 .. _api.keyboard:
@@ -117,12 +141,6 @@ Rects
 
 Scenes
 ------
-
-Scenes are the basic units that are executed by spyral for your game, and should
-be subclassed and filled in with code which is relevant to your game. The
-:class:`Director <spyral.director>`, is a manager for Scenes,
-which maintains a stacks and actually executes the code.
-
 
 .. autoclass:: spyral.Scene
     :members:

@@ -14,10 +14,15 @@ from weakref import ref as _wref
 class Scene(object):
     """
     Creates a new Scene. When a scene is not active, no events will be processed
-    for it.
+    for it. Scenes are the basic units that are executed by spyral for your game,
+    and should be subclassed and filled in with code which is relevant to your
+    game. The :class:`Director <spyral.director>`, is a manager for Scenes,
+    which maintains a stacks and actually executes the code.
 
-    :param size: The `size` of the scene internally (or "virtually"). See
-                 `View size and Window size`_ for more details.
+
+    :param size: The `size` of the scene internally (or "virtually"). This is
+                 the coordinate space that you place Sprites in, but it does
+                 not have to match up 1:1 to the window (which could be scaled).
     :type size: width, height
     :param int max_ups: Maximum updates to process per second. By default,
                         `max_ups` is pulled from the director.
@@ -324,8 +329,7 @@ class Scene(object):
     def load_style(self, path):
         """
         Loads the style file in *path* and applies it to this Scene and any
-        Sprites and Views that it contains. See `Stylable Properties`_ for more
-        details.
+        Sprites and Views that it contains. Most properties are stylable.
 
         :param path: The location of the style file to load. Should have the
                      extension ".spys".
@@ -385,8 +389,9 @@ class Scene(object):
     def _get_size(self):
         """
         Read-only property that returns a :class:`Vec2D <spyral.Vec2D>` of the
-        width and height of the Scene's size. See `View size and Window size`_
-        for more details. This property can only be set once.
+        width and height of the Scene's size.  This is the coordinate space that
+        you place Sprites in, but it does not have to match up 1:1 to the window
+        (which could be scaled). This property can only be set once.
         """
         if self._size is None:
             raise spyral.SceneHasNoSizeException("You should specify a size in "

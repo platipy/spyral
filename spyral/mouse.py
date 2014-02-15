@@ -11,11 +11,11 @@
     `str` value that lets you choose from among the built-in options for
     cursors. The options are:
 
-        * *"arrow"* : the regular arrow-shaped cursor
-        * *"diamond"* : a diamond shaped cursor
-        * *"x"* : a broken X, useful for indicating disabled states.
-        * *"left"*: a triangle pointing to the left
-        * *"right"*: a triangle pointing to the right
+        * ``"arrow"`` : the regular arrow-shaped cursor
+        * ``"diamond"`` : a diamond shaped cursor
+        * ``"x"`` : a broken X, useful for indicating disabled states.
+        * ``"left"``: a triangle pointing to the left
+        * ``"right"``: a triangle pointing to the right
 
     .. warning:: Custom non-Sprite mouse cursors are currently not supported.
 

@@ -22,10 +22,9 @@ class _FormFieldMeta(type):
 class Form(spyral.View):
     """
     Forms are a subclass of :class:`Views <spyral.View>` that hold a set of
-    widgets. Forms will manage focus and event delegation between the widgets,
-    ensuring that only one widget is active at a given time.
-
-    Forms are defined using a class-based syntax::
+    :ref:`Widgets <api.widgets>`. Forms will manage focus and event delegation between the widgets,
+    ensuring that only one widget is active at a given time. Forms are defined 
+    using a special class-based syntax::
 
         class MyForm(spyral.Form):
             name = spyral.widgets.TextInput(100, "Current Name")
@@ -34,10 +33,12 @@ class Form(spyral.View):
 
         my_form = MyForm()
 
+    When referencing widgets in this way, the "Widget" part of the widget's name
+    is dropped: ``spyral.widgets.ButtonWidget`` becomes ``spyral.widgets.Button``.
     Every widget in a form is accessible as an attribute of the form:
 
-        >>> print my_form.name.value
-        "Current Name"
+        >>> print my_form.remember_me.value
+        "up"
 
     :param scene: The Scene or View that this Form belongs to.
     :type scene: :class:`Scene <spyral.Scene>` or :class:`View <spyral.View>`.
@@ -181,8 +182,8 @@ class Form(spyral.View):
         """
         Adds a new widget to this form. When this method is used to add a Widget
         to a Form, you create the Widget as you would create a normal Sprite. It
-        is less preferred to using the class-based method; consider carefully
-        whether you can achieve the same effect through visibility and
+        is preferred to use the class-based method instead of this; consider
+        carefully whether you can achieve dynamicity through visibility and
         disabling.
 
         >>> my_widget = spyral.widgets.ButtonWidget(my_form, "save")
@@ -190,7 +191,7 @@ class Form(spyral.View):
 
         :param str name: A unique name for this widget.
         :param widget: The new Widget.
-        :type widget: :class:`Widget <spyral.Widget>`.
+        :type widget: :ref:`Widget <api.widgets>`
         :param int tab_order: Sets the tab order for this widget explicitly. If
                               tab-order is None, it is set to one higher than
                               the highest tab order.
@@ -205,22 +206,21 @@ class Form(spyral.View):
         #self.add_child(widget)
         setattr(self.fields, name, widget)
 
-    def get_values(self):
+    def _get_values(self):
         """
-        Returns a dictionary of the values for all the fields, mapping the name
-        of each widget with the value associated with that widget.
-
-        :rtype: dict
-        :returns: A dictionary of the values for all fields.
+        A dictionary of the values for all the fields, mapping the name
+        of each widget with the value associated with that widget. Read-only.
         """
         return dict((widget.name, widget.value) for widget in self._widgets)
-
+    
+    values = property(_get_values)
+    
     def _blur(self, widget):
         """
         Queues an event indicating that a widget has lost focus.
 
         :param widget: The widget that is losing focus.
-        :type widget: :class:`Widget <spyral.Widget>`
+        :type widget: :ref:`Widget <api.widgets>`
         """
         e = spyral.Event(name="blurred", widget=widget, form=self)
         self.scene._queue_event("form.%(form_name)s.%(widget)s.blurred" %
@@ -236,7 +236,7 @@ class Form(spyral.View):
 
         :param widget: The widget that is gaining focus; if None, then the first
                        widget gains focus.
-        :type widget: :class:`Widget <spyral.Widget>`
+        :type widget: :ref:`Widget <api.widgets>`
         """
         # By default, we focus on the first widget added to the form
         if widget is None:

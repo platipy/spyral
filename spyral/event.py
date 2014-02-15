@@ -1,4 +1,6 @@
 """This module contains functions and classes for creating and issuing events.
+For a list of the events that are built into Spyral, check the 
+:ref:`Event List<ref.events>`.
 
     .. attribute:: keys
 
@@ -43,7 +45,7 @@ class Event(object):
     """
     A class for building for attaching data to an event. 
     Keyword arguments will be named attributes of the Event when it is passed
-    into :func:`queue <spyral.event.queue>`.
+    into :func:`queue <spyral.event.queue>`::
 
         collision_event = Event(ball=ball, paddle=paddle)
         spyral.event.queue("ball.collides.paddle", collision_event)
@@ -92,8 +94,8 @@ def queue(event_name, event=None, scene=None):
     Queues a new event in the system, meaning that it will be run at the next
     available opportunity.
 
-    :param str event_name: The type of event (e.g., "system.quit",
-                           "input.mouse.up", or "pong.score".
+    :param str event_name: The type of event (e.g., ``"system.quit"``,
+                           ``"input.mouse.up"``, or ``"pong.score"``.
     :param event: An Event object that holds properties for the event.
     :type event: :class:`Event <spyral.event.Event>`
     :param scene: The scene to queue this event on; if `None` is given, the
@@ -109,8 +111,8 @@ def handle(event_name, event=None, scene=None):
     Instructs spyral to execute the handlers for this event right now. When you
     have a custom event, this is the function you call to have the event occur.
 
-    :param str event_name: The type of event (e.g., "system.quit",
-                           "input.mouse.up", or "pong.score".
+    :param str event_name: The type of event (e.g., ``"system.quit"``,
+                           ``"input.mouse.up"``, or ``"pong.score"``.
     :param event: An Event object that holds properties for the event.
     :type event: :class:`Event <spyral.event.Event>`
     :param scene: The scene to queue this event on; if ``None`` is given, the
@@ -126,10 +128,10 @@ def register(event_namespace, handler,
     """
     Registers an event `handler` to a namespace. Whenever an event in that
     `event_namespace` is fired, the event `handler` will execute with that
-    event. For more information, see `Event Namespaces`_.
+    event.
 
     :param event_namespace: the namespace of the event, e.g.
-                            "input.mouse.left.click" or "pong.score".
+                            ``"input.mouse.left.click"`` or ``"pong.score"``.
     :type event_namespace: str
     :param handler: A function that will handle the event. The first
                     argument to the function will be the event.
@@ -157,8 +159,7 @@ def register_dynamic(event_namespace, handler_string,
     """
     Similar to :func:`spyral.event.register` function, except that instead
     of passing in a function, you pass in the name of a property of this
-    scene that holds a function. For more information, see
-    `Event Namespaces`_.
+    scene that holds a function.
 
     Example::
 
@@ -169,7 +170,7 @@ def register_dynamic(event_namespace, handler_string,
                 ...
 
     :param str event_namespace: The namespace of the event, e.g.
-                                "input.mouse.left.click" or "pong.score".
+                                ``"input.mouse.left.click"`` or ``"pong.score"``.
     :param str handler: The name of an attribute on this scene that will hold
                         a function. The first argument to the function will be
                         the event.
@@ -195,13 +196,13 @@ def register_multiple(event_namespace, handlers, args=None,
                       kwargs=None, priority=0, scene=None):
     """
     Similar to :func:`spyral.event.register` function, except a sequence of
-    `handlers` are be given instead of just one. For more information, see
-    `Event Namespaces`_.
+    `handlers` are be given instead of just one.
 
     :param str event_namespace: the namespace of the event, e.g.
-                            "input.mouse.left.click" or "pong.score".
+                            ``"input.mouse.left.click"`` or ``"pong.score"``.
     :type event_namespace: string
-    :param str handler: A list of functions that will be run on this event.
+    :param handler: A list of functions that will be run on this event.
+    :type handler: list of functions
     :param args: any additional arguments that need to be passed in
                  to the handler.
     :type args: sequence
@@ -227,11 +228,12 @@ def register_multiple_dynamic(event_namespace, handler_strings, args=None,
     strings representing handlers can be given instead of just one.
 
     :param event_namespace: the namespace of the event, e.g.
-                            "input.mouse.left.click" or "pong.score".
+                            ``"input.mouse.left.click"`` or ``"pong.score"``.
     :type event_namespace: string
-    :param str handler: A list of names of an attribute on this scene that will
-                        hold a function. The first argument to the function will
-                        be the event.
+    :param handler: A list of names of an attribute on this scene that will
+                    hold a function. The first argument to the function will
+                    be the event.
+    :type handler: list of strings
     :param args: any additional arguments that need to be passed in
                  to the handler.
     :type args: sequence
@@ -253,8 +255,7 @@ def register_multiple_dynamic(event_namespace, handler_strings, args=None,
 def unregister(event_namespace, handler, scene=None):
     """
     Unregisters a registered handler for that namespace. Dynamic handler
-    strings are supported as well. For more information, see
-    `Event Namespaces`_.
+    strings are supported as well.
 
     :param str event_namespace: An event namespace
     :param handler: The handler to unregister.
@@ -272,7 +273,7 @@ def unregister(event_namespace, handler, scene=None):
 def clear_namespace(namespace, scene=None):
     """
     Clears all handlers from namespaces that are at least as specific as the
-    provided `namespace`. For more information, see `Event Namespaces`_.
+    provided `namespace`.
 
     :param str namespace: The complete namespace.
     :param scene: The scene to clear the namespace of; if it is ``None``, then
