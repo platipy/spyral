@@ -236,7 +236,7 @@ class Sprite(object):
     def _get_layer(self):
         """
         String. The name of the layer this sprite belongs to. See
-        `layering <spyral_layering>` for more.
+        :ref:`layering <ref.layering>` for more.
         """
         return self._layer
 
@@ -284,7 +284,7 @@ class Sprite(object):
 
     def _get_anchor(self):
         """
-        Defines an `anchor point <anchors>` where coordinates are relative to
+        Defines an :ref:`anchor point <ref.anchors>` where coordinates are relative to
         on the image. String.
         """
         return self._anchor

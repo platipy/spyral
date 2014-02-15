@@ -7,12 +7,11 @@ import spyral
 
 class Rect(object):
     """
-    Rect represents a rectangle and provides some useful features.
+    Rect represents a rectangle and provides some useful features. Rects can 
+    be specified 3 ways in the constructor:
 
-    Rects can be specified 3 ways in the constructor
-
-    #. Four numbers, `x`, `y`, `width`, `height`
-    #. Two tuples, `(x, y)` and `(width, height)`
+    #. Four numbers, ``x``, ``y``, ``width``, ``height``
+    #. Two tuples, ``(x, y)`` and `(width, height)`
     #. Another rect, which is copied
 
     >>> rect1 = spyral.Rect(10, 10, 64, 64)               # Method 1
@@ -20,10 +19,10 @@ class Rect(object):
     >>> rect3 = spyral.Rect(rect1.topleft, rect1.size)    # Method 2
     >>> rect4 = spyral.Rect(rect3)                        # Method 3
 
-    Rects support all the usual :ref:`anchor points <anchors>` as
-    attributes, so you can both get `rect.center` and assign to it.
-    Rects also support attributes of `right`, `left`, `top`, `bottom`,
-    `x`, and `y`.
+    Rects support all the usual :ref:`anchor points <ref.anchors>` as
+    attributes, so you can both get ``rect.center`` and assign to it.
+    Rects also support attributes of ``right``, ``left``, ``top``, ``bottom``,
+    ``x``, and ``y``.
 
     >>> rect1.x
     10

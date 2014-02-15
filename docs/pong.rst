@@ -222,7 +222,7 @@ Almost every game will want to respect this event.
 A much more interesting event is ``input.keyboard.down.*``, which is fired
 whenever the keyboard is pressed. You can also register on specific keys, e.g.,
 ``input.keyboard.down.left`` or ``input.keyboard.keyboard.down.f``. A complete
-list of keys is available :ref:`spyral_keys`.
+list of keys is available :ref:`ref.keys`.
 
 The left and right paddles need to move differently depending on which side
 they are on - the left paddle responds to `w` and `s`, and the right paddle

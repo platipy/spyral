@@ -22,13 +22,14 @@ class Font(object):
     """
     Font objects are how you get text onto the screen. They are loaded from
     TrueType Font files (\*.ttf); system fonts are not supported for asthetic
-    reasons.
+    reasons. If you need direction on what the different size-related
+    properties of a Font object, check out the Font example.
 
     :param str font_path: The location of the \*.ttf file.
     :param int size: The size of the font; font sizes refer to the height of the
                      font in pixels.
     :param color: A three-tuple of RGB values ranging from 0-255. Defaults to
-                  black (0, 0, 0).
+                  black ``(0, 0, 0)``.
     :type color: A three-tuple.
     """
     def __init__(self, font_path, size, default_color=(0, 0, 0)):
@@ -39,8 +40,8 @@ class Font(object):
     def render(self, text, color=None, underline=False,
                italic=False, bold=False):
         """
-        Renders the given *text*. Italic and bold are false italic and bold
-        modes that may not look good for many fonts. It is preferable to load a
+        Renders the given *text*. Italicizing and bolding are artificially
+        added, and may not look good for many fonts. It is preferable to load a
         bold or italic font where possible instead of using these options.
 
         :param str text: The text to render. Some characters might not be able
@@ -96,8 +97,8 @@ class Font(object):
         Returns a list containing the font metrics for each character
         in the text. The metrics is a tuple containing the
         minimum x offset, maximum x offset, minimum y offset, maximum
-        y offset, and the advance offset of the character. [(minx, maxx, miny,
-        maxy, advance), (minx, maxx, miny, maxy, advance), ...]
+        y offset, and the advance offset of the character. ``[(minx, maxx, miny,
+        maxy, advance), (minx, maxx, miny, maxy, advance), ...]``
 
         :param str text: The text to gather metrics on.
         :rtype: `list` of tuples.

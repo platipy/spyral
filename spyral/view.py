@@ -3,10 +3,14 @@ from weakref import ref as _wref
 
 class View(object):
     """
-    Creates a new view with a scene or view as a parent.
-
-    Views have the following built-in attributes
-
+    Creates a new view with a scene or view as a parent. A view is a collection
+    of Sprites and Views that can be collectively transformed - e.g., flipped,
+    cropped, scaled, offset, hidden, etc. A View can also have a ``mask``, in
+    order to treat it as a single collidable object. Like a Sprite, a View cannot
+    be moved between Scenes.
+    
+    :param parent: The view or scene that this View belongs in.
+    :type parent: :func:`View <spyral.View>` or :func:`Scene <spyral.Scene>`
     """
     def __init__(self, parent):
 
@@ -65,8 +69,9 @@ class View(object):
     def _get_mask(self):
         """
         Return this View's mask, a spyral.Rect representing the collidable area.
+        
         :rtype: :class:`Rect <spyral.Rect>` if this value has been set,
-        otherwise it will be `None`.
+                otherwise it will be ``None``.
         """
         return self._mask
 
@@ -119,7 +124,7 @@ class View(object):
     # Properties
     def _get_pos(self):
         """
-        Returns the position (`Vec2D <spyral.Vec2D>`) of this View within its
+        Returns the position (:func:`Vec2D <spyral.Vec2D>`) of this View within its
         parent.
         """
         return self._pos
@@ -146,9 +151,13 @@ class View(object):
     def _get_layers(self):
         """
         A list of strings representing the layers that are available for this
-        view. The first layer is at the bottom, and the last is at the top.
+        view. The first layer is at the bottom, and the last is at the top. For
+        more information on layers, check out the :ref:`layers <ref.layering>`
+        appendix.
 
-        Note that the layers can only be set once.
+        .. note:
+            
+            Layers can only be set once.
         """
         return tuple(self._layers)
 
@@ -184,7 +193,7 @@ class View(object):
 
     def _get_anchor(self):
         """
-        Defines an `anchor point <anchors>` where coordinates are relative to
+        Defines an :ref:`anchor point <ref.anchors>` where coordinates are relative to
         on the view. String.
         """
         return self._anchor
@@ -386,7 +395,6 @@ class View(object):
         else:
             raise ValueError("TODO: You done goofed.")
 
-    position = property(_get_pos, _set_pos)
     pos = property(_get_pos, _set_pos)
     layer = property(_get_layer, _set_layer)
     layers = property(_get_layers, _set_layers)

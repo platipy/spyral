@@ -16,7 +16,7 @@ def _new_spyral_surface(size):
 
 def from_sequence(images, orientation="right", padding=0):
     """
-    Static class method that returns a new Image from a list of images by
+    A function that returns a new Image from a list of images by
     placing them next to each other.
 
     :param images: A list of images to lay out.
@@ -65,10 +65,10 @@ def from_sequence(images, orientation="right", padding=0):
 
 def from_conglomerate(sequence):
     """
-    Static class method that generates a new image from a sequence of
+    A function that generates a new image from a sequence of
     (image, position) pairs. These images will be placed onto a singe image
     large enough to hold all of them. More explicit and less convenient than
-    :ref:`from_seqeuence <spyral.image.from_sequence>`.
+    :func:`from_seqeuence <spyral.image.from_sequence>`.
 
     :param sequence: A list of (image, position) pairs, where the positions
                      are :class:`Vec2D <spyral.Vec2D>` s.
@@ -86,8 +86,8 @@ def from_conglomerate(sequence):
 
 def render_nine_slice(image, size):
     """
-    Stretches out an image by dividing it into a 3x3 grid, and stretching
-    the sides and center, leaving the corners the same size. This is ideal
+    Creates a new image by dividing the given image into a 3x3 grid, and stretching
+    the sides and center while leaving the corners the same size. This is ideal
     for buttons and other rectangular shapes.
 
     :param image: The image to stretch.
@@ -166,7 +166,8 @@ class Image(object):
                  filename.
     :type size: :class:`Vec2D <spyral.Vec2D>`
     :param str filename:  If filename is set, the file with that name is loaded.
-                          :ref:`Valid image formats<image_formats>`. If you do
+                          The appendix has a list of the 
+                          :ref:`valid image formats<ref.image_formats>`. If you do
                           not specify a filename, you *must* pass in a size.
 
     """
@@ -237,7 +238,7 @@ class Image(object):
                                  the rectangle is filled with the color
                                  specified.
         :param str anchor: The anchor parameter is an
-                           :ref:`anchor position <anchors>`.
+                           :ref:`anchor position <ref.anchors>`.
         :returns: This image.
         """
         if size is None:
@@ -289,7 +290,7 @@ class Image(object):
         :param int width: The width of the circle. If it is 0, the circle is
                           filled with the color specified.
         :param str anchor: The anchor parameter is an
-                           :ref:`anchor position <anchors>`.
+                           :ref:`anchor position <ref.anchors>`.
         :returns: This image.
         """
         offset = self._calculate_offset(anchor)
@@ -317,7 +318,7 @@ class Image(object):
         :param int border_width: The width of the ellipse. If it is 0, the
                           ellipse is filled with the color specified.
         :param str anchor: The anchor parameter is an
-                           :ref:`anchor position <anchors>`.
+                           :ref:`anchor position <ref.anchors>`.
         :returns: This image.
         """
         if size is None:
@@ -341,7 +342,7 @@ class Image(object):
         :param position: The position of this point.
         :type position: :class:`Vec2D <spyral.Vec2D>`
         :param str anchor: The anchor parameter is an
-                           :ref:`anchor position <anchors>`.
+                           :ref:`anchor position <ref.anchors>`.
         :returns: This image.
         """
         offset = self._calculate_offset(anchor)
@@ -370,7 +371,7 @@ class Image(object):
         :param int border_width: The width of the ellipse. If it is 0, the
                           ellipse is filled with the color specified.
         :param str anchor: The anchor parameter is an
-                           :ref:`anchor position <anchors>`.
+                           :ref:`anchor position <ref.anchors>`.
         :returns: This image.
         """
         if size is None:
@@ -393,7 +394,7 @@ class Image(object):
         :param position: The position of this image.
         :type position: :class:`Vec2D <spyral.Vec2D>`
         :param str anchor: The anchor parameter is an
-                           :ref:`anchor position <anchors>`.
+                           :ref:`anchor position <ref.anchors>`.
         :returns: This image.
         """
         offset = self._calculate_offset(anchor, image._surf.get_size())
@@ -484,7 +485,7 @@ class Image(object):
         anchor type.
 
         :param anchor_type: A string indicating the position of the anchor,
-                            taken from :ref:`anchor position <anchors>`. A
+                            taken from :ref:`anchor position <ref.anchors>`. A
                             numerical offset can also be specified.
         :type anchor_type: str or a :class:`Vec2D <spyral.Vec2D>`.
         :param size: The size of the region to offset in.
