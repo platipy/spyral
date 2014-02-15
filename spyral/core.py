@@ -6,7 +6,7 @@ import inspect
 
 _inited = False
 
-def init():
+def _init():
     """
     This is the core Spyral code that is run on startup; not only does it setup
     spyral, but it also sets up pygame.
@@ -20,7 +20,7 @@ def init():
     pygame.display.init()
     pygame.font.init()
 
-def quit():
+def _quit():
     """
     Cleanly quits pygame and empties the spyral stack.
     """

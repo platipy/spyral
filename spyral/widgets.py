@@ -241,7 +241,7 @@ class ButtonWidget(MultiStateWidget):
         """
         A function triggered whenever this widget changes size.
         """
-        self._text_sprite.pos = spyral.util.anchor_offset(self._anchor,
+        self._text_sprite.pos = spyral.util._anchor_offset(self._anchor,
                                                           self._padding[0] / 2,
                                                           self._padding[1] / 2)
 

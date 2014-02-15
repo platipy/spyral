@@ -14,7 +14,7 @@ from weakref import ref as _wref
 class Scene(object):
     """
     Creates a new Scene. When a scene is not active, no events will be processed
-        for it.
+    for it.
 
     :param size: The `size` of the scene internally (or "virtually"). See
                  `View size and Window size`_ for more details.
@@ -712,7 +712,7 @@ class Scene(object):
         """
         self._collision_boxes[entity] = box
 
-    def collide_sprite(self, first, second):
+    def collide_sprites(self, first, second):
         """
         Returns whether the first sprite is colliding with the second.
 

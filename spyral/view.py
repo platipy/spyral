@@ -108,11 +108,11 @@ class View(object):
         Recalculates the offset of this View.
         """
         if self._mask:
-            self._offset = spyral.util.anchor_offset(self._anchor, 
+            self._offset = spyral.util._anchor_offset(self._anchor, 
                                                      self._mask.size[0], 
                                                      self._mask.size[1])
         else:
-            self._offset = spyral.util.anchor_offset(self._anchor, 
+            self._offset = spyral.util._anchor_offset(self._anchor, 
                                                      self._size[0], 
                                                      self._size[1])
 

@@ -66,15 +66,12 @@ class Animation(object):
         For a given *sprite*, complete *progress*'s worth of this animation.
         Basically, complete a step of the animation. Returns a dictionary
         representing the changed property and its new value, e.g.:
-        :code:`{"x": 100}`
-
-        Typically, you will use the sprite's animate function instead of calling
+        :code:`{"x": 100}`. Typically, you will use the sprite's animate function instead of calling
         this directly.
 
         :param sprite: The Sprite that will be manipulated.
         :type sprite: :class:`Sprite <spyral.Sprite>`
-        :param sprite: The Sprite that will be manipulated.
-        :type sprite: :class:`Sprite <spyral.Sprite>`
+        :param float progress: The amount of progress to make on this animation.
         :rtype: :class:`dict`
         """
         progress = progress / self.duration

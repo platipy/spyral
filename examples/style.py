@@ -24,7 +24,6 @@ class Game(spyral.Scene):
 
 if __name__ == "__main__":
     SIZE = (640+140, 480+120)
-    spyral.init() # Always call spyral.init() first
     spyral.director.init(SIZE) # the director is the manager for your scenes
     spyral.director.push(Game()) # push means that this Game() instance is
                                  # on the stack to run

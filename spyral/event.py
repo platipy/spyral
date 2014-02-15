@@ -3,17 +3,19 @@
     .. attribute:: keys
 
         A special attribute for accessing the constants associated with a given
-        key. For instance, `spyral.keys.down` and `spyral.keys.f`. This is
+        key. For instance, ``spyral.keys.down`` and ``spyral.keys.f``. This is
         useful for testing for keyboard events. A complete list of all the key
-        constants can be found in the appendix.
+        constants can be found in the 
+        :ref:`Keyboard Keys <ref.keys>` appendix.
 
     .. attribute:: mods
 
         A special attribute for accessing the constants associated with a given
         mod key. For instance, `spyral.mods.lshift` (left shift) and
         `spyral.mods.ralt` (Right alt). This is useful for testing for keyboard
-        events. A complete list of all the key constants can be found in the
-        appendix.
+        events. A complete list of all the key
+        constants can be found in the 
+        :ref:`Keyboard Modifiers <ref.mods>` appendix.
 
 """
 

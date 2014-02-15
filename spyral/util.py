@@ -5,7 +5,7 @@ import spyral
 import math
 import pygame
 
-def anchor_offset(anchor, width, height):
+def _anchor_offset(anchor, width, height):
     """
     Given an `anchor` position (either a string or a 2-tuple position), finds
     the correct offset in a rectangle of size (`width`, `height`). If the

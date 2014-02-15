@@ -6,17 +6,20 @@ import spyral
 class Actor(object):
     """
     Actors are a powerful mechanism for quickly adding multiprocessing behavior
-    to your game through <Greenlets ``>. Any object that subclasses the Actor
+    to your game through `Greenlets <http://greenlet.readthedocs.org/>`_ .
+    Any object that subclasses the Actor
     mixin can implement a `main` method that will run concurrently. You can put
-    a non-terminating loop into it, and it will work like magic. Example:
+    a non-terminating loop into it, and it will work like magic, allowing
+    other actors and the main game itself to keep processing::
+    
         class MyActor(spyral.Actor):
             def main(self, delta):
                 while True:
                     print "Acting!"
+                    
     When an instance of the above class is created in a scene, it will
-    continuously print "Acting!" until the scene ends.
-
-    An Actor belongs to the Scene that was currently active when it was created.
+    continuously print "Acting!" until the scene ends. Like a Sprite, An Actor
+    belongs to the Scene that was currently active when it was created.
     """
     def __init__(self):
         self._greenlet = greenlet.greenlet(self.main)
@@ -63,5 +66,8 @@ class Actor(object):
         ends or the main function ends. While the Actor's scene is not on the
         top of the stack, the Actor is paused; it will continue when the Scene
         is back on the top of the Directory's stack.
+        
+        :param float delta: The amount of time that has passed since this
+                            method was last invoked.
         """
         pass

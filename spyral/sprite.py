@@ -115,7 +115,7 @@ class Sprite(object):
             return
         size = self._scale * self._image.size
 
-        offset = spyral.util.anchor_offset(self._anchor, size[0], size[1])
+        offset = spyral.util._anchor_offset(self._anchor, size[0], size[1])
 
         self._offset = spyral.Vec2D(offset) - self._transform_offset
 
@@ -195,7 +195,15 @@ class Sprite(object):
     def _get_rect(self):
         """
         Returns a :class:`Rect <spyral.Rect>` representing the position and size
-        of this Sprite's image.
+        of this Sprite's image. Note that if you change a property of this rect
+        that it will not actually update this sprite's properties:
+        
+        >>> my_sprite.rect.top = 10
+        
+        Does not adjust the y coordinate of `my_sprite`. Changing the rect will
+        adjust the sprite however
+        
+        >>> my_sprite.rect = spyral.Rect(10, 10, 64, 64)
         """
         return spyral.Rect(self._pos, self.size)
 

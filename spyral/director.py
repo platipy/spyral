@@ -1,15 +1,18 @@
 import spyral
 import pygame
 
-__doc__ = """The director handles initializing and running your game. It is also
-responsible for keeping track of the game's scenes."""
-
 _initialized = False
 _stack = []
 _screen = None
 _tick = 0
 _max_fps = 30
 _max_ups = 30
+
+def quit():
+    """
+    Cleanly quits out of spyral by emptying the stack.
+    """
+    spyral._quit()
 
 def init(size=(0, 0),
          max_ups=30,
@@ -39,7 +42,7 @@ def init(size=(0, 0),
 
     if _initialized:
         print 'Warning: Tried to initialize the director twice. Ignoring.'
-    spyral.init()
+    spyral._init()
 
     flags = 0
     # These flags are going to be managed better or elsewhere later
@@ -87,7 +90,6 @@ def get_tick():
 def replace(scene):
     """
     Replace the currently running scene on the stack with *scene*.
-
     Execution will continue after this is called, so make sure you return;
     otherwise you may find unexpected behavior::
 
@@ -113,7 +115,6 @@ def pop():
     """
     Pop the top scene off the stack, returning control to the next scene
     on the stack. If the stack is empty, the program will quit.
-
     This does return control, so remember to return immediately after
     calling it.
     """
@@ -131,10 +132,8 @@ def pop():
 
 def push(scene):
     """
-    Place *scene* on the top of the stack, and move control to it.
-
-    This does return control, so remember to return immediately after
-    calling it.
+    Place *scene* on the top of the stack, and move control to it. This does 
+    return control, so remember to return immediately after calling it. 
 
     :param scene: The new scene.
     :type scene: :class:`Scene <spyral.Scene>`
@@ -154,11 +153,6 @@ def run(sugar=False, profiling=False, scene=None):
     can also pass in a *scene* to push that scene on top of the stack. This
     function will run until your game ends, at which point execution will end
     too.
-
-    If *profiling* is enabled,
-
-    The *sugar* argument is only used by the XO Launcher, it can be safely
-    ignored.
 
     :param bool sugar: Whether to run the game for Sugar. This is only
                        to the special XO Launcher; it is safe to ignore.

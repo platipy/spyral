@@ -98,6 +98,5 @@ class AnimationExamples(Scene):
         self.set_animation()
 
 if __name__ == "__main__":
-    spyral.init()
     spyral.director.init(SIZE)
     spyral.director.run(scene=AnimationExamples())
