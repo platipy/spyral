@@ -26,14 +26,18 @@ def init(size=(0, 0),
     :param size: The resolution of the display window. (0,0) uses the screen
                  resolution
     :type size: :class:`Vec2D <spyral.Vec2D>`
-    :param int max_fps: The number of times that the director.update event will
-                        occur per frame. This will remain the same, even if fps
-                        drops.
-    :param int max_ups: The number of frames per second that should occur when
-                        your game is run.
-    :param bool fullscreen: Whether your game should start in fullscreen mode.
-    :param str caption: The caption that will be displayed in the window.
-                        Typically the name of your game.
+    :param max_fps: The number of times that the director.update event will
+                    occur per frame. This will remain the same, even if fps
+                    drops.
+    :type max_fps: ``int``
+    :param max_ups: The number of frames per second that should occur when
+                    your game is run.
+    :type max_ups: ``int``
+    :param fullscreen: Whether your game should start in fullscreen mode.
+    :type fullscreen: ``bool``
+    :param caption: The caption that will be displayed in the window.
+                    Typically the name of your game.
+    :type caption: ``str``
     """
     global _initialized
     global _screen
