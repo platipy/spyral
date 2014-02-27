@@ -582,7 +582,7 @@ class Sprite(object):
         :returns: ``bool`` indicating whether this sprite is colliding with the
                   other sprite.
         """
-        return self._scene().collide_sprite(self, other)
+        return self._scene().collide_sprites(self, other)
 
     def collide_point(self, point):
         """
