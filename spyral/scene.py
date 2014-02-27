@@ -447,6 +447,7 @@ class Scene(object):
     rect = property(_get_rect)
 
     def _set_background(self, image):
+        self._background_image = image
         surface = image._surf
         scene = spyral._get_executing_scene()
         if surface.get_size() != self.size:
@@ -463,7 +464,7 @@ class Scene(object):
         intelligently by Spyral; it knows to only redraw portions of it rather
         than the whole thing, unlike a Sprite.
         """
-        return self._background
+        return self._background_image
 
     background = property(_get_background, _set_background)
 

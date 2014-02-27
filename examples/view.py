@@ -44,11 +44,11 @@ class Game(spyral.Scene):
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
         self.background = spyral.Image(size=SIZE).fill(BG_COLOR)
-        screen = self.background.rect
+        screen = self.rect
 
         debug = spyral.DebugText(self, "1) Red square in middle of room", BLUE)
         debug.anchor = 'midbottom'
-        debug.pos = self.background.rect.midbottom
+        debug.pos = self.rect.midbottom
 
         self.top_view = spyral.View(self)
         self.top_view.label = "TopV"

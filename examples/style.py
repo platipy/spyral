@@ -1,4 +1,4 @@
-    try:
+try:
     import _path
 except NameError:
     pass
@@ -10,9 +10,13 @@ class CustomSprite(spyral.Sprite):
         self.__style__ = style
         spyral.Sprite.__init__(self, scene)
 
+def make_box(color):
+    return spyral.Image(size=(32,32)).fill(color)
+
 class Game(spyral.Scene):
     def __init__(self):
         spyral.Scene.__init__(self)
+        self.add_style_function("make_box", make_box)
         self.load_style("style.spys")
 
         CustomSprite(self, "Red")

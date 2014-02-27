@@ -4,14 +4,17 @@ except NameError:
     pass
 import spyral
 import sys
+import time
 
-SIZE = (600, 600)
+WIDTH, HEIGHT = 600, 600
+SIZE = (WIDTH, HEIGHT)
 BG_COLOR = (0, 0, 0)
 
 class DumbObject(spyral.Actor):
     def main(self, delta):
         while True:
-            print "1", self.wait()
+            print "Awake!"
+            self.wait()
 
 class StupidSprite(spyral.Sprite, spyral.Actor):
     def __init__(self, scene):

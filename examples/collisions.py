@@ -26,10 +26,6 @@ class Square(spyral.Sprite):
         self.direction *= -1
 
 class Game(spyral.Scene):
-    """
-    A Scene represents a distinct state of your game. They could be menus,
-    different subgames, or any other things which are mostly distinct.
-    """
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
         self.background = spyral.Image(size=SIZE).fill(BG_COLOR)
@@ -43,6 +39,7 @@ class Game(spyral.Scene):
         spyral.event.register("director.update", self.update)
 
     def update(self):
+        # Collision test
         if self.left_square.collide_sprite(self.right_square):
             self.right_square.flip()
             self.left_square.flip()
