@@ -265,7 +265,7 @@ class Scene(object):
             event_namespace = event_namespace[:-2]
         self._handlers[event_namespace] = [h for h
                                              in self._handlers[event_namespace]
-                                             if h[0].method != handler.method]
+                                             if h[0].func is not handler.im_func or h[0].weak_object_ref() is not handler.im_self]
 
     def _clear_namespace(self, namespace):
         """
@@ -723,10 +723,10 @@ class Scene(object):
         Returns whether the first sprite is colliding with the second.
 
         :param first: A sprite or view
-        :type first: :class:`Sprite <spyral.Sprite>` or a 
+        :type first: :class:`Sprite <spyral.Sprite>` or a
                      :class:`View <spyral.View>`
         :param second: Another sprite or view
-        :type second: :class:`Sprite <spyral.Sprite>` or a 
+        :type second: :class:`Sprite <spyral.Sprite>` or a
                       :class:`View <spyral.View>`
         :returns: A ``bool``
         """
