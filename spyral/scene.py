@@ -168,7 +168,7 @@ class Scene(object):
         """
         return [n for n in self._namespaces if namespace.startswith(n)]
 
-    def _send_event_to_handler(self, event, handler, args,
+    def _send_event_to_handler(self, event, type, handler, args,
                                kwargs, priority, dynamic):
         """
         Internal method to dispatch events to their handlers.
@@ -182,9 +182,9 @@ class Scene(object):
             else:
                 if default != fillval:
                     return default
-                raise TypeError("Handler expects an argument of named"
+                raise TypeError("Handler expects an argument named "
                                 "%s, %s does not have that." %
-                                (arg, str(event)))
+                                (arg, str(type)))
         if dynamic is True:
             h = handler
             handler = self
@@ -235,7 +235,7 @@ class Scene(object):
                                             for namespace
                                             in self._get_namespaces(type))
         for handler_info in handlers:
-            if self._send_event_to_handler(event, *handler_info):
+            if self._send_event_to_handler(event, type, *handler_info):
                 break
 
     def _handle_events(self):
