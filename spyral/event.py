@@ -307,6 +307,7 @@ def _pygame_to_spyral(event):
         except IndexError:
             m = str(event.button)
         event_type += '.' + m
+        e.pos = spyral.Vec2D(e.pos) / spyral.director.get_scene()._scale
 
     return (event_type, e)
 
