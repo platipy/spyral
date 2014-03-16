@@ -60,6 +60,7 @@ class Scene(object):
         display_size = self._surface.get_size()
         self._background = spyral.image._new_spyral_surface(display_size)
         self._background.fill((255, 255, 255))
+        self._background_version = 0
         self._surface.blit(self._background, (0, 0))
         self._blits = []
         self._dirty_rects = []
@@ -448,6 +449,7 @@ class Scene(object):
 
     def _set_background(self, image):
         self._background_image = image
+        self._background_version = image._version
         surface = image._surf
         scene = spyral._get_executing_scene()
         if surface.get_size() != self.size:
@@ -549,6 +551,10 @@ class Scene(object):
         # This function sits in a potential hot loop
         # For that reason, some . lookups are optimized away
         screen = self._surface
+        
+        # First we test if the background has been updated
+        if self._background_version != self._background_image._version:
+            self._set_background(self._background_image)
 
         # Let's finish up any rendering from the previous frame
         # First, we put the background over all blits

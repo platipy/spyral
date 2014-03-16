@@ -76,7 +76,7 @@ def _init():
         pygame.MOUSEBUTTONUP: ('pos', 'button'),
         pygame.MOUSEBUTTONDOWN: ('pos', 'button'),
         pygame.VIDEORESIZE: ('size', 'w', 'h'),
-        pygame.VIDEOEXPOSE: ('none'),
+        pygame.VIDEOEXPOSE: tuple(),
     }
     _TYPE_TO_TYPE = {
         pygame.QUIT: "system.quit",
