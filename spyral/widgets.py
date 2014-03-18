@@ -308,7 +308,7 @@ class ButtonWidget(MultiStateWidget):
         pressed.
         """
         if event.key in (spyral.keys.enter, spyral.keys.space):
-            self.handle_mouse_down(event)
+            self._handle_mouse_down(event)
 
     def _handle_key_up(self, event):
         """
@@ -316,7 +316,7 @@ class ButtonWidget(MultiStateWidget):
         released.
         """
         if event.key in (spyral.keys.enter, spyral.keys.space):
-            self.handle_mouse_up(event)
+            self._handle_mouse_up(event)
 
     def __stylize__(self, properties):
         """

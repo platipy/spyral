@@ -710,10 +710,9 @@ class Scene(object):
 
     def _warp_collision_box(self, box):
         """
-        Modify the given collision box according to this Scene's scaling, and
-        then finalize it.
+        Finalize the collision box. Don't apply scaling, because that's only
+        for external rendering purposes.
         """
-        box.apply_scale(self._scale)
         box.finalize()
         return box
 
