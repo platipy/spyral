@@ -21,6 +21,9 @@ class Game(spyral.Scene):
             okay = spyral.widgets.Button("Okay Button")
         my_form = RegisterForm(self)
         my_form.focus()
+        
+        # Widgets can be accessed by name.
+        my_form.name.pos = (50, 50)
 
         def test_print(event):
             if event.value == "down":
