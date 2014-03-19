@@ -6,10 +6,22 @@ import operator
 import greenlet
 import inspect
 import sys
+import types
 from itertools import chain
 from layertree import _LayerTree
 from collections import defaultdict
 from weakref import ref as _wref
+from weakmethod import WeakMethodBound
+
+def _has_value(obj, collect):
+    for item in collect:
+        if obj is item:
+            return True
+        elif isinstance(item, dict) and obj in item.values():
+            return True
+        elif isinstance(item, tuple) and obj in item:
+            return True
+    return False
 
 class Scene(object):
     """
@@ -251,6 +263,18 @@ class Scene(object):
                 self._handle_event(type, event)
             self._events = self._pending
             self._pending = []
+    
+    def _unregister_sprite_events(self, sprite):
+        for name, handlers in self._handlers.items():
+            self._handlers[name] = [h for h in handlers
+                                        if (isinstance(h[0], WeakMethodBound)
+                                                and h[0].weak_object_ref() is not sprite)
+                                        or (isinstance(h[0], types.FunctionType)
+                                                and (not h[0].__closure__ 
+                                                        or not _has_value(sprite, [c.cell_contents for c in h[0].__closure__])))
+                                        or (isinstance(h[0], types.BuiltinFunctionType))]
+            if not self._handlers[name]:
+                del self._handlers[name]
 
     def _unregister(self, event_namespace, handler):
         """
@@ -493,6 +517,7 @@ class Scene(object):
             del self._collision_boxes[sprite]
         for view in self._invalidating_views.keys():
             self._invalidating_views[view].discard(sprite)
+        self._unregister_sprite_events(sprite)
 
     def _kill_view(self, view):
         """

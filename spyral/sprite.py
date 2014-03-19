@@ -517,8 +517,8 @@ class Sprite(object):
         memory if there are other references to it; if you need to do that,
         remember to ``del`` the reference to it.
         """
-        spyral.event.unregister("director.render", self._draw,
-                                scene=self._scene())
+       # spyral.event.unregister("director.render", self._draw,
+         #                       scene=self._scene())
         self._scene()._unregister_sprite(self)
         self._scene()._remove_static_blit(self)
         self._parent()._remove_child(self)
