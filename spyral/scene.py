@@ -267,12 +267,8 @@ class Scene(object):
     def _unregister_sprite_events(self, sprite):
         for name, handlers in self._handlers.items():
             self._handlers[name] = [h for h in handlers
-                                        if (isinstance(h[0], WeakMethodBound)
-                                                and h[0].weak_object_ref() is not sprite)
-                                        or (isinstance(h[0], types.FunctionType)
-                                                and (not h[0].__closure__ 
-                                                        or not _has_value(sprite, [c.cell_contents for c in h[0].__closure__])))
-                                        or (isinstance(h[0], types.BuiltinFunctionType))]
+                                        if (not isinstance(h[0], WeakMethodBound)
+                                            or h[0].weak_object_ref() is not sprite)]
             if not self._handlers[name]:
                 del self._handlers[name]
 
@@ -290,7 +286,12 @@ class Scene(object):
             event_namespace = event_namespace[:-2]
         self._handlers[event_namespace] = [h for h
                                              in self._handlers[event_namespace]
-                                             if h[0].func is not handler.im_func or h[0].weak_object_ref() is not handler.im_self]
+                                             if ((not isinstance(h[0], WeakMethodBound) and handler != h[0])
+                                             or (isinstance(h[0], WeakMethodBound)
+                                                and ((h[0].func is not handler.im_func) 
+                                                or (h[0].weak_object_ref() is not handler.im_self))))]
+        if not self._handlers[event_namespace]:
+            del self._handlers[event_namespace]
 
     def _clear_namespace(self, namespace):
         """
@@ -303,7 +304,7 @@ class Scene(object):
             namespace = namespace[:-2]
         ns = [n for n in self._namespaces if n.startswith(namespace)]
         for namespace in ns:
-            self._handlers[namespace] = []
+            del self._handlers[namespace]
 
     def _clear_all_events(self):
         """
