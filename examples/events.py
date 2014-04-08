@@ -12,6 +12,7 @@ if __name__ == "__main__":
     spyral.director.init(resolution)
 
     my_scene = spyral.Scene(resolution)
+    my_scene.background = spyral.Image(size=resolution).fill((0,0,0))
     my_sprite = spyral.Sprite(my_scene)
     my_sprite.image = spyral.Image(size=(50,50))
 

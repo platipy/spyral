@@ -45,6 +45,7 @@ class Game(spyral.Scene):
     """
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
+        self.background = spyral.Image(size=SIZE).fill((255,255,255))
 
         text = GuidedText(self, "DejaVuSans.ttf", "ABCDEFGHIJKLM", self.height * 1. / 8)
         text = GuidedText(self, "DejaVuSans.ttf", "NOPQRSTUVWXYZ", self.height * 2. / 8)

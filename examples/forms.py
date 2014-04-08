@@ -8,9 +8,13 @@ from functools import partial
 
 SIZE = (640, 480)
 
+def make_box(color):
+    return spyral.Image(size=(32,32)).fill(color)
+
 class Game(spyral.Scene):
     def __init__(self):
         spyral.Scene.__init__(self)
+        self.add_style_function("make_box", make_box)
         self.load_style("style.spys")
 
         class RegisterForm(spyral.Form):

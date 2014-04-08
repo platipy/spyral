@@ -15,6 +15,7 @@ class Game(spyral.Scene):
     """
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
+        self.background = spyral.Image(size=SIZE).fill(BG_COLOR)
         spyral.event.register("system.quit", sys.exit)
 
 if __name__ == "__main__":
