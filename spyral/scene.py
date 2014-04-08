@@ -3,10 +3,17 @@ import spyral
 import pygame
 import time
 import operator
-import greenlet
 import inspect
 import sys
 import types
+try:
+    import greenlet
+    import fake_greenlet
+    _GREENLETS_AVAILABLE = True
+except ImportError:
+    spyral.exceptions.actors_not_available_warning()
+    _GREENLETS_AVAILABLE = False
+    
 from itertools import chain
 from layertree import _LayerTree
 from collections import defaultdict
@@ -93,8 +100,9 @@ class Scene(object):
                               scene=self)
         spyral.event.register('director.update', self._handle_events,
                               scene=self)
-        spyral.event.register('director.update', self._run_actors, ('delta',),
-                              scene=self)
+        if _GREENLETS_AVAILABLE:
+            spyral.event.register('director.update', self._run_actors, 
+                                  ('delta',), scene=self)
         spyral.event.register('spyral.internal.view.changed',
                               self._invalidate_views, scene=self)
 
