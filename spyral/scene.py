@@ -8,7 +8,6 @@ import sys
 import types
 try:
     import greenlet
-    import fake_greenlet
     _GREENLETS_AVAILABLE = True
 except ImportError:
     spyral.exceptions.actors_not_available_warning()
