@@ -35,7 +35,7 @@ setup(
     version=package_version,
     author='Platipy Project',
     author_email='platipy@platipy.org',
-    install_requires=['setuptools', 'pygame>=1.8', 'parsley', 'greenlet'],
+    install_requires=['setuptools', 'parsley', 'greenlet'],
     packages=['spyral'],
     description='A Python library for game development',
     long_description=open('README.rst', 'r').read(),
