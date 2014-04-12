@@ -4,6 +4,20 @@ Spyral
 
 Spyral is a library/engine for developing 2D games in Python 2.X, with a focus in rapid development and clean design. Any system that runs Pygame should be able to run Spyral. Instead of ``import pygame``, you'll just use ``import spyral`` instead.
 
+What does Spyral offer?
+-----------------------
+
+* **Pythonic interface** : We tried to make things fun and easy for you, the developer.
+* **Scenes and Sprites** : Scenes are stack-based containers for Sprites that make it easy to structure your game between different screens and levels.
+* **Views** : Easily manipulate visual properties of collections of Sprites at the same time.
+* **Improved support for Images** : No more fussing with Surfaces, just create Images (with a fluent interface!) and assign them.
+* **Animations** : Animate properties of Sprites like the position, the image, visibility, or anything you need!
+* **Event handling** : A sophisticated event delegator let's you register symbolic event names with functions, greatly enhancing the clarity of your code.
+* **Forms** : 
+* Plus other goodies like Collision Handling, Layering, Game Clocks, and more!
+* Concurrency (Actors)
+* Styling
+
 Pre-requisites
 --------------
 
