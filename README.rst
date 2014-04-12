@@ -20,8 +20,10 @@ Examples
 --------
 
 * `skel.py <https://github.com/platipy/spyral/blob/master/examples/skel.py>`_ : A simple starting point for a new Spyral-based program, with a custom Scene. If you're not developing for the XO, this is a good starting point.
-* 
-* `view.py <https://github.com/platipy/spyral/blob/master/examples/view.py>`_ : A walkthrough demonstration of the functionality of Views, which allow Sprites to be manipulated in groups. Use ``Space`` to walk through the steps.
+* `concurrent.py <https://github.com/platipy/spyral/blob/master/examples/concurrent.py>`_ : Demonstration of the excellent Actors mixin, which allows quick and easy concurrency (requires greenlets).
+* `collisions.py <https://github.com/platipy/spyral/blob/master/examples/collisions.py>`_ : Demonstration of two objects bouncing off each other.
+* `animations.py <https://github.com/platipy/spyral/blob/master/examples/animations.py>`_ : Demonstration of the various kinds of Animations supported by Spyral. Use ``Space`` to walk through the steps.
+* `view.py <https://github.com/platipy/spyral/blob/master/examples/view.py>`_ : Demonstration of the functionality of Views, which allow Sprites to be manipulated in groups. Use ``Space`` to walk through the steps.
 * `minimal.py <https://github.com/platipy/spyral/blob/master/examples/minimal.py>`_ : The simplest possible Spyral program with no custom functionality. Not recommended, simply here to show off the simplicity.
 
 Known Bugs
