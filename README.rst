@@ -2,7 +2,7 @@
 Spyral
 ======
 
-Spyral is a library/engine for developing 2D games in Python 2.X, with a focus in rapid development and clean design. Any system that runs Pygame should be able to run Spyral. Instead of ``import pygame``, you'll just use ``import spyral`` instead.
+Spyral is a library/engine for developing 2D games in Python 2.X, with a focus on rapid development and clean design. Any system that runs Pygame should be able to run Spyral. Instead of ``import pygame``, you'll just use ``import spyral`` instead.
 
 What does Spyral offer?
 -----------------------
