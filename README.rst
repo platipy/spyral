@@ -50,5 +50,3 @@ Known Bugs
 ----------
 
 Check out the `tracked issues on github <https://github.com/platipy/spyral/issues?state=open>`_ or the `Open Issues <http://platipy.readthedocs.org/en/latest/openproblems.html>`_ on Platipy for a listing of the things still needed.
-
-* Not compliant with 3.x (XO laptops use Python 2.5, so we don't target 3.x).
