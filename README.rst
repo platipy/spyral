@@ -16,10 +16,15 @@ Using Spyral on the XO Laptop
 
 Spyral was specifically designed for developing XO laptop games. Spyral's main source of documentation can be found at the Platipy project, which documents Spyral in the context of a university course for which it was developed. `Visit the Platipy Project <http://platipy.org>`_
 
-Using Spyral Elsewhere
-----------------------
+Examples
+--------
 
-A simple `Skeleton <https://github.com/platipy/spyral/blob/master/examples/skel.py>`_ , along with many other `examples <https://github.com/platipy/spyral/tree/master/examples>`_ are available.
+`**skel.py** <https://github.com/platipy/spyral/blob/master/examples/skel.py>`_ : A simple starting point for a new Spyral-based program, with a custom Scene. If you're not developing for the XO, this is a good starting point.
+`**.py** <>`_ : 
+`**view.py** <https://github.com/platipy/spyral/blob/master/examples/view.py>`_ : A walkthrough demonstration of the functionality of Views, which allow Sprites to be manipulated in groups. Use ``Space`` to walk through the steps.
+`**.py** <>`_ : 
+`**.py** <>`_ : 
+`**minimal.py** <https://github.com/platipy/spyral/blob/master/examples/minimal.py>`_ : The simplest possible Spyral program with no custom functionality. Not recommended, simply here to show off the simplicity.
 
 Known Bugs
 ----------
