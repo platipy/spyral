@@ -19,12 +19,12 @@ Spyral was specifically designed for developing XO laptop games. Spyral's main s
 Examples
 --------
 
-`**skel.py** <https://github.com/platipy/spyral/blob/master/examples/skel.py>`_ : A simple starting point for a new Spyral-based program, with a custom Scene. If you're not developing for the XO, this is a good starting point.
-`**.py** <>`_ : 
-`**view.py** <https://github.com/platipy/spyral/blob/master/examples/view.py>`_ : A walkthrough demonstration of the functionality of Views, which allow Sprites to be manipulated in groups. Use ``Space`` to walk through the steps.
-`**.py** <>`_ : 
-`**.py** <>`_ : 
-`**minimal.py** <https://github.com/platipy/spyral/blob/master/examples/minimal.py>`_ : The simplest possible Spyral program with no custom functionality. Not recommended, simply here to show off the simplicity.
+* `**skel.py** <https://github.com/platipy/spyral/blob/master/examples/skel.py>`_ : A simple starting point for a new Spyral-based program, with a custom Scene. If you're not developing for the XO, this is a good starting point.
+* `**.py** <>`_ : 
+* `**view.py** <https://github.com/platipy/spyral/blob/master/examples/view.py>`_ : A walkthrough demonstration of the functionality of Views, which allow Sprites to be manipulated in groups. Use ``Space`` to walk through the steps.
+* `**.py** <>`_ : 
+* `**.py** <>`_ : 
+* `**minimal.py** <https://github.com/platipy/spyral/blob/master/examples/minimal.py>`_ : The simplest possible Spyral program with no custom functionality. Not recommended, simply here to show off the simplicity.
 
 Known Bugs
 ----------
