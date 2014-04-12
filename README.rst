@@ -29,7 +29,7 @@ Pre-requisites
 Using Spyral on the XO Laptop
 -----------------------------
 
-Spyral was specifically designed for developing XO laptop games. Spyral's main source of documentation can be found at the Platipy project, which documents Spyral in the context of a university course for which it was developed. `Visit the Platipy Project <http://platipy.org>`_
+Spyral was specifically designed for developing `XO laptop <http://laptop.org/en/laptop/>`_ games. Spyral's main source of documentation can be found at the Platipy project, which documents Spyral in the context of a university course for which it was developed. `Visit the Platipy Project <http://platipy.org>`_
 
 Examples
 --------
