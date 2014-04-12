@@ -9,14 +9,15 @@ What does Spyral offer?
 
 * **Scenes and Sprites** : Scenes are stack-based containers for Sprites that make it easy to structure your game between different screens and levels.
 * **Views** : Easily manipulate visual properties of collections of Sprites at the same time.
+* **Rects and Vec2Ds** : Convenient container classes for managing two-tuples (think points) and four-tuples (think rectangles).
 * **Improved support for Images** : No more fussing with Surfaces, just create Images (with a fluent interface!) and assign them.
 * **Animations** : Animate properties of Sprites like the position, the image, visibility, or anything you need!
 * **Event handling** : A sophisticated event delegator let's you register symbolic event names with functions, greatly enhancing the clarity of your code.
-* **Forms** : Need a button? Text input? Sophisticated tabbing? All our batteries are included!
+* **Forms and Widgets** : Need a button? Text input? Sophisticated tabbing? All our batteries are included!
 * **Concurrency (Actors)** : Simple but incredibly powerful parallelism with a single MixIn - give each object it's own ``main`` function!
 * **Styling** : Separate out content from your code with Styling.
 * **Pythonic interface** : We tried to make things fun and easy for you, the developer.
-* Plus other goodies like Collision Handling, Layering, Game Clocks, and more!
+* Plus other goodies like **Collision Handling**, **Layering**, **Game Clocks**, and more!
 
 Pre-requisites
 --------------
