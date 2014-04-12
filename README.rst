@@ -20,7 +20,12 @@ Examples
 --------
 
 * `skel.py <https://github.com/platipy/spyral/blob/master/examples/skel.py>`_ : A simple starting point for a new Spyral-based program, with a custom Scene. If you're not developing for the XO, this is a good starting point.
-* `concurrent.py <https://github.com/platipy/spyral/blob/master/examples/concurrent.py>`_ : Demonstration of the excellent Actors mixin, which allows quick and easy concurrency (requires greenlets).
+* `events.py <https://github.com/platipy/spyral/blob/master/examples/events.py>`_ : Demonstration of registering keyboard and mouse events.
+* `fonts.py <https://github.com/platipy/spyral/blob/master/examples/fonts.py>`_ : Demonstration of a couple properties of fonts, and how to get text on the screen.
+* `forms.py <https://github.com/platipy/spyral/blob/master/examples/forms.py>`_ : Demonstration of the Forms feature, including buttons and text inputs.
+* `style.py <https://github.com/platipy/spyral/blob/master/examples/style.py>`_ : Demonstration of using Style files to separate code from content.
+* `concurrent.py <https://github.com/platipy/spyral/blob/master/examples/concurrent.py>`_ : Demonstration of the excellent Actors mixin, which allows quick and easy concurrency (requires greenlets). Press any key to step through it.
+* `cursors.py <https://github.com/platipy/spyral/blob/master/examples/cursors.py>`_ : Demosntration of the cursors presently supported in Spyral through Pygame. Press the left mouse button to step through them.
 * `collisions.py <https://github.com/platipy/spyral/blob/master/examples/collisions.py>`_ : Demonstration of two objects bouncing off each other.
 * `animations.py <https://github.com/platipy/spyral/blob/master/examples/animations.py>`_ : Demonstration of the various kinds of Animations supported by Spyral. Use ``Space`` to walk through the steps.
 * `view.py <https://github.com/platipy/spyral/blob/master/examples/view.py>`_ : Demonstration of the functionality of Views, which allow Sprites to be manipulated in groups. Use ``Space`` to walk through the steps.
