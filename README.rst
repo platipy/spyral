@@ -4,6 +4,8 @@ Spyral
 
 Spyral is a library/engine for developing 2D games in Python 2.X, with a focus on rapid development and clean design. Any system that runs Pygame should be able to run Spyral. Instead of ``import pygame``, you'll just use ``import spyral`` instead.
 
+Spyral was specifically designed for developing `XO laptop <http://laptop.org/en/laptop/>`_ games. Spyral's main source of documentation can be found at the Platipy project, which documents Spyral in the context of a university course for which it was developed. `Visit the Platipy Project <http://platipy.org>`_
+
 What does Spyral offer?
 -----------------------
 
@@ -25,11 +27,6 @@ Pre-requisites
 * `Pygame <http://www.pygame.org/download.shtml>`_
 * `Parsley <https://pypi.python.org/pypi/Parsley>`_
 * `Greenlets <https://pypi.python.org/pypi/greenlet>`_ (optional, if you want to use the powerful Actors feature for multi-processing)
-
-Using Spyral on the XO Laptop
------------------------------
-
-Spyral was specifically designed for developing `XO laptop <http://laptop.org/en/laptop/>`_ games. Spyral's main source of documentation can be found at the Platipy project, which documents Spyral in the context of a university course for which it was developed. `Visit the Platipy Project <http://platipy.org>`_
 
 Examples
 --------
