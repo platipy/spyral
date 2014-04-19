@@ -14,7 +14,9 @@ class BackgroundSizeError(Exception):
     pass
 class LayersAlreadySetError(Exception):
     pass
-
+class GameEndException(Exception):
+    pass
+    
 # Warnings
 class UnusedStyleWarning(Warning):
     pass

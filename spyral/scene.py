@@ -102,6 +102,9 @@ class Scene(object):
         if _GREENLETS_AVAILABLE:
             spyral.event.register('director.update', self._run_actors, 
                                   ('delta',), scene=self)
+        spyral.event.register('system.focus_change', self.redraw)
+        spyral.event.register('system.video_resize', self.redraw)
+        spyral.event.register('system.video_expose', self.redraw)
         spyral.event.register('spyral.internal.view.changed',
                               self._invalidate_views, scene=self)
 
