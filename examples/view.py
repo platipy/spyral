@@ -5,7 +5,6 @@ except NameError:
 import spyral
 from spyral.animation import Animation, DelayAnimation
 import spyral.easing as easing
-import sys
 import math
 import itertools
 
@@ -157,10 +156,10 @@ class Game(spyral.Scene):
             try:
                 next(tests)
             except StopIteration:
-                sys.exit()
+                spyral.director.quit()
         spyral.event.register("input.keyboard.down.space", next_test)
         #self.register("director.update", )
-        spyral.event.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", spyral.director.quit)
 
 if __name__ == "__main__":
     spyral.director.init(SIZE)

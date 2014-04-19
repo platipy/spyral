@@ -3,7 +3,6 @@ try:
 except NameError:
     pass
 import spyral
-import sys
 
 class CustomSprite(spyral.Sprite):
     def __init__(self, scene, style):
@@ -23,7 +22,7 @@ class Game(spyral.Scene):
         CustomSprite(self, "Blue")
         CustomSprite(self, "Green")
 
-        spyral.event.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", spyral.director.quit)
 
 
 if __name__ == "__main__":

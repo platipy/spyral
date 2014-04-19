@@ -3,7 +3,6 @@ try:
 except NameError:
     pass
 import spyral
-import sys
 from functools import partial
 
 SIZE = (640, 480)
@@ -33,7 +32,7 @@ class Game(spyral.Scene):
             if event.value == "down":
                 print "Pressed!", event.widget.name
 
-        spyral.event.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", spyral.director.quit)
         spyral.event.register("form.RegisterForm.okay.changed", test_print)
 
 if __name__ == "__main__":

@@ -3,7 +3,6 @@ try:
 except NameError:
     pass
 import spyral
-import sys
 
 SIZE = (640, 480)
 BG_COLOR = (0, 0, 0)
@@ -35,7 +34,7 @@ class Game(spyral.Scene):
         self.right_square = Square(self, -1)
         self.right_square.pos = self.rect.midright
 
-        spyral.event.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", spyral.director.quit)
         spyral.event.register("director.update", self.update)
 
     def update(self):

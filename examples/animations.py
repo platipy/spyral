@@ -8,7 +8,6 @@ from spyral.animation import Animation, DelayAnimation
 from spyral.scene import Scene
 import spyral.easing as easing
 import math
-import sys
 
 SIZE = (640, 480)
 FONT_SIZE = 42
@@ -72,11 +71,11 @@ class AnimationExamples(Scene):
         instructions.render("n: next example  p: previous example  q: quit")
 
         # Register all event handlers
-        spyral.event.register('system.quit', sys.exit)
+        spyral.event.register('system.quit', spyral.director.quit)
         spyral.event.register('input.keyboard.down.p', self.previous)
         spyral.event.register('input.keyboard.down.n', self.next)
-        spyral.event.register('input.keyboard.down.q', sys.exit)
-        spyral.event.register('input.keyboard.down.escape', sys.exit)
+        spyral.event.register('input.keyboard.down.q', spyral.director.quit)
+        spyral.event.register('input.keyboard.down.escape', spyral.director.quit)
 
 
     def set_animation(self):

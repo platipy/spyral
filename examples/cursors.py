@@ -4,7 +4,6 @@ except NameError:
     pass
 import pygame
 import spyral
-import sys
 
 SIZE = (640, 480)
 BG_COLOR = (0, 128, 64)
@@ -23,7 +22,7 @@ class Game(spyral.Scene):
         back.fill(BG_COLOR)
         self.background = back
         self.mouse = iter(cursors) # iterator over the cursors!
-        spyral.event.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", spyral.director.quit)
         spyral.event.register("input.mouse.down.left", self.advance_mouse)
     
     def advance_mouse(self):

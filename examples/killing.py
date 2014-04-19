@@ -2,7 +2,6 @@ try:
     import _path
 except NameError:
     pass
-import sys
 import spyral
 import random
 import objgraph
@@ -26,7 +25,7 @@ class Game(spyral.Scene):
         spyral.Scene.__init__(self, SIZE)
         self.background = spyral.Image(size=SIZE).fill(BG_COLOR)
 
-        spyral.event.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", spyral.director.quit)
         spyral.event.register("input.keyboard.down.f", self.kill_sprite)
         spyral.event.register("input.keyboard.down.j", self.add_sprite)
         self.test = []
@@ -37,7 +36,7 @@ class Game(spyral.Scene):
         k.x = random.randint(0, 100)
         k.y = random.randint(0, 100)
         k.gs = global_simple
-        k.bb = lambda : sys.exit(k)
+        k.bb = lambda : spyral.director.quit
         k.gb = global_bound(k.image, k.rect, k, k, p=k.image, j=k)
         spyral.event.register("#.global.simple", k.gs)
         spyral.event.register("#.builtin.bound", k.bb)

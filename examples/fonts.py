@@ -3,7 +3,6 @@ try:
 except NameError:
     pass
 import spyral
-import sys
 
 SIZE = (640, 480)
 BG_COLOR = (0, 0, 0)
@@ -55,7 +54,7 @@ class Game(spyral.Scene):
         text = GuidedText(self, "DejaVuSans.ttf", "!@#$%^&*()_+<", self.height * 6. / 8)
         text = GuidedText(self, "DejaVuSans.ttf", ".>/?;:'\"[{]}|\\~`", self.height * 7. / 8)
 
-        spyral.event.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", spyral.director.quit)
 
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes

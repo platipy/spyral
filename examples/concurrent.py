@@ -3,7 +3,6 @@ try:
 except NameError:
     pass
 import spyral
-import sys
 import time
 
 WIDTH, HEIGHT = 600, 600
@@ -51,7 +50,7 @@ class Game(spyral.Scene):
             StupidSprite(self)
         add_new_box()
 
-        spyral.event.register('system.quit', sys.exit)
+        spyral.event.register('system.quit', spyral.director.quit)
         spyral.event.register('input.keyboard.down', add_new_box)
 
 if __name__ == "__main__":

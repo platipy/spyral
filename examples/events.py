@@ -4,7 +4,6 @@ except NameError:
     pass
 import pygame
 import spyral
-import sys
 
 resolution = (640, 480)
 
@@ -16,7 +15,7 @@ if __name__ == "__main__":
     my_sprite = spyral.Sprite(my_scene)
     my_sprite.image = spyral.Image(size=(50,50))
 
-    spyral.event.register("system.quit", sys.exit, scene=my_scene)
+    spyral.event.register("system.quit", spyral.director.quit, scene=my_scene)
 
     # Can accept the keys directly
     def key_down(key, unicode, mod):
