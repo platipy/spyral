@@ -113,28 +113,6 @@ class Game(spyral.Scene):
             self.top_view.crop_size = (10, 10)
             yield
 
-        #self.blue_block = spyral.Sprite(self)
-        #self.blue_block.image = spyral.Image(size=SMALL).fill(BLUE)
-        #self.blue_block.pos = (40, 40)
-
-        #self.green_block = spyral.Sprite(top_view)
-        #self.green_block.image = spyral.Image(size=SMALL).fill(GREEN)
-        #self.green_block.pos = (0, 10)
-
-        #self.yellow_block = spyral.Sprite(self)
-        #self.yellow_block.image = spyral.Image(size=SMALL).fill(YELLOW)
-        #self.yellow_block.pos = (0, 0)
-
-        #self.red_block.animate(go_down)
-        #blocks = {self.red_block : go_down,
-         #         self.blue_block: go_down,
-          #        self.green_block: go_down,
-           #       self.yellow_block: go_down & go_right}
-        #self.paused = itertools.cycle(blocks.keys())
-        #def advance_pauser(event):
-        #    skip = next(self.paused)
-
-
         def key_down(event):
             self.top_view.crop_height += 10
         def key_up(event):
