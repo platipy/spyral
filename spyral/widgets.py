@@ -6,6 +6,7 @@ import math
 import string
 import pygame
 from bisect import bisect_right
+from weakref import ref as _wref
 
 class BaseWidget(spyral.View):
     """
@@ -16,9 +17,17 @@ class BaseWidget(spyral.View):
     def __init__(self, form, name):
         self.__style__ = form.__class__.__name__ + '.' + name
         self.name = name
-        self.form = form
+        self._form = _wref(form)
         spyral.View.__init__(self, form)
         self.mask = spyral.Rect(self.pos, self.size)
+        
+    def _get_form(self):
+        """
+        The parent form that this Widget belongs to. Read-only.
+        """
+        return self._form()
+        
+    form = property(_get_form)
 
     def _changed(self):
         """
