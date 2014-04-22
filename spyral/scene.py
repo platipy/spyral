@@ -3,13 +3,31 @@ import spyral
 import pygame
 import time
 import operator
-import greenlet
 import inspect
 import sys
+import types
+try:
+    import greenlet
+    _GREENLETS_AVAILABLE = True
+except ImportError:
+    spyral.exceptions.actors_not_available_warning()
+    _GREENLETS_AVAILABLE = False
+    
 from itertools import chain
 from layertree import _LayerTree
 from collections import defaultdict
 from weakref import ref as _wref
+from weakmethod import WeakMethodBound
+
+def _has_value(obj, collect):
+    for item in collect:
+        if obj is item:
+            return True
+        elif isinstance(item, dict) and obj in item.values():
+            return True
+        elif isinstance(item, tuple) and obj in item:
+            return True
+    return False
 
 class Scene(object):
     """
@@ -60,6 +78,7 @@ class Scene(object):
         display_size = self._surface.get_size()
         self._background = spyral.image._new_spyral_surface(display_size)
         self._background.fill((255, 255, 255))
+        self._background_version = 0
         self._surface.blit(self._background, (0, 0))
         self._blits = []
         self._dirty_rects = []
@@ -80,8 +99,12 @@ class Scene(object):
                               scene=self)
         spyral.event.register('director.update', self._handle_events,
                               scene=self)
-        spyral.event.register('director.update', self._run_actors, ('delta',),
-                              scene=self)
+        if _GREENLETS_AVAILABLE:
+            spyral.event.register('director.update', self._run_actors, 
+                                  ('delta',), scene=self)
+        spyral.event.register('system.focus_change', self.redraw)
+        spyral.event.register('system.video_resize', self.redraw)
+        spyral.event.register('system.video_expose', self.redraw)
         spyral.event.register('spyral.internal.view.changed',
                               self._invalidate_views, scene=self)
 
@@ -166,9 +189,11 @@ class Scene(object):
         Internal method for returning all the registered namespaces that are in
         the given namespace.
         """
-        return [n for n in self._namespaces if namespace.startswith(n)]
+        return [n for n in self._namespaces if (namespace == n or
+                                        n.rsplit(".",1)[0].startswith(namespace) or
+                                        namespace.rsplit(".",1)[0].startswith(n))]
 
-    def _send_event_to_handler(self, event, handler, args,
+    def _send_event_to_handler(self, event, type, handler, args,
                                kwargs, priority, dynamic):
         """
         Internal method to dispatch events to their handlers.
@@ -182,9 +207,9 @@ class Scene(object):
             else:
                 if default != fillval:
                     return default
-                raise TypeError("Handler expects an argument of named"
+                raise TypeError("Handler expects an argument named "
                                 "%s, %s does not have that." %
-                                (arg, str(event)))
+                                (arg, str(type)))
         if dynamic is True:
             h = handler
             handler = self
@@ -235,7 +260,7 @@ class Scene(object):
                                             for namespace
                                             in self._get_namespaces(type))
         for handler_info in handlers:
-            if self._send_event_to_handler(event, *handler_info):
+            if self._send_event_to_handler(event, type, *handler_info):
                 break
 
     def _handle_events(self):
@@ -250,6 +275,14 @@ class Scene(object):
                 self._handle_event(type, event)
             self._events = self._pending
             self._pending = []
+    
+    def _unregister_sprite_events(self, sprite):
+        for name, handlers in self._handlers.items():
+            self._handlers[name] = [h for h in handlers
+                                        if (not isinstance(h[0], WeakMethodBound)
+                                            or h[0].weak_object_ref() is not sprite)]
+            if not self._handlers[name]:
+                del self._handlers[name]
 
     def _unregister(self, event_namespace, handler):
         """
@@ -265,7 +298,12 @@ class Scene(object):
             event_namespace = event_namespace[:-2]
         self._handlers[event_namespace] = [h for h
                                              in self._handlers[event_namespace]
-                                             if h[0].method != handler.method]
+                                             if ((not isinstance(h[0], WeakMethodBound) and handler != h[0])
+                                             or (isinstance(h[0], WeakMethodBound)
+                                                and ((h[0].func is not handler.im_func) 
+                                                or (h[0].weak_object_ref() is not handler.im_self))))]
+        if not self._handlers[event_namespace]:
+            del self._handlers[event_namespace]
 
     def _clear_namespace(self, namespace):
         """
@@ -278,7 +316,7 @@ class Scene(object):
             namespace = namespace[:-2]
         ns = [n for n in self._namespaces if n.startswith(namespace)]
         for namespace in ns:
-            self._handlers[namespace] = []
+            del self._handlers[namespace]
 
     def _clear_all_events(self):
         """
@@ -447,6 +485,8 @@ class Scene(object):
     rect = property(_get_rect)
 
     def _set_background(self, image):
+        self._background_image = image
+        self._background_version = image._version
         surface = image._surf
         scene = spyral._get_executing_scene()
         if surface.get_size() != self.size:
@@ -463,7 +503,7 @@ class Scene(object):
         intelligently by Spyral; it knows to only redraw portions of it rather
         than the whole thing, unlike a Sprite.
         """
-        return self._background
+        return self._background_image
 
     background = property(_get_background, _set_background)
 
@@ -490,6 +530,7 @@ class Scene(object):
             del self._collision_boxes[sprite]
         for view in self._invalidating_views.keys():
             self._invalidating_views[view].discard(sprite)
+        self._unregister_sprite_events(sprite)
 
     def _kill_view(self, view):
         """
@@ -548,6 +589,10 @@ class Scene(object):
         # This function sits in a potential hot loop
         # For that reason, some . lookups are optimized away
         screen = self._surface
+        
+        # First we test if the background has been updated
+        if self._background_version != self._background_image._version:
+            self._set_background(self._background_image)
 
         # Let's finish up any rendering from the previous frame
         # First, we put the background over all blits
@@ -703,10 +748,9 @@ class Scene(object):
 
     def _warp_collision_box(self, box):
         """
-        Modify the given collision box according to this Scene's scaling, and
-        then finalize it.
+        Finalize the collision box. Don't apply scaling, because that's only
+        for external rendering purposes.
         """
-        box.apply_scale(self._scale)
         box.finalize()
         return box
 
@@ -722,10 +766,10 @@ class Scene(object):
         Returns whether the first sprite is colliding with the second.
 
         :param first: A sprite or view
-        :type first: :class:`Sprite <spyral.Sprite>` or a 
+        :type first: :class:`Sprite <spyral.Sprite>` or a
                      :class:`View <spyral.View>`
         :param second: Another sprite or view
-        :type second: :class:`Sprite <spyral.Sprite>` or a 
+        :type second: :class:`Sprite <spyral.Sprite>` or a
                       :class:`View <spyral.View>`
         :returns: A ``bool``
         """

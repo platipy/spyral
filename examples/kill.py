@@ -4,7 +4,6 @@ except NameError:
     pass
 import objgraph
 import gc
-import sys
 import types
 from weakref import ref as _wref
 import pygame
@@ -18,9 +17,13 @@ old_sprite = None
 class Level2(spyral.Scene):
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
-        self.background = spyral.Image(size=SIZE).fill(BG_COLOR)
+        self.background = spyral.Image(size=SIZE).fill(BG_COLOR)        
+        test = Sprite(self)
+        test.image = spyral.Image(size=(32,32)).fill((255, 255, 255))
+        test.pos = (32, 32)
+        
         spyral.event.register("input.keyboard.down.j", self.check_first)
-        spyral.event.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", spyral.director.quit)
 
     def check_first(self):
         global first_scene
@@ -56,7 +59,7 @@ class Game(spyral.Scene):
         old_sprite = over
 
         self.khan = over.should_be_dead
-        spyral.event.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", spyral.director.quit)
         spyral.event.register("input.keyboard.down.k", over.should_be_dead)
         spyral.event.register("input.keyboard.down.e", over._get_mask)
         spyral.event.register("input.keyboard.down.j", self.advance)

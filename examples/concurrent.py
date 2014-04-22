@@ -3,15 +3,17 @@ try:
 except NameError:
     pass
 import spyral
-import sys
+import time
 
-SIZE = (600, 600)
+WIDTH, HEIGHT = 600, 600
+SIZE = (WIDTH, HEIGHT)
 BG_COLOR = (0, 0, 0)
 
 class DumbObject(spyral.Actor):
     def main(self, delta):
         while True:
-            print "1", self.wait()
+            print "Awake!"
+            self.wait()
 
 class StupidSprite(spyral.Sprite, spyral.Actor):
     def __init__(self, scene):
@@ -48,7 +50,7 @@ class Game(spyral.Scene):
             StupidSprite(self)
         add_new_box()
 
-        spyral.event.register('system.quit', sys.exit)
+        spyral.event.register('system.quit', spyral.director.quit)
         spyral.event.register('input.keyboard.down', add_new_box)
 
 if __name__ == "__main__":

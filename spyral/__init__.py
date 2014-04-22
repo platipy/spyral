@@ -2,7 +2,7 @@
 Spyral, an awesome library for making games.
 """
 
-__version__ = '0.3'
+__version__ = '0.9.7'
 __license__ = 'MIT'
 __author__ = 'Robert Deaton'
 
@@ -21,6 +21,7 @@ ALL_BY_MODULE = {
     'spyral.vector' : ['Vec2D'],
     'spyral.rect' : ['Rect'],
     'spyral.animation' : ['Animation'],
+    'spyral.director' : ['quit'],
     'spyral.core' : ['_init', '_quit', '_get_executing_scene'],
     'spyral.font' : ['Font'],
     'spyral.clock' : ['GameClock'],

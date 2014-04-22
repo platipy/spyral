@@ -174,9 +174,9 @@ class Image(object):
 
     def __init__(self, filename=None, size=None):
         if size is not None and filename is not None:
-            raise ValueError("Must specify exactly one of size and filename.")
+            raise ValueError("Must specify exactly one of size and filename. See http://platipy.org/en/latest/spyral_docs.html#spyral.image.Image")
         if size is None and filename is None:
-            raise ValueError("Must specify exactly one of size and filename.")
+            raise ValueError("Must specify exactly one of size and filename. See http://platipy.org/en/latest/spyral_docs.html#spyral.image.Image")
 
         if size is not None:
             self._surf = _new_spyral_surface(size)

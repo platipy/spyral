@@ -1,25 +1,28 @@
-    try:
+try:
     import _path
 except NameError:
     pass
 import spyral
-import sys
 
 class CustomSprite(spyral.Sprite):
     def __init__(self, scene, style):
         self.__style__ = style
         spyral.Sprite.__init__(self, scene)
 
+def make_box(color):
+    return spyral.Image(size=(32,32)).fill(color)
+
 class Game(spyral.Scene):
     def __init__(self):
         spyral.Scene.__init__(self)
+        self.add_style_function("make_box", make_box)
         self.load_style("style.spys")
 
         CustomSprite(self, "Red")
         CustomSprite(self, "Blue")
         CustomSprite(self, "Green")
 
-        spyral.event.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", spyral.director.quit)
 
 
 if __name__ == "__main__":

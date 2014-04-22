@@ -29,7 +29,8 @@ class WeakMethodBound(object):
 
 class WeakMethodFree(object):
     """
-    Holds a weak reference to an unbound function.
+    Holds a weak reference to an unbound function. Included only for
+    completeness.
 
     .. attribute::method
 

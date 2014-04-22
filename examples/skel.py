@@ -3,7 +3,6 @@ try:
 except NameError:
     pass
 import spyral
-import sys
 
 SIZE = (640, 480)
 BG_COLOR = (0, 0, 0)
@@ -15,7 +14,8 @@ class Game(spyral.Scene):
     """
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
-        spyral.event.register("system.quit", sys.exit)
+        self.background = spyral.Image(size=SIZE).fill(BG_COLOR)
+        spyral.event.register("system.quit", spyral.director.quit)
 
 if __name__ == "__main__":
     spyral.director.init(SIZE) # the director is the manager for your scenes

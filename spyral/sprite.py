@@ -158,7 +158,7 @@ class Sprite(object):
         """
         Performs a step of the given animation, setting any properties that will
         change as a result of the animation (e.g., x position).
-        """
+        """        
         values = animation.evaluate(self, progress)
         for property in animation.properties:
             if property in values:
@@ -517,8 +517,6 @@ class Sprite(object):
         memory if there are other references to it; if you need to do that,
         remember to ``del`` the reference to it.
         """
-        spyral.event.unregister("director.render", self._draw,
-                                scene=self._scene())
         self._scene()._unregister_sprite(self)
         self._scene()._remove_static_blit(self)
         self._parent()._remove_child(self)
@@ -534,7 +532,7 @@ class Sprite(object):
         for a in self._animations:
             if a.properties.intersection(animation.properties):
                 raise ValueError("Cannot animate on propety %s twice" %
-                                 animation.property)
+                                 (animation.property,))
         if len(self._animations) == 0:
             spyral.event.register('director.update',
                                   self._run_animations,
@@ -544,7 +542,9 @@ class Sprite(object):
         self._progress[animation] = 0
         self._evaluate(animation, 0.0)
         e = spyral.Event(animation=animation, sprite=self)
-        spyral.event.handle("sprites.%s.animation.start", e)
+        spyral.event.handle("%s.%s.animation.start" % (self.__class__.__name__,
+                                                       animation.property),
+                            e)
 
     def stop_animation(self, animation):
         """
@@ -556,12 +556,14 @@ class Sprite(object):
         if animation in self._animations:
             self._animations.remove(animation)
             del self._progress[animation]
+            e = spyral.Event(animation=animation, sprite=self)
+            spyral.event.handle("%s.%s.animation.end" % (self.__class__.__name__,
+                                                         animation.property),
+                                e)
             if len(self._animations) == 0:
                 spyral.event.unregister('director.update',
                                         self._run_animations,
                                         scene=self._scene())
-                e = spyral.Event(animation=animation, sprite=self)
-                spyral.event.handle("sprites.%s.animation.end", e)
 
 
     def stop_all_animations(self):
@@ -582,7 +584,7 @@ class Sprite(object):
         :returns: ``bool`` indicating whether this sprite is colliding with the
                   other sprite.
         """
-        return self._scene().collide_sprite(self, other)
+        return self._scene().collide_sprites(self, other)
 
     def collide_point(self, point):
         """

@@ -27,6 +27,7 @@ def _quit():
     pygame.quit()
     spyral.director._stack = []
     spyral.director._initialized = False
+    raise spyral.exceptions.GameEndException("The game has ended correctly.")
 
 def _get_executing_scene():
     """

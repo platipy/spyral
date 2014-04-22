@@ -1,5 +1,5 @@
 """This module contains functions and classes for creating and issuing events.
-For a list of the events that are built into Spyral, check the 
+For a list of the events that are built into Spyral, check the
 :ref:`Event List<ref.events>`.
 
     .. attribute:: keys
@@ -7,7 +7,7 @@ For a list of the events that are built into Spyral, check the
         A special attribute for accessing the constants associated with a given
         key. For instance, ``spyral.keys.down`` and ``spyral.keys.f``. This is
         useful for testing for keyboard events. A complete list of all the key
-        constants can be found in the 
+        constants can be found in the
         :ref:`Keyboard Keys <ref.keys>` appendix.
 
     .. attribute:: mods
@@ -16,7 +16,7 @@ For a list of the events that are built into Spyral, check the
         mod key. For instance, ``spyral.mods.lshift`` (left shift) and
         ``spyral.mods.ralt`` (Right alt). This is useful for testing for keyboard
         events. A complete list of all the key
-        constants can be found in the 
+        constants can be found in the
         :ref:`Keyboard Modifiers <ref.mods>` appendix.
 
 """
@@ -43,7 +43,7 @@ _TYPE_TO_TYPE = None
 
 class Event(object):
     """
-    A class for building for attaching data to an event. 
+    A class for building for attaching data to an event.
     Keyword arguments will be named attributes of the Event when it is passed
     into :func:`queue <spyral.event.queue>`::
 
@@ -76,7 +76,7 @@ def _init():
         pygame.MOUSEBUTTONUP: ('pos', 'button'),
         pygame.MOUSEBUTTONDOWN: ('pos', 'button'),
         pygame.VIDEORESIZE: ('size', 'w', 'h'),
-        pygame.VIDEOEXPOSE: ('none'),
+        pygame.VIDEOEXPOSE: tuple(),
     }
     _TYPE_TO_TYPE = {
         pygame.QUIT: "system.quit",
@@ -267,8 +267,6 @@ def unregister(event_namespace, handler, scene=None):
     """
     if scene is None:
         scene = spyral._get_executing_scene()
-    if not isinstance(handler, str):
-        handler = WeakMethod(handler)
     scene._unregister(event_namespace, handler)
 
 def clear_namespace(namespace, scene=None):
@@ -309,6 +307,8 @@ def _pygame_to_spyral(event):
         except IndexError:
             m = str(event.button)
         event_type += '.' + m
+    if event_type.startswith('input.mouse'):
+        e.pos = spyral.Vec2D(e.pos) / spyral.director.get_scene()._scale
 
     return (event_type, e)
 
@@ -449,7 +449,7 @@ class Keys(object):
                                  'resources/default_key_mappings.txt')
         self._fix_bad_names([("return", "enter"),
                              ("break", "brk")])
-     
+
     def _fix_bad_names(self, renames):
         """
         Used to replace any binding names with non-python keywords.
@@ -457,7 +457,7 @@ class Keys(object):
         for original, new in renames:
             setattr(self, new, getattr(self, original))
             delattr(self, original)
-        
+
 
     def load_keys_from_file(self, filename):
         fp = open(filename)

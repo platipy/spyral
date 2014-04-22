@@ -8,6 +8,19 @@ CustomSprite {
 	angle: 3.14/4
 }
 
+Red {
+    image : make_box((255,0,0))
+    pos : (100, 100)
+}
+Blue {
+    image : make_box((0,0,255))
+    pos : (200, 200)
+}
+Green {
+    image : make_box((0,255,0))
+    pos : (300, 300)
+}
+
 RegisterForm.password {
 	pos: (30, 30)
 }

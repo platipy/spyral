@@ -5,7 +5,6 @@ except NameError:
 import spyral
 from spyral.animation import Animation, DelayAnimation
 import spyral.easing as easing
-import sys
 import math
 import itertools
 
@@ -44,11 +43,11 @@ class Game(spyral.Scene):
     def __init__(self):
         spyral.Scene.__init__(self, SIZE)
         self.background = spyral.Image(size=SIZE).fill(BG_COLOR)
-        screen = self.background.rect
+        screen = self.rect
 
         debug = spyral.DebugText(self, "1) Red square in middle of room", BLUE)
         debug.anchor = 'midbottom'
-        debug.pos = self.background.rect.midbottom
+        debug.pos = self.rect.midbottom
 
         self.top_view = spyral.View(self)
         self.top_view.label = "TopV"
@@ -114,28 +113,6 @@ class Game(spyral.Scene):
             self.top_view.crop_size = (10, 10)
             yield
 
-        #self.blue_block = spyral.Sprite(self)
-        #self.blue_block.image = spyral.Image(size=SMALL).fill(BLUE)
-        #self.blue_block.pos = (40, 40)
-
-        #self.green_block = spyral.Sprite(top_view)
-        #self.green_block.image = spyral.Image(size=SMALL).fill(GREEN)
-        #self.green_block.pos = (0, 10)
-
-        #self.yellow_block = spyral.Sprite(self)
-        #self.yellow_block.image = spyral.Image(size=SMALL).fill(YELLOW)
-        #self.yellow_block.pos = (0, 0)
-
-        #self.red_block.animate(go_down)
-        #blocks = {self.red_block : go_down,
-         #         self.blue_block: go_down,
-          #        self.green_block: go_down,
-           #       self.yellow_block: go_down & go_right}
-        #self.paused = itertools.cycle(blocks.keys())
-        #def advance_pauser(event):
-        #    skip = next(self.paused)
-
-
         def key_down(event):
             self.top_view.crop_height += 10
         def key_up(event):
@@ -157,10 +134,10 @@ class Game(spyral.Scene):
             try:
                 next(tests)
             except StopIteration:
-                sys.exit()
+                spyral.director.quit()
         spyral.event.register("input.keyboard.down.space", next_test)
         #self.register("director.update", )
-        spyral.event.register("system.quit", sys.exit)
+        spyral.event.register("system.quit", spyral.director.quit)
 
 if __name__ == "__main__":
     spyral.director.init(SIZE)
