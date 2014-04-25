@@ -20,7 +20,7 @@ ALL_BY_MODULE = {
     'spyral.image' : ['Image'],
     'spyral.vector' : ['Vec2D'],
     'spyral.rect' : ['Rect'],
-    'spyral.animation' : ['Animation'],
+    'spyral.animation' : ['Animation', 'DelayAnimation'],
     'spyral.director' : ['quit'],
     'spyral.core' : ['_init', '_quit', '_get_executing_scene'],
     'spyral.font' : ['Font'],
