@@ -23,7 +23,7 @@ class Actor(object):
     """
     def __init__(self):
         self._greenlet = greenlet.greenlet(self.main)
-        scene = spyral._get_executing_scene()
+        scene = spyral.director.get_scene()
         scene._register_actor(self, self._greenlet)
 
     def wait(self, delta=0):
