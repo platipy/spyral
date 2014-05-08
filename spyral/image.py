@@ -110,13 +110,13 @@ def render_nine_slice(image, size):
 
     topleft = surf.subsurface(pygame.Rect((0, 0), ps))
     left = surf.subsurface(pygame.Rect((0, ph), ps))
-    bottomleft = surf.subsurface(pygame.Rect((0, 2*pw), ps))
+    bottomleft = surf.subsurface(pygame.Rect((0, 2*ph), ps))
     top = surf.subsurface(pygame.Rect((pw, 0), ps))
     mid = surf.subsurface(pygame.Rect((pw, ph), ps))
     bottom = surf.subsurface(pygame.Rect((pw, 2*ph), ps))
     topright = surf.subsurface(pygame.Rect((2*pw, 0), ps))
-    right = surf.subsurface(pygame.Rect((2*ph, pw), ps))
-    bottomright = surf.subsurface(pygame.Rect((2*ph, 2*pw), ps))
+    right = surf.subsurface(pygame.Rect((2*pw, ph), ps))
+    bottomright = surf.subsurface(pygame.Rect((2*pw, 2*ph), ps))
 
     # corners
     s.blit(topleft, (0, 0))

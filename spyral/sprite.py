@@ -530,9 +530,11 @@ class Sprite(object):
         :type animation: :class:`Animation <spyral.Animation>`
         """
         for a in self._animations:
-            if a.properties.intersection(animation.properties):
-                raise ValueError("Cannot animate on propety %s twice" %
-                                 (animation.property,))
+            repeats = a.properties.intersection(animation.properties)
+            if repeats:
+                # Loop over all repeats
+                raise ValueError("Cannot animate on propies %s twice" %
+                                 (str(repeats),))
         if len(self._animations) == 0:
             spyral.event.register('director.update',
                                   self._run_animations,
@@ -542,9 +544,11 @@ class Sprite(object):
         self._progress[animation] = 0
         self._evaluate(animation, 0.0)
         e = spyral.Event(animation=animation, sprite=self)
-        spyral.event.handle("%s.%s.animation.start" % (self.__class__.__name__,
-                                                       animation.property),
-                            e)
+        # Loop over all possible properties
+        for property in animation.properties:
+            spyral.event.handle("%s.%s.animation.start" % (self.__class__.__name__,
+                                                           property),
+                                e)
 
     def stop_animation(self, animation):
         """
@@ -557,9 +561,10 @@ class Sprite(object):
             self._animations.remove(animation)
             del self._progress[animation]
             e = spyral.Event(animation=animation, sprite=self)
-            spyral.event.handle("%s.%s.animation.end" % (self.__class__.__name__,
-                                                         animation.property),
-                                e)
+            for property in animation.properties:
+                spyral.event.handle("%s.%s.animation.end" % (self.__class__.__name__,
+                                                            property),
+                                    e)
             if len(self._animations) == 0:
                 spyral.event.unregister('director.update',
                                         self._run_animations,
