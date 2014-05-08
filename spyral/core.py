@@ -36,8 +36,8 @@ def _get_executing_scene():
     This function should not be used lightly - it requires some dark magic.
     """
     for frame, _, _, _, _, _ in inspect.stack():
-        args = inspect.getargvalues(frame)
-        if len(args.args) > 0 and args.args[0] == 'self':
-            obj = args.locals['self']
+        args, _, _, local_data = inspect.getargvalues(frame)
+        if len(args) > 0 and args[0] == 'self':
+            obj = local_data['self']
             if isinstance(obj, spyral.Scene):
                 return obj

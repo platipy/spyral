@@ -21,6 +21,8 @@ if __name__ == "__main__":
     def key_down(key, unicode, mod):
         print key, unicode, mod
     def mouse_down(pos, button):
+        print type(pos)
+        print pos.x
         print pos, button
     
     # Or maybe none or only some of them!

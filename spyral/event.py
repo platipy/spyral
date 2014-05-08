@@ -309,7 +309,7 @@ def _pygame_to_spyral(event):
         event_type += '.' + m
     if event_type.startswith('input.mouse'):
         e.pos = spyral.Vec2D(e.pos) / spyral.director.get_scene()._scale
-
+        
     return (event_type, e)
 
 class EventHandler(object):
