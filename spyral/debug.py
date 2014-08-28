@@ -53,7 +53,7 @@ class FPSSprite(spyral.Sprite):
 
     """
     def __init__(self, scene, color):
-        spyral.Sprite.__init__(self)
+        spyral.Sprite.__init__(self, scene)
         self._font = spyral.Font(spyral._get_spyral_path() +
                                 os.path.join("resources", "fonts",
                                              "DejaVuSans.ttf"),
