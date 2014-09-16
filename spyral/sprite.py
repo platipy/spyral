@@ -158,7 +158,7 @@ class Sprite(object):
         """
         Performs a step of the given animation, setting any properties that will
         change as a result of the animation (e.g., x position).
-        """        
+        """
         values = animation.evaluate(self, progress)
         for property in animation.properties:
             if property in values:
@@ -197,12 +197,12 @@ class Sprite(object):
         Returns a :class:`Rect <spyral.Rect>` representing the position and size
         of this Sprite's image. Note that if you change a property of this rect
         that it will not actually update this sprite's properties:
-        
+
         >>> my_sprite.rect.top = 10
-        
+
         Does not adjust the y coordinate of `my_sprite`. Changing the rect will
         adjust the sprite however
-        
+
         >>> my_sprite.rect = spyral.Rect(10, 10, 64, 64)
         """
         return spyral.Rect(self._pos, self.size)
@@ -533,7 +533,7 @@ class Sprite(object):
             repeats = a.properties.intersection(animation.properties)
             if repeats:
                 # Loop over all repeats
-                raise ValueError("Cannot animate on propies %s twice" %
+                raise ValueError("Cannot animate on properties %s twice" %
                                  (str(repeats),))
         if len(self._animations) == 0:
             spyral.event.register('director.update',
@@ -614,4 +614,3 @@ class Sprite(object):
                   rect.
         """
         return self._scene().collide_rect(self, rect)
-        
