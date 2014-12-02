@@ -42,7 +42,7 @@ Examples
 * `animations.py <https://github.com/platipy/spyral/blob/master/examples/animations.py>`_ : Demonstration of the various kinds of Animations supported by Spyral. Use ``Space`` to walk through the steps.
 * `view.py <https://github.com/platipy/spyral/blob/master/examples/view.py>`_ : Demonstration of the functionality of Views, which allow Sprites to be manipulated in groups. Use ``Space`` to walk through the steps.
 * `minimal.py <https://github.com/platipy/spyral/blob/master/examples/minimal.py>`_ : The simplest possible Spyral program with no custom functionality. Not recommended, simply here to show off the simplicity.
-* `artifical_events.py <https://github.com/platipy/spyral/blob/master/examples/artifical_events.py>`_ : An example showing off how to mock events, or send out your own custom ones.
+* `artifical_events.py <https://github.com/platipy/spyral/blob/master/examples/artificial_events.py>`_ : An example showing off how to mock events, or send out your own custom ones.
 
 Known Bugs
 ----------
