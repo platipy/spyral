@@ -1,5 +1,6 @@
 """Core functionality module - e.g., init, quit"""
 
+import sys
 import spyral
 import pygame
 import inspect
